@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cupido - Registrazione</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
+
     <style>
         :root {
             --primary-color: #c62874;
@@ -24,12 +25,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem 0; /* Spazio extra per scroll su schermi piccoli */
+            padding: 2rem 0;
+            /* Spazio extra per scroll su schermi piccoli */
         }
 
         .hero-section {
-            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)), 
-                        url('https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1471&auto=format&fit=crop');
+            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)),
+                url('https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1471&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             color: white;
@@ -63,131 +65,196 @@
         .content-box {
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-ancorato{
+            display: flex;
+            justify-content: center;
+            gap: 10px;
         }
     </style>
 </head>
+
 <body>
 
-<div class="container main-wrapper">
-    <div class="row content-box w-100 justify-content-center">
+    <div class="container main-wrapper">
+        <div class="row content-box w-100 justify-content-center">
 
-        <div class="col-lg-5 auth-section">
-            <div class="text-center mb-4">
-                <div class="brand-logo mb-2">
-                    <i class="bi bi-arrow-through-heart" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+            <div class="col-lg-5 auth-section">
+                <div class="text-center mb-4">
+                    <div class="brand-logo mb-2">
+                        <i class="bi bi-arrow-through-heart"
+                            style="font-size: 2.5rem; color: var(--primary-color);"></i>
+                    </div>
+                    <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
                 </div>
-                <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
-            </div>
 
-            <div class="text-center">
-                <h3 class="form-title">Parlaci dei tuoi interessi</h3>
-            </div>
-
-            <form id="register-form">
-                <label class="form-label small fw-bold">Cosa ti piace fare nel tempo libero?</label><br>
-                <div class="d-flex flex-wrap gap-2">
-                    <input type="checkbox" id="sport" value="sport">
-                <label for="sport">Fare sport</label>
-
-                <input type="checkbox" id="cucina" value="cucina">
-                <label for="cucina">Cucinare</label>
-
-                <input type="checkbox" id="viaggi" value="viaggi">
-                <label for="viaggi">Viaggiare</label>
-
-                <input type="checkbox" id="lettura" value="lettura">
-                <label for="lettura">Leggere</label>
-
-                <input type="checkbox" id="cinema" value="cinema">
-                <label for="cinema">Guardare film o serie tv</label>
-
-                <input type="checkbox" id="suonare" value="suonare">
-                <label for="suonare">Suonare uno strumento</label>
-
-                <input type="checkbox" id="camping" value="camping">
-                <label for="camping">Camping</label>
-
-                <input type="checkbox" id="casa" value="casa">
-                <label for="casa">Casa e relax</label>
-
-                <input type="checkbox" id="meditazione" value="meditazione">
-                <label for="meditazione">Meditazione</label>
-
-                <input type="checkbox" id="cena" value="cena">
-                <label for="cena">Andare a cena fuori</label>
-                </div><br>
-                
-
-                <label class="form-label small fw-bold">Quali sono gli aggettivi che meglio ti descrivono?</label><br>
-                <div class="d-flex flex-wrap gap-2">
-                    <input type="checkbox" id="solare" value="solare">
-                <label for="solare">Solare</label>
-
-                <input type="checkbox" id="intraprendente" value="intraprendente">
-                <label for="intraprendente">Intraprendente</label>
-
-                <input type="checkbox" id="riflessivo" value="riflessivo">
-                <label for="riflessivo">Riflessivo</label>
-
-                <input type="checkbox" id="spontaneo" value="spontaneo">
-                <label for="spontaneo">Spontaneo</label>
-
-                <input type="checkbox" id="determinato" value="determinato">
-                <label for="determinato">Determinato</label>
-
-                <input type="checkbox" id="curioso" value="curioso">
-                <label for="curioso">Curioso</label>
-
-                <input type="checkbox" id="sognatore" value="sognatore">
-                <label for="sognatore">Sognatore</label>
-
-                <input type="checkbox" id="empatico" value="empatico">
-                <label for="empatico">Empatico</label>
-
-                <input type="checkbox" id="ironico" value="ironico">
-                <label for="ironico">Ironico</label>
-
-                <input type="checkbox" id="colto" value="colto">
-                <label for="colto">Colto</label>
-
-                <input type="checkbox" id="leale" value="leale">
-                <label for="leale">Leale</label>
-
-                <input type="checkbox" id="tranquillo" value="tranquillo">
-                <label for="tranquillo">Tranquillo</label>
-
-                <input type="checkbox" id="socievole" value="socievole">
-                <label for="socievole">Socievole</label>
-
-                <input type="checkbox" id="premuroso" value="premuroso">
-                <label for="premuroso">Premuroso</label>
-
-                <input type="checkbox" id="timido" value="timido">
-                <label for="timido">Timido</label>
-
-                <input type="checkbox" id="avventuroso" value="avventuroso">
-                <label for="avventuroso">Avventuroso</label>
-                </div><br>
-
-                <div class="d-grid">
-                    <a href="reg2.html" class="btn btn-primary-action text-white btn-lg">
-                        PROSEGUI
-                    </a>
+                <div class="text-center">
+                    <h3 class="form-title">Parlaci dei tuoi interessi</h3>
                 </div>
-            </form>
 
-            <div class="mt-4 text-center">
-                    <a href="registrazione.html" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600;">
+                <form id="register-form">
+                    <label class="form-label small fw-bold">Cosa ti piace fare nel tempo libero?</label><br>
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="sport" value="sport">
+                            <label for="sport">Fare sport</label>  
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="cucina" value="cucina">
+                            <label for="cucina">Cucinare</label>  
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="viaggi" value="viaggi">
+                            <label for="viaggi">Viaggiare</label> 
+                        </div>
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="lettura" value="lettura">
+                            <label for="lettura">Leggere</label> 
+                        </div>
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="cinema" value="cinema">
+                            <label for="cinema">Guardare film o serie tv</label>
+                        </div>
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="suonare" value="suonare">
+                            <label for="suonare">Suonare uno strumento</label>
+                        </div>
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="camping" value="camping">
+                            <label for="camping">Camping</label>
+                        </div>
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="casa" value="casa">
+                            <label for="casa">Casa e relax</label>
+                        </div>
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="meditazione" value="meditazione">
+                            <label for="meditazione">Meditazione</label>
+                        </div>
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="cena" value="cena">
+                            <label for="cena">Andare a cena fuori</label>
+                        </div>
+ 
+                    </div><br>
+
+
+                    <label class="form-label small fw-bold">Quali sono gli aggettivi che meglio ti
+                        descrivono?</label><br>
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="solare" value="solare">
+                            <label for="solare">Solare</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="riflessivo" value="riflessivo">
+                            <label for="riflessivo">Riflessivo</label>
+                        </div>
+
+
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="spontaneo" value="spontaneo">
+                            <label for="spontaneo">Spontaneo</label>
+                        </div>
+
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="determinato" value="determinato">
+                            <label for="determinato">Determinato</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="curioso" value="curioso">
+                            <label for="curioso">Curioso</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="sognatore" value="sognatore">
+                            <label for="sognatore">Sognatore</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="empatico" value="empatico">
+                            <label for="empatico">Empatico</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="ironico" value="ironico">
+                            <label for="ironico">Ironico</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="colto" value="colto">
+                            <label for="colto">Colto</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="leale" value="leale">
+                            <label for="leale">Leale</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="tranquillo" value="tranquillo">
+                            <label for="tranquillo">Tranquillo</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="socievole" value="socievole">
+                            <label for="socievole">Socievole</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="premuroso" value="premuroso">
+                            <label for="premuroso">Premuroso</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="timido" value="timido">
+                            <label for="timido">Timido</label>
+                        </div>
+                        
+                        <div class= "item-ancorato"> 
+                            <input type="checkbox" id="avventuroso" value="avventuroso">
+                            <label for="avventuroso">Avventuroso</label>
+                        </div>
+                        
+                        
+                    </div><br>
+
+                    <div class="d-grid">
+                        <a href="reg2.html" class="btn btn-primary-action text-white btn-lg">
+                            PROSEGUI
+                        </a>
+                    </div>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <a href="registrazione.html" class="text-decoration-none"
+                        style="color: var(--primary-color); font-weight: 600;">
                         Torna indietro
                     </a>
-                </p>
+                    </p>
+                </div>
             </div>
+
         </div>
-
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
