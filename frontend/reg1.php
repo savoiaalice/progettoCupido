@@ -248,14 +248,14 @@
                     </div><br>
 
                     <div class="d-grid">
-                        <a href="reg2.html" class="btn btn-primary-action text-white btn-lg">
+                        <a href="reg2.php" class="btn btn-primary-action text-white btn-lg">
                             PROSEGUI
                         </a>
                     </div>
                 </form>
 
                 <div class="mt-4 text-center">
-                    <a href="registrazione.html" class="text-decoration-none"
+                    <a href="registrazione.php" class="text-decoration-none"
                         style="color: var(--primary-color); font-weight: 600;">
                         Torna indietro
                     </a>

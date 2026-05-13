@@ -1,3 +1,8 @@
+<?php
+    require 'connessineDB.php';
+    $messaggio = "Cupido versione dinamica";
+
+    ?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -91,13 +96,27 @@
 </head>
 
 <body>
+    <!-- verifico se gli utenti sono inseriti e raggiungibili -->
+<!--     
+    <p>
+        <?php
+            try{
+                $stmt = $pdo-> query("SELECT * FROM users");
+                $numero = $stmt->rowCount();
+                echo "Numero di utenti registrati: " . $numero;
+            } catch (PDOException $e) {
+                echo "Errore nel recupero dei dati: " . $e->getMessage();
+            }
+        ?>
+    </p> -->
+    
     <nav class="navbar navbar-expand-lg fixed-top px-4 py-3"> <!--barra di navigazione-->
         <div class="container-fluid justify-content-end">
             <div class="d-flex gap-2"> <!--dice ai div di rimanere fluidi nell'allinearsi, invece di andare a capo-->
-                <a href="index.html" class="btn btn-outline-custom rounded-pill px-4 text-center">
+                <a href="index.php" class="btn btn-outline-custom rounded-pill px-4 text-center">
                     Accedi
                 </a>
-                <a href="registrazione.html" class="btn btn-primary-action text-white rounded-pill px-4">
+                <a href="registrazione.php" class="btn btn-primary-action text-white rounded-pill px-4">
                     Registrati
                 </a>
             </div>

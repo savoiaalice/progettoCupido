@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -139,11 +138,11 @@
                 <div class="mt-4 text-center">
                     <p class="small">
                         Non hai ancora un account? <br>
-                        <a href="registrazione.html" class="text-decoration-none"
+                        <a href="registrazione.php" class="text-decoration-none"
                             style="color: var(--primary-color); font-weight: 600;">
                             Registrati gratuitamente
                         </a><br>
-                        <a href="home.html" class="text-decoration-none"
+                        <a href="home.php" class="text-decoration-none"
                             style="color: var(--primary-color); font-weight: 600;">
                             Torna alla home
                         </a>

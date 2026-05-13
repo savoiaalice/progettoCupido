@@ -88,14 +88,12 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
         }
-
     </style>
 </head>
 <body>
 
 <div class="container main-wrapper">
     <div class="row content-box w-100 justify-content-center">
-
         <div class="col-lg-5 auth-section">
             <div class="text-center mb-4">
                 <div class="brand-logo mb-2">
@@ -105,61 +103,80 @@
             </div>
 
             <div class="text-center">
-                <h3 class="form-title">Cosa cerchi in un partner?</h3>
+                <h3 class="form-title">Crea Account</h3>
+                <p class="text-muted mb-4">La tua anima gemella ti sta aspettando!</p>
             </div>
 
-
-            <form id="register-form">
+<!-- campi di testo per registrarsi!
+ vedi da qui gli id! -->
+ 
+            <form action="reg1.php" id="register-form"> 
+                <!-- con action gli dico cosa fare,
+                una volta compilato il form viene attivato il file reg1-->
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Io sono:</label>
-                    <select class="form-select" id="gender" required>
-                        <option value="uomo">Uomo</option>
-                        <option value="donna">Donna</option>
-                    </select>
+                    <!-- questo for coincide con l'id dell'input, serve per fare leggere lo screen reader,
+                    elemento utile per i non vedenti,
+                    aumenta l'area di click senza che l'utente debba essere preciso-->
+                    <label for="fullname" class="form-label small fw-bold">Nome Completo</label>
+                    <input type="text" class="form-control" id="fullname" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Il mio partner deve essere:</label>
-                    <select class="form-select" id="partner_gender" required>
-                        <option value="uomo">Uomo</option>
-                        <option value="donna">Donna</option>
-                    </select>
+                    <label for="username" class="form-label small fw-bold">Username</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label small fw-bold">Indirizzo Email</label>
+                    <input type="email" class="form-control" id="email" required>
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Che tipo di relazione cerchi?</label>
-                    <select class="form-select" id="relazione" required>
-                        <option value="seria">Relazione seria</option>
-                        <option value="aperta">Relazione aperta</option>
-                        <option value="amicizia">Amicizia</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="ageDiff" class="form-label small fw-bold">Massima differenza di età</label>
-                    <input type="number" class="form-control rounded-pill border-2" id="ageDiff" min="0" max="50" style="width: 100px;">
+                    <label for="password" class="form-label small fw-bold">Password</label>
+                    <input type="password" class="form-control" id="password" required>
                 </div>
 
                 
-                <div class="from-check form-switch mb-3">
-                    <input class="form-check-input" type="checkbox" role="switch" id="lungaDistanza">
-                    <label for="form-check-label small fw-bold" for="lungaDistanza">Aperto a relazioni a distanza?</label>
+                <div class="mb-3">
+                    <label for="age" class="form-label small fw-bold">Età:</label>
+                    <input type="number" class="form-control rounded-pill border-2" id="age" min="18" max="100" style="width: 100px;" required>
                 </div>
 
+                <div class="mb-3">
+                    <label for="location" class="form-label small fw-bold">Vengo da: </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-withe border-2 rounded-pill ">
+                            <i class="bi bi-geo-alt-fill" text-danger></i>
+                        </span>
+                        <input type="text" class="form-control border-2 rounded-pill" id="location" required>
+                        <button class="btn btn-otline-secondary border-2 rounded-pill">
+                            <i class="bi bi-gps-fixed" style="color: var(--primary-color);"></i>
+                        </button>
+                    </div>
+                    <div id="status-localizzazione" class="form-text" style="font-size: 0.8rem;">
+                    </div>
+                </div>
+
+                <input type="hidden" id="latitudine" name="lat">
+                <input type="hidden" id="longitudine" name="lng">
                 <br>
-                
 
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary-action text-white btn-lg">
-                        INVIA TUTTI I DATI
+                        PROSEGUI
                     </button>
                 </div>
             </form>
 
             <div class="mt-4 text-center">
-                    <a href="reg1.html" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600;">
-                        Torna indietro
-                    </a>
+                <p class="small text-muted">
+                    Hai già un account? <br>
+                    <a href="index.php" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600;">
+                        Torna all'accesso
+                    </a><br>
+                    <a href="home.php" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600;">
+                        Torna alla home
+                     </a>
                 </p>
             </div>
         </div>
@@ -167,35 +184,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
-<!-- servirà per il server -->
-    function rilevaPosizione(){
-        const status = document.getElementById('status-localizzazione');
-        const locationInput = document.getElementById('location');
-
-        if(!navigator.geolocation){
-            status.innerHTML = '<span class ="text-danger">Geolocalizzazione non disponibile.</span>';
-            return;
-        }
-
-        status.innerHTML = '<span class="text-muted">Rilevamento della posizione...</span>';
-
-        navigator.geolocation.getCurrentPosition((position) =>{
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-
-            document.getElementById('latitudine').value = lat;
-            document.getElementById('longitudine').value = lng;
-
-            status.innerHTML = '<span class="text-success">Posizione rilevata con successo!</span>';
-            locationInput.value = "Coordinate rilevate";
-        },
-        ()=>{
-            status.innerHTML = '<span class="text-danger">Impossibile rilevare la posizione.</span>';
-        }
-        );
-    }
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
