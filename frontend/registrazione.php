@@ -107,12 +107,10 @@
                 <p class="text-muted mb-4">La tua anima gemella ti sta aspettando!</p>
             </div>
 
-<!-- campi di testo per registrarsi!
- vedi da qui gli id! -->
- 
+
+ <!-- in action ci metto l'endpoint, è l'indirzzo di dove finiranno i dati che vengono caricati -->
             <form action="reg1.php" id="register-form"> 
-                <!-- con action gli dico cosa fare,
-                una volta compilato il form viene attivato il file reg1-->
+                <!-- con action gli dico cosa fare, viene attivato il file reg1-->
                 <div class="mb-3">
                     <!-- questo for coincide con l'id dell'input, serve per fare leggere lo screen reader,
                     elemento utile per i non vedenti,

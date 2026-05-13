@@ -146,8 +146,12 @@
                         Cupido è il sito che, tenendo conto dei tuoi interessi e preferenze in ambito relazionale, ti aiuta a trovare la persona giusta.
                     </h3>
                 </div>
-            </div>
+                
+                <!-- 
+                la uso in reg4, qua non sembra servire
+                <form action="carica-foto.php"></form> -->
 
+            </div>
         </div>
     </div>
 

@@ -20,7 +20,7 @@
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
-            //echo "Connessione riuscita!";
+            echo "Connessione riuscita!";
         } catch (PDOException $e) {
             /* questo PDO manda messaggio se non avviene connessione alla base di dati
             quindi blocca tutto, se la pagina viene caricata, la connessione è andata a buon fine */

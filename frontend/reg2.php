@@ -196,6 +196,7 @@
         );
     }
 
+<!-- br aggiunto per poter inciare il file  -->
 </script>
 </body>
 </html>
