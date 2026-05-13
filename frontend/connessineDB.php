@@ -1,3 +1,4 @@
+<!-- http://localhost/phpmyadmin/index.php?route=/table/structure&db=cupido_database&table=users -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
