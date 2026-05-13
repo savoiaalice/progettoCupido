@@ -65,13 +65,35 @@
             overflow: hidden;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
+        }
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
+        }
+        .form-check-input{
+            cursor: pointer;
+        }
+
+        .form-check-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
+        }
     </style>
 </head>
 <body>
 
 <div class="container main-wrapper">
     <div class="row content-box w-100 justify-content-center">
-
         <div class="col-lg-5 auth-section">
             <div class="text-center mb-4">
                 <div class="brand-logo mb-2">
@@ -82,13 +104,26 @@
 
             <div class="text-center">
                 <h3 class="form-title">Crea Account</h3>
-                <p class="text-muted mb-4">La tua anima gemella ti sta aspettando.</p>
+                <p class="text-muted mb-4">La tua anima gemella ti sta aspettando!</p>
             </div>
 
-            <form id="register-form">
+<!-- campi di testo per registrarsi!
+ vedi da qui gli id! -->
+ 
+            <form action="reg1.html" id="register-form"> 
+                <!-- con action gli dico cosa fare,
+                una volta compilato il form viene attivato il file reg1-->
                 <div class="mb-3">
+                    <!-- questo for coincide con l'id dell'input, serve per fare leggere lo screen reader,
+                    elemento utile per i non vedenti,
+                    aumenta l'area di click senza che l'utente debba essere preciso-->
                     <label for="fullname" class="form-label small fw-bold">Nome Completo</label>
                     <input type="text" class="form-control" id="fullname" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label small fw-bold">Username</label>
+                    <input type="text" class="form-control" id="username" required>
                 </div>
 
                 <div class="mb-3">
@@ -101,23 +136,35 @@
                     <input type="password" class="form-control" id="password" required>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label small fw-bold">Io sono:</label>
-                    <select class="form-select" id="gender" required>
-                        <option value="uomo">Uomo</option>
-                        <option value="donna">Donna</option>
-                    </select>
-                </div>
-                <div class:"mb-4">
+                
+                <div class="mb-3">
                     <label for="age" class="form-label small fw-bold">Età:</label>
                     <input type="number" class="form-control rounded-pill border-2" id="age" min="18" max="100" style="width: 100px;" required>
                 </div>
+
+                <div class="mb-3">
+                    <label for="location" class="form-label small fw-bold">Vengo da: </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-withe border-2 rounded-pill ">
+                            <i class="bi bi-geo-alt-fill" text-danger></i>
+                        </span>
+                        <input type="text" class="form-control border-2 rounded-pill" id="location" required>
+                        <button class="btn btn-otline-secondary border-2 rounded-pill">
+                            <i class="bi bi-gps-fixed" style="color: var(--primary-color);"></i>
+                        </button>
+                    </div>
+                    <div id="status-localizzazione" class="form-text" style="font-size: 0.8rem;">
+                    </div>
+                </div>
+
+                <input type="hidden" id="latitudine" name="lat">
+                <input type="hidden" id="longitudine" name="lng">
                 <br>
 
                 <div class="d-grid">
-                    <a href="reg1.html" class="btn btn-primary-action text-white btn-lg">
+                    <button type="submit" class="btn btn-primary-action text-white btn-lg">
                         PROSEGUI
-                    </a>
+                    </button>
                 </div>
             </form>
 
