@@ -1,3 +1,7 @@
+<?php
+    require 'connessioneDB.php';
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="it">
 
@@ -106,57 +110,58 @@
                     <h3 class="form-title">Parlaci dei tuoi interessi</h3>
                 </div>
 
-                <form id="register-form">
+                <form id="register-form" method="POST" action="azioni_utente.php">
+                    <input type="hidden" name="azione" value="registrazione_interessi">
                     <label class="form-label small fw-bold">Cosa ti piace fare nel tempo libero?</label><br>
                     <div class="d-flex flex-wrap gap-2">
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="sport" value="sport" class="form-check-input">
+                            <input type="checkbox" name="sport" value="sport" class="form-check-input">
                             <label for="sport">Fare sport</label>  
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="cucina" value="cucina" class="form-check-input">
+                            <input type="checkbox" name="cucinare" value="cucina" class="form-check-input">
                             <label for="cucina">Cucinare</label>  
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="viaggi" value="viaggi" class="form-check-input   ">
+                            <input type="checkbox" name="viaggiare" value="viaggi" class="form-check-input   ">
                             <label for="viaggi">Viaggiare</label> 
                         </div>
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="lettura" value="lettura" class="form-check-input">
+                            <input type="checkbox" name="leggere" value="lettura" class="form-check-input">
                             <label for="lettura">Leggere</label> 
                         </div>
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="cinema" value="cinema" class="form-check-input   ">
+                            <input type="checkbox" name="film" value="cinema" class="form-check-input   ">
                             <label for="cinema">Guardare film o serie tv</label>
                         </div>
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="suonare" value="suonare" class="form-check-input">
+                            <input type="checkbox" name="suonare" value="suonare" class="form-check-input">
                             <label for="suonare">Suonare uno strumento</label>
                         </div>
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="camping" value="camping" class="form-check-input">
+                            <input type="checkbox" name="camping" value="camping" class="form-check-input">
                             <label for="camping">Camping</label>
                         </div>
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="casa" value="casa" class="form-check-input">
+                            <input type="checkbox" name="casa" value="casa" class="form-check-input">
                             <label for="casa">Casa e relax</label>
                         </div>
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="meditazione" value="meditazione" class="form-check-input">
+                            <input type="checkbox" name="meditazione" value="meditazione" class="form-check-input">
                             <label for="meditazione">Meditazione</label>
                         </div>
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="cena" value="cena" class="form-check-input">
+                            <input type="checkbox" name="cena" value="cena" class="form-check-input">
                             <label for="cena">Andare a cena fuori</label>
                         </div>
  
@@ -168,79 +173,79 @@
                     <div class="d-flex flex-wrap gap-2">
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="solare" value="solare" class="form-check-input">
+                            <input type="checkbox" name="solare" value="solare" class="form-check-input">
                             <label for="solare">Solare</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="riflessivo" value="riflessivo" class="form-check-input">
+                            <input type="checkbox" name="riflessivo" value="riflessivo" class="form-check-input">
                             <label for="riflessivo">Riflessivo</label>
                         </div>
 
 
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="spontaneo" value="spontaneo" class="form-check-input">
+                            <input type="checkbox" name="spontaneo" value="spontaneo" class="form-check-input">
                             <label for="spontaneo">Spontaneo</label>
                         </div>
 
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="determinato" value="determinato" class="form-check-input">
+                            <input type="checkbox" name="determinato" value="determinato" class="form-check-input">
                             <label for="determinato">Determinato</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="curioso" value="curioso" class="form-check-input">
+                            <input type="checkbox" name="curioso" value="curioso" class="form-check-input">
                             <label for="curioso">Curioso</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="sognatore" value="sognatore" class="form-check-input">
+                            <input type="checkbox" name="sognatore" value="sognatore" class="form-check-input">
                             <label for="sognatore">Sognatore</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="empatico" value="empatico" class="form-check-input">
+                            <input type="checkbox" name="empatico" value="empatico" class="form-check-input">
                             <label for="empatico">Empatico</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="ironico" value="ironico" class="form-check-input">
+                            <input type="checkbox" name="ironico" value="ironico" class="form-check-input">
                             <label for="ironico">Ironico</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="colto" value="colto" class="form-check-input">
+                            <input type="checkbox" name="colto" value="colto" class="form-check-input">
                             <label for="colto">Colto</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="leale" value="leale" class="form-check-input">
+                            <input type="checkbox" name="leale" value="leale" class="form-check-input">
                             <label for="leale">Leale</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="tranquillo" value="tranquillo" class="form-check-input">
+                            <input type="checkbox" name="tranquillo" value="tranquillo" class="form-check-input">
                             <label for="tranquillo">Tranquillo</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="socievole" value="socievole" class="form-check-input">
+                            <input type="checkbox" name="socievole" value="socievole" class="form-check-input">
                             <label for="socievole">Socievole</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="premuroso" value="premuroso" class="form-check-input">
+                            <input type="checkbox" name="premuroso" value="premuroso" class="form-check-input">
                             <label for="premuroso">Premuroso</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="timido" value="timido" class="form-check-input">
+                            <input type="checkbox" name="timido" value="timido" class="form-check-input">
                             <label for="timido">Timido</label>
                         </div>
                         
                         <div class= "item-ancorato"> 
-                            <input type="checkbox" id="avventuroso" value="avventuroso" class="form-check-input">
+                            <input type="checkbox" name="avventuroso" value="avventuroso" class="form-check-input">
                             <label for="avventuroso">Avventuroso</label>
                         </div>
                         
@@ -248,17 +253,17 @@
                     </div><br>
 
                     <div class="d-grid">
-                        <a href="reg2.php" class="btn btn-primary-action text-white btn-lg">
+                        <a type="submit" href="reg2.php" class="btn btn-primary-action text-white btn-lg">
                             PROSEGUI
                         </a>
                     </div>
                 </form>
 
                 <div class="mt-4 text-center">
-                    <a href="registrazione.php" class="text-decoration-none"
+                    <button href="registrazione.php" class="text-decoration-none"
                         style="color: var(--primary-color); font-weight: 600;">
                         Torna indietro
-                    </a>
+                    </button>
                     </p>
                 </div>
             </div>

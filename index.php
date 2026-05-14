@@ -1,3 +1,9 @@
+<?php
+require 'connessioneDB.php';
+session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -116,15 +122,20 @@
                 </div>
 
                 <!-- oggetto form -->
-                <form id="login-form">
+                <form id="login-form" method="POST" action="azioni_utente.php">
+                    <input type="hidden" name="azione" value="accesso">
+                    <div class="mb-3">
+                        <label for="id_utente" class="form-label small fw-bold">Username utente</label>
+                        <input type="text" class="form-control" name="id_utente" required>
+                    </div>
                     <div class="mb-3">
                         <label for="email" class="form-label small fw-bold">Indirizzo Email</label>
-                        <input type="email" class="form-control" id="email" required>
+                        <input type="email" class="form-control" name="email" required>
                     </div>
 
                     <div class="mb-4">
                         <label for="password" class="form-label small fw-bold">Password</label>
-                        <input type="password" class="form-control" id="password" required>
+                        <input type="password" class="form-control" name="password" required>
                     </div>
 
                     <div class="d-grid">
