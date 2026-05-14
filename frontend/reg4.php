@@ -93,30 +93,32 @@
                 </div>
                 <br>
 
-                <form action="carica_foto.php" method="POST" enctype="multipart/form-data">
+                <form action="azioni_utenti.php" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="azione" value="carica_foto_profilo">  
+                      <!-- associo un'azione_utente a questa form -->
+
                     <div class="mb-4">
                         <label for="fotoProfilo" class="form-title">Seleziona dal dispositivo una foto profilo</label>
                         <input type="file" class="form-control" id="fotoProfilo" name="foto" accept="image/*" required>
                         <div class="form-text">Formati supportati: JPG, PNG, GIF</div>
                         <div class="d-flex justify-content-center mt-2">
-                            <button type="submit" class="btn btn-primary-action text-white btn-sm px-4">
-                                CARICA FOTO 
-    <!-- ALICE vedi se ti piace con o senza la nuvoletta carica vicino, a me non fa impazzire -->
+                            <!-- <button type="submit" class="btn btn-primary-action text-white btn-sm px-4">
+                                CARICA FOTO
                                 <i class="bi bi-cloud-arrow-up-fill me-2"></i>
-                            </button>
+                            </button> -->
                     </div>
                     </div>                     
 
                     <div>
-                        <label for="fotoCard" class="form-title">Seleziona dal dispositivo foto prda aggiungere</label>
+                        <label for="fotoCard" class="form-title">Seleziona dal dispositivo foto da aggiungere</label>
                         <input type="file" class="form-control" id="fotoCard" name="foto[]" accept="image/*" required>
                         <div class="form-text">Formati supportati: JPG, PNG, GIF</div>
-                        <div class="d-flex justify-content-center mt-2">
+                        <!-- <div class="d-flex justify-content-center mt-2">
                             <button type="submit" class="btn btn-primary-action text-white btn-sm px-4">
                                 CARICA FOTO 
                                 <i class="bi bi-cloud-arrow-up-fill me-2"></i>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
                     <br>
 

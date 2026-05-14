@@ -14,7 +14,7 @@
         $user = "root";   /*user di xampp è root e non ha una password*/
         $pass = "";
         $dsn = "mysql:host=$host;port=$port;dbname=$db; charset=utf8mb4";/*aggiungo il charset per permettere uso di accenti ed emoji*/
-
+// le pdo servono per connetteri al db e gestire query 
         try {
             $pdo = new PDO($dsn, $user, $pass, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
