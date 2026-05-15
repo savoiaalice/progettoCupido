@@ -1,5 +1,5 @@
 <?php
-    require 'connessioneDB.php';
+    require __DIR__ . "/connessioneDB.php";
     session_start();
 
     ?>

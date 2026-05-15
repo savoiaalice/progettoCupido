@@ -1,5 +1,5 @@
 <?php
-require 'connessioneDB.php';
+require __DIR__ . "/connessioneDB.php";
 session_start();
 
 ?>
@@ -125,7 +125,7 @@ session_start();
                 <form id="login-form" method="POST" action="azioni_utente.php">
                     <input type="hidden" name="azione" value="accesso">
                     <div class="mb-3">
-                        <label for="id_utente" class="form-label small fw-bold">Username utente</label>
+                        <label for="id_utente" class="form-label small fw-bold">Username</label>
                         <input type="text" class="form-control" name="id_utente" required>
                     </div>
                     <div class="mb-3">

@@ -1,14 +1,14 @@
 <?php
-require 'connessioneDB.php';
+require __DIR__ . "/connessioneDB.php";
 session_start();
 
 // Se l'utente non è loggato → torna al login
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+if (!isset($_SESSION['id_utente'])) {
+    header("Location: index.php");
     exit();
 }
 
-$id = $_SESSION['user_id'];
+$id = $_SESSION['id_utente'];
 
 /* 1) DATI PERSONALI */
 $sql = "SELECT * FROM datiregistrazione WHERE id_utente = :id";

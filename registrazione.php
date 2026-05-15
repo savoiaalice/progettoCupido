@@ -109,44 +109,52 @@
 
 
  <!-- in action ci metto l'endpoint, è l'indirzzo di dove finiranno i dati che vengono caricati -->
-            <form action="reg1.php" id="register-form"> 
+            <form id="register-form" method="POST" action="azioni_utente.php">
+                    <input type="hidden" name="azione" value="registrazione1">
                 <!-- con action gli dico cosa fare, viene attivato il file reg1-->
                 <div class="mb-3">
                     <!-- questo for coincide con l'id dell'input, serve per fare leggere lo screen reader,
                     elemento utile per i non vedenti,
                     aumenta l'area di click senza che l'utente debba essere preciso-->
-                    <label for="fullname" class="form-label small fw-bold">Nome Completo</label>
-                    <input type="text" class="form-control" id="fullname" required>
+                    <label for="nome" class="form-label small fw-bold">Nome</label>
+                    <input type="text" class="form-control" name="nome" required>
+                </div>
+                <div class="mb-3">
+                    <!-- questo for coincide con l'id dell'input, serve per fare leggere lo screen reader,
+                    elemento utile per i non vedenti,
+                    aumenta l'area di click senza che l'utente debba essere preciso-->
+                    <label for="cognome" class="form-label small fw-bold">Cognome</label>
+                    <input type="text" class="form-control" name="cognome" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="username" class="form-label small fw-bold">Username</label>
-                    <input type="text" class="form-control" id="username" required>
+                    <input type="text" class="form-control" name="id_utente" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label small fw-bold">Indirizzo Email</label>
-                    <input type="email" class="form-control" id="email" required>
+                    <input type="email" class="form-control" name="email" required>
                 </div>
                 
                 <div class="mb-3">
                     <label for="password" class="form-label small fw-bold">Password</label>
-                    <input type="password" class="form-control" id="password" required>
+                    <input type="password" class="form-control" name="password" required>
                 </div>
 
                 
                 <div class="mb-3">
                     <label for="age" class="form-label small fw-bold">Età:</label>
-                    <input type="number" class="form-control rounded-pill border-2" id="age" min="18" max="100" style="width: 100px;" required>
+                    <input type="number" class="form-control rounded-pill border-2" name="eta" min="18" max="100" style="width: 100px;" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="location" class="form-label small fw-bold">Vengo da: </label>
+                    <label for="citta" class="form-label small fw-bold">Vengo da: </label>
                     <div class="input-group">
                         <span class="input-group-text bg-withe border-2 rounded-pill ">
                             <i class="bi bi-geo-alt-fill" text-danger></i>
                         </span>
-                        <input type="text" class="form-control border-2 rounded-pill" id="location" required>
+                        <input type="text" class="form-control border-2 rounded-pill" name="citta" required>
                         <button class="btn btn-otline-secondary border-2 rounded-pill">
                             <i class="bi bi-gps-fixed" style="color: var(--primary-color);"></i>
                         </button>

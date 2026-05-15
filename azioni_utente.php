@@ -9,12 +9,12 @@ switch ($azione) {
     case 'accesso':
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
-        $id_utente = $_POST['id_utente'] ?? '';
+        $id_utente= $_POST['id_utente'] ?? '';
 
         $sql = "SELECT * FROM datiregistrazione 
                 WHERE email = :email 
                 AND password = :password
-                AND id_utente = :id_utente";
+                AND id_utente= :id_utente";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
@@ -33,6 +33,8 @@ switch ($azione) {
             echo "<script>alert('Email o password errati'); window.location.href='index.php';</script>";
             exit();
         }
+        var_dump($_POST);
+    exit();
         break;
 
     case 'registrazione1':
@@ -56,9 +58,9 @@ switch ($azione) {
             $pdo->beginTransaction();
 
             $sql1 = "INSERT INTO datiregistrazione 
-                    (id_utente, email, password, nome, cognome, eta, citta) 
+                    (id_utente, email, password, nome, cognome, sesso, eta, citta, maxEta, distanza, sessoP, relazione) 
                      VALUES 
-                    (:id_utente, :email, :pass, :nome, :cognome, :eta, :citta)";
+                    (:id_utente, :email, :pass, :nome, :cognome, NULL, :eta, :citta, NULL, NULL, NULL, NULL)";
             $stmt1 = $pdo->prepare($sql1);
             $stmt1->execute([
                 ':id_utente' => $id_utente,
@@ -69,6 +71,14 @@ switch ($azione) {
                 ':eta' => $eta,
                 ':citta' => $citta,
             ]);
+            //inserisco già l'id_utente nelle altre tabelle per poi verificare che sia lo stesso ed apportare delle modifiche//
+            $sql2 = "INSERT INTO interessi (id_utente) VALUES (:id_utente)";
+            $stmt2 = $pdo->prepare($sql2);
+            $stmt2->execute([':id_utente' => $id_utente]);
+
+            $sql3 = "INSERT INTO aggettivi (id_utente) VALUES (:id_utente)";
+            $stmt3 = $pdo->prepare($sql3);
+            $stmt3->execute([':id_utente' => $id_utente]);
 
 
             $pdo->commit();
@@ -83,6 +93,8 @@ switch ($azione) {
 
     case 'registrazione_interessi':
         $id_utente=$_SESSION['id_utente'];
+        
+
         $sql="UPDATE interessi SET
         sport= :sport,
         cucinare= :cucinare,
@@ -153,38 +165,42 @@ switch ($azione) {
         break;
 
     case 'registrazione2':
+        $id_utente = $_SESSION['id_utente'];
         $sesso     = $_POST['sesso'] ?? null;
         $sessoP    =$_POST['sessoP'] ?? null;
         $relazione =$_POST['relazione'] ?? null;
-        $diffEta   =$_POST['maxEta'] ?? null;
+        $maxEta   =$_POST['maxEta'] ?? null;
         $distanza  =$_POST['distanza'] ?? null;
         if (
             empty($sesso)|| empty($sessoP) ||
-            empty($relazione) || empty($diffEta) || empty($distanza)
+            empty($relazione) || empty($maxEta) || empty($distanza)
         ) {
             
-            header("Location: home.php");
+            header("Location: reg1.php");
             exit();
         }
         try {
             $pdo->beginTransaction();
 
-            $sql1 = "INSERT INTO datiregistrazione 
-                    (sesso, maxEta, distanza, sessoP, relazione) 
-                     VALUES 
-                    (:sesso, :maxEta, :distanza, :sessoP, :relazione)";
+            $sql1 = "UPDATE datiregistrazione SET 
+                    sesso= :sesso,
+                    sessoP= :sessoP,
+                    relazione= :relazione,
+                    maxEta= :maxEta,
+                    distanza= :distanza
+                    WHERE id_utente = :id_utente";
             $stmt1 = $pdo->prepare($sql1);
             $stmt1->execute([
                 ':sesso' => $sesso,
-                ':maxEta' => $diffEta,
+                ':maxEta' => $maxEta,
                 ':distanza' => $distanza,
                 ':sessoP' => $sessoP,
-                ':relazione' => $relazione
+                ':relazione' => $relazione,
+                ':id_utente' => $id_utente
             ]);
 
 
             $pdo->commit();
-            $_SESSION['id_utente'] = $id_utente; //sta prendendo ora l'id e lo sta associando alla tabella//
             header("Location: reg4.php");
             exit();
         }catch (Exception $e) {

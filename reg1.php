@@ -260,10 +260,10 @@
                 </form>
 
                 <div class="mt-4 text-center">
-                    <button href="registrazione.php" class="text-decoration-none"
+                    <a href="registrazione.php" class="text-decoration-none"
                         style="color: var(--primary-color); font-weight: 600;">
                         Torna indietro
-                    </button>
+</a>
                     </p>
                 </div>
             </div>
