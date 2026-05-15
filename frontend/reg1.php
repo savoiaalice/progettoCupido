@@ -1,5 +1,5 @@
 <?php
-    require __DIR__ . '/connessioneDB.php';
+    require 'connessioneDB.php';
     session_start();
 ?>
 <!DOCTYPE html>
@@ -253,17 +253,17 @@
                     </div><br>
 
                     <div class="d-grid">
-                        <button type="submit" href="reg2.php" class="btn btn-primary-action text-white btn-lg">
+                        <a type="submit" href="reg2.php" class="btn btn-primary-action text-white btn-lg">
                             PROSEGUI
-                    </button>
+                        </a>
                     </div>
                 </form>
 
                 <div class="mt-4 text-center">
-                    <button href="registrazione.php" class="text-decoration-none"
+                    <a href="registrazione.php" class="text-decoration-none"
                         style="color: var(--primary-color); font-weight: 600;">
                         Torna indietro
-                    </button>
+</a>
                     </p>
                 </div>
             </div>
