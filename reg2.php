@@ -103,7 +103,7 @@
         <div class="col-lg-5 auth-section">
             <div class="text-center mb-4">
                 <div class="brand-logo mb-2">
-                    <i class="bi bi-arrow-through-heart" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+                    <?php include "cupido.php"; ?>
                 </div>
                 <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
             </div>

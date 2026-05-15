@@ -110,7 +110,7 @@ session_start();
                 <!-- logo e nome -->
                 <div class="text-center mb-4">
                     <div class="brand-logo mb-2">
-                        <i class="bi bi-arrow-through-heart" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <?php include "cupido.php"; ?>
                     </div>
                     <h1 class="fw-bold" style="letter-spacing: 2px;">CUPIDO</h1>
                 </div>
