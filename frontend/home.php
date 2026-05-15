@@ -1,6 +1,6 @@
 <?php
-    require 'connessineDB.php';
-    $messaggio = "Cupido versione dinamica";
+    require __DIR__ . '/connessioneDB.php';
+    session_start();
 
     ?>
 <!DOCTYPE html>

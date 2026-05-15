@@ -1,3 +1,7 @@
+<?php
+    require __DIR__ . '/connessioneDB.php';
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -6,7 +10,7 @@
     <title>Cupido - Registrazione</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
+   
     <style>
         :root {
             --primary-color: #c62874;
@@ -28,7 +32,7 @@
         }
 
         .hero-section {
-            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)), 
+            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)),
                         url('https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1471&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
@@ -109,10 +113,11 @@
             </div>
 
 
-            <form id="register-form">
+            <form id="register-form" method="POST" action="azioni_utente.php">
+                <input type="hidden" name="azione" value="registrazione2">
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Io sono:</label>
-                    <select class="form-select" id="gender" required>
+                    <select class="form-select" name="sesso" required>
                         <option value="uomo">Uomo</option>
                         <option value="donna">Donna</option>
                     </select>
@@ -120,15 +125,15 @@
 
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Il mio partner deve essere:</label>
-                    <select class="form-select" id="partner_gender" required>
+                    <select class="form-select" name="sessoP" required>
                         <option value="uomo">Uomo</option>
                         <option value="donna">Donna</option>
                     </select>
                 </div>
-                
+               
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Che tipo di relazione cerchi?</label>
-                    <select class="form-select" id="relazione" required>
+                    <select class="form-select" name="relazione" required>
                         <option value="seria">Relazione seria</option>
                         <option value="aperta">Relazione aperta</option>
                         <option value="amicizia">Amicizia</option>
@@ -136,21 +141,21 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="ageDiff" class="form-label small fw-bold">Massima differenza di età</label>
-                    <input type="number" class="form-control rounded-pill border-2" id="ageDiff" min="0" max="50" style="width: 100px;">
+                    <label for="maxEta" class="form-label small fw-bold">Massima differenza di età</label>
+                    <input type="number" class="form-control rounded-pill border-2" name="maxEta" min="0" max="50" style="width: 100px;">
                 </div>
 
-                
+               
                 <div class="from-check form-switch mb-3">
-                    <input class="form-check-input" type="checkbox" role="switch" id="lungaDistanza">
-                    <label for="form-check-label small fw-bold" for="lungaDistanza">Aperto a relazioni a distanza?</label>
+                    <input class="form-check-input" type="checkbox" role="switch" name="distanza">
+                    <label for="form-check-label small fw-bold" for="distanza">Aperto a relazioni a distanza?</label>
                 </div>
 
                 <br>
-                
+               
 
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary-action text-white btn-lg">
+                    <button type="submit" href="reg4.php" class="btn btn-primary-action text-white btn-lg">
                         INVIA TUTTI I DATI
                     </button>
                 </div>
