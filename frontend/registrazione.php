@@ -1,7 +1,7 @@
 <?php
     ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
     require __DIR__ . '/connessioneDB.php';
     session_start();
 ?>
@@ -127,9 +127,6 @@ error_reporting(E_ALL);
                     <input type="text" class="form-control" name="nome" required>
                 </div>
                 <div class="mb-3">
-                    <!-- questo for coincide con l'id dell'input, serve per fare leggere lo screen reader,
-                    elemento utile per i non vedenti,
-                    aumenta l'area di click senza che l'utente debba essere preciso-->
                     <label for="cognome" class="form-label small fw-bold">Cognome</label>
                     <input type="text" class="form-control" name="cognome" required>
                 </div>
@@ -162,7 +159,7 @@ error_reporting(E_ALL);
                             <i class="bi bi-geo-alt-fill" text-danger></i>
                         </span>
                         <input type="text" class="form-control border-2 rounded-pill" name="citta" required>
-                        <button class="btn btn-otline-secondary border-2 rounded-pill">
+                        <button type="button" class="btn btn-otline-secondary border-2 rounded-pill">
                             <i class="bi bi-gps-fixed" style="color: var(--primary-color);"></i>
                         </button>
                     </div>

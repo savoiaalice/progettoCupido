@@ -2,22 +2,24 @@
 require __DIR__ . "/connessioneDB.php";
 session_start();
 
-// controllo se loginn è giusto
+// controllo se login è giusto
 if (!isset($_SESSION['id_utente'])) {
     header("Location: index.php");
     exit();
 }
-// inizia la sessione e riprendo i dati dal database
+// inizia la sessione e prendo i dati dal database
 $id = $_SESSION['id_utente'];
 
-$sql = "SELECT * FROM datiregistrazione WHERE id_utente = :id";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([':id' => $id]);
-$utente = $stmt->fetch();
+// tutte query per prendere le informazioni dal database 
+$sql = "SELECT * FROM datiregistrazione WHERE id_utente = :id"; //"prendi tutte le colonne, dalla tab datiregistrazioni,
+//  che hanno come id l'id dell'utente in sessione adesso"
+$stmt = $pdo->prepare($sql); //pdo permette la connessione al database
+$stmt->execute([':id' => $id]); //execute esegue l'estrapolazione secono i parametri chiesti dalla query 
+$utente = $stmt->fetch(); //fetch prende quei dati e li mette nella variabile 
 
 
 $sqlFotoProfilo = "SELECT percorso FROM foto_utenti
-                   WHERE id_utente = :id AND tipo = 'profilo' LIMIT 1";
+                   WHERE id_utente = :id AND tipo = 'profilo' LIMIT 1"; //limite di una foto profilo alla volta 
 $stmtFoto = $pdo->prepare($sqlFotoProfilo);
 $stmtFoto->execute([':id' => $id]);
 $fotoProfilo = $stmtFoto->fetch();
@@ -120,7 +122,7 @@ $aggettivi = $stmtAgg->fetch();
             border-color: var(--primary-color) !important;
         }
 
-         .form-check-input:focus{
+        .form-check-input:focus{
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
         }
@@ -130,6 +132,7 @@ $aggettivi = $stmtAgg->fetch();
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         .profile-img {
+            /* stiamo imponendo al browser di scalare la foto in queste dimensioni e forma, deve coprire esattamente l'area*/
             width: 180px; height: 180px; border-radius: 50%;
             object-fit: cover; border: 5px solid var(--primary-color);
         }
@@ -145,6 +148,7 @@ $aggettivi = $stmtAgg->fetch();
 <div class="container py-5">
     <div class="profile-card mx-auto col-lg-8">
         <div class="text-center mb-4">
+            <!-- IMMAGINE PROFILO -->
             <div class="d-inline-block position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modificaFotoProfilo">
                 <img src="<?= $fotoProfilo['percorso'] ?? 'default.jpg' ?>" class="profile-img shadow">
             </div>
@@ -308,7 +312,7 @@ $aggettivi = $stmtAgg->fetch();
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content content-box">
             <form action="azioni_modifica.php" method="POST">
-                <input type="hidden" name="azione" value="registrazione1">
+                <input type="hidden" name="azione" value="modifica_dati">
                 <div class="modal-header border-0">
                     <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Dati</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -340,18 +344,19 @@ $aggettivi = $stmtAgg->fetch();
                     </div>
                     <div class="mb-3">
                         <label>Sesso</label>
-                        <select class="form-select" name="sesso" value="<?= $utente['sesso'] ?>">
-                            <option value="uomo">Uomo</option>
-                            <option value="donna">Donna</option>
+                        <select class="form-select" name="sesso">
+
+                            <option value="uomo" <?= $utente['sesso'] == 'uomo' ? 'selected' : '' ?>>Uomo</option>
+                            <option value="donna" <?= $utente['sesso'] == 'donna' ? 'selected' : '' ?>>Donna</option>
                         </select>
+                    </div>
 
                     <div class="mb-3">
                         <label>Relazione a distanza</label>
-                        <input class="form-check-input" type="checkbox" role="switch" name="distanza" <?= $utente['distanza'] == 1 ? 'checked' : '' ?>>
+                        <input class="form-check-input" type="checkbox" role="switch" name="distanza" value = "1"<?= $utente['distanza'] == 1 ? 'checked' : '' ?>>
 
                     </div>    
                     
-                    </div>
                     <div class="mb-3">
                         <label>Differenza eta</label>
                         <input type="number" name="maxEta" class="form-control" value="<?= $utente['maxEta'] ?>">

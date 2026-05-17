@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cupido - Registrazione</title>
+    <title>Cupido - Schermata Principale</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
@@ -96,64 +96,40 @@
 </head>
 
 <body>
-    <!-- verifico se gli utenti sono inseriti e raggiungibili -->
-<!--     
-    <p>
-        <?php
-            try{
-                $stmt = $pdo-> query("SELECT * FROM datiregistrazione");
-                $numero = $stmt->rowCount();
-                echo "Numero di utenti registrati: " . $numero;
-            } catch (PDOException $e) {
-                echo "Errore nel recupero dei dati: " . $e->getMessage();
-            }
-        ?>
-    </p> -->
-    
-    <nav class="navbar navbar-expand-lg fixed-top px-4 py-3"> <!--barra di navigazione-->
-        <div class="container-fluid justify-content-end">
-            <div class="d-flex gap-2"> <!--dice ai div di rimanere fluidi nell'allinearsi, invece di andare a capo-->
-                <a href="index.php" class="btn btn-outline-custom rounded-pill px-4 text-center">
-                    Accedi
-                </a>
-                <a href="registrazione.php" class="btn btn-primary-action text-white rounded-pill px-4">
-                    Registrati
-                </a>
-            </div>
-        </div>
-    </nav>
+    <!-- Contenuto che verrà aggiornato con i match -->
+    <div class="container-fluid" style="padding-bottom: 80px;">
 
-    <!--struttura della fascia grafica centrale-->
-    <div class="container main-wrapper">
-        <div class="row content-box w-100">
-            
-            <div class="col-lg-7 d-none d-lg-flex hero-section flex-column justify-content-center text-center">
-                <!-- eventuale contenuto scritto nel centro 
-                VUOTA COME è ADESSO SI PUò TOGLIERE-->
-            </div>
-
-            <div class="col-lg-5 auth-section">
-                <div class="text-center mb-4">
-                    <div class="brand-logo mb-2">
-                        <!-- icona -->
-                        <i class="bi bi-arrow-through-heart" style="font-size: 2.5rem; color: var(--primary-color);"></i>
-                    </div>
-                    <!--  -->
-                    <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
-                </div>
-                <div class="text-center">
-                    <h3>
-                        Cupido è il sito che, tenendo conto dei tuoi interessi e preferenze in ambito relazionale, ti aiuta a trovare la persona giusta.
-                    </h3>
-                </div>
-                
-                <!-- 
-                la uso in reg4, qua non sembra servire
-                <form action="carica-foto.php"></form> -->
-
-            </div>
-        </div>
     </div>
+    <!--Barra che si trova in basso con le icone -->
+    <nav class="navbar fixed-bottom bg-white border-top">
+    <div class="container-fluid">
+        <div class="row text-center w-100">
+
+            <div class="col">
+                <a href="home.php" class="text-decoration-none text-dark">
+                    <?php include "cupido.php"; ?>
+                </a>
+            </div>
+            <div class="col">
+                <a href="search.php" class="text-decoration-none text-dark">
+                    <i class="bi bi-search-heart fs-3" style="color:#a31f5f;"></i>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="match.php" class="text-decoration-none text-dark">
+                    <i class="bi bi-chat-heart fs-3" style="color:#a31f5f;"></i>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="profilo.php" class="text-decoration-none text-dark">
+                    <i class="bi bi-person-circle fs-3" style="color:#a31f5f;"></i>
+                </a>
+            </div>
+            </div>
+    </div>
+</nav>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

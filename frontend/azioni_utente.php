@@ -29,12 +29,12 @@ switch ($azione) {
             $_SESSION['id_utente'] = $utente['id_utente'];
             header("Location: profilo.php");
             exit();
-        } else {
+        } else { 
             echo "<script>alert('Email o password errati'); window.location.href='index.php';</script>";
             exit();
         }
-        var_dump($_POST);
-    exit();
+        
+        exit();
         break;
 
     case 'registrazione1':
@@ -160,7 +160,7 @@ switch ($azione) {
         ':id_utente' => $id_utente
     ]);
 
-    header("Location: reg3.php");
+    header("Location: reg2.php");
     exit();
         break;
 
@@ -170,13 +170,14 @@ switch ($azione) {
         $sessoP    =$_POST['sessoP'] ?? null;
         $relazione =$_POST['relazione'] ?? null;
         $maxEta   =$_POST['maxEta'] ?? null;
-        $distanza  =$_POST['distanza'] ?? null;
+        $distanza  =isset($_POST['distanza']) ? 1 : 0;
         if (
             empty($sesso)|| empty($sessoP) ||
-            empty($relazione) || empty($maxEta) || empty($distanza)
+            empty($relazione) || empty($maxEta) 
+            // non c'è controllo su distanza, non è un paramentro obbligatorio
         ) {
             
-            header("Location: reg1.php");
+            header("Location: reg3.php");
             exit();
         }
         try {
@@ -209,50 +210,50 @@ switch ($azione) {
     
         break;
 
-    // case 'carica_foto_profilo':
-    //     if (isset($_FILES['foto'])) {
-    //         $nome = $_FILES['foto']['name'];
-    //         $tmp = $_FILES['foto']['tmp_name'];
-    //         $percorso = "foto/" . $nome;
+    case 'carica_foto_profilo':
+        if (isset($_FILES['foto'])) {
+            $nome = $_FILES['foto']['name'];
+            $tmp = $_FILES['foto']['tmp_name'];
+            $percorso = "foto/" . $nome;
 
-    //         if (move_uploaded_file($tmp, $percorso)) {
-    //             $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
-    //                     VALUES (:id_utente, :percorso, 'profilo')";
-    //             $stmt = $pdo->prepare($sql);
-    //             $stmt->execute([
-    //                 ':id_utente' => $_SESSION['id_utente'],
-    //                 ':percorso' => $percorso
-    //             ]);
+            if (move_uploaded_file($tmp, $percorso)) {
+                $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
+                        VALUES (:id_utente, :percorso, 'profilo')";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    ':id_utente' => $_SESSION['id_utente'],
+                    ':percorso' => $percorso
+                ]);
 
-    //             header("Location: reg4.php");
-    //             exit();
-    //         }
-    //     }
-    //     break;
+                header("Location: schemataPrincipale.php");
+                exit();
+            }
+        }
+        break;
 
-    // case 'carica_foto_card':
-    //     if (isset($_FILES['foto'])) {
-    //         foreach ($_FILES['foto']['name'] as $chiave => $nomeOg) {
-    //             $tmp = $_FILES['foto']['tmp_name'][$chiave];
-    //             $nuovoNome = time() . "_" . $nomeOg;
-    //             $percorso = "foto/" . $nuovoNome;
+    case 'carica_foto_card':
+        if (isset($_FILES['foto'])) {
+            foreach ($_FILES['foto']['name'] as $chiave => $nomeOg) {
+                $tmp = $_FILES['foto']['tmp_name'][$chiave];
+                $nuovoNome = time() . "_" . $nomeOg;
+                $percorso = "foto/" . $nuovoNome;
 
-    //             if (move_uploaded_file($tmp, $percorso)) {
-    //                 $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
-    //                         VALUES (:id_utente, :percorso, 'galleria')";
-    //                 $stmt = $pdo->prepare($sql);
-    //                 $stmt->execute([
-    //                     ':id_utente' => $_SESSION['id_utente'],
-    //                     ':percorso' => $percorso
-    //                 ]);
-    //             }
-    //         }
-    //         header("Location: reg4.php");
-    //         exit();
-    //     }
-    //     break;
+                if (move_uploaded_file($tmp, $percorso)) {
+                    $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
+                            VALUES (:id_utente, :percorso, 'galleria')";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([
+                        ':id_utente' => $_SESSION['id_utente'],
+                        ':percorso' => $percorso
+                    ]);
+                }
+            }
+            header("Location: schemataPrincipale.php");
+            exit();
+        }
+        break;
 
     default:
-        header("Location: home.php");
+        header("Location: reg3.php");
         exit();
 }

@@ -182,7 +182,7 @@ switch ($azione) {
     if($provenienza === 'profilo'){
         header("Location: profilo.php");
     } else {
-//se sto modificando i dati perchè mi sto registrando, allora continuo con la registrazione nella prossima oagina
+//se sto modificando i dati perchè mi sto registrando, allora continuo con la registrazione nella prossima pagina
         header("Location: reg4.php");
     }
     exit();
@@ -286,6 +286,7 @@ switch ($azione) {
         $email     = $_POST['email'] ?? null;
         $password  = $_POST['password'] ?? null;
         $sesso     = $_POST['sesso'] ?? null;
+        $sessoP    =$_POST['sessoP'] ?? null;
         $distanza  =isset($_POST['distanza']) ? 1 : 0;
         $maxEta   =$_POST['maxEta'] ?? null;
         $relazione =$_POST['relazione'] ?? null;
@@ -294,7 +295,7 @@ switch ($azione) {
         
         
         salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $password, 
-        $sesso, $distanza,  $maxEta, $relazione, true);
+        $sesso, $sessoP, $distanza,  $maxEta, $relazione, true);
         header("Location: profilo.php");
         exit();
         break;
@@ -306,7 +307,8 @@ switch ($azione) {
 }
 
 function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $password, 
-        $sesso,  $distanza,  $maxEta, $relazione, $modifica_dati = true) {
+        $sesso, $sessoP, $distanza,  $maxEta, $relazione, $modifica_dati = true) {
+    
     if($modifica_dati){
         $sql1 = "UPDATE datiregistrazione SET
         nome= :nome,
@@ -316,33 +318,20 @@ function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $pas
         email= :email,
         password= :password,
         sesso= :sesso,
+        sessoP= :sessoP,
         distanza= :distanza,
         maxEta= :maxEta,
         relazione= :relazione
         WHERE id_utente = :id_utente";
     
-        $stmt1 =[
-            ':id_utente' => $id_utente,
-            ':nome' => $nome,
-            ':cognome' => $cognome,
-            ':citta' => $citta,
-            ':eta' => $eta,
-            ':email' => $email,
-            ':password' => $password,
-            ':sesso' => $sesso,
-            ':distanza' => $distanza,
-            ':maxEta' => $maxEta,
-            ':relazione' => $relazione
-            
-        ];
     } else{
         $sql1 = "INSERT INTO datiregistrazione (id_utente,
         nome, cognome, citta, eta, email, password, sesso, distanza,
-         maxEta, relazione)
+        maxEta, relazione)
         VALUES (:id_utente,
         :nome, :cognome, :citta, :eta, :email, :password, :sesso,:distanza,
-         :maxEta,  :relazione)";
-    
+        :maxEta,  :relazione)";
+    }
         $stmt1 = [
             ':id_utente' => $id_utente,
             ':nome' => $nome,
@@ -352,12 +341,13 @@ function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $pas
             ':email' => $email,
             ':password' => $password,
             ':sesso' => $sesso,
+            ':sessoP' => $sessoP,
             ':distanza' => $distanza,
             ':maxEta' => $maxEta,
             ':relazione' => $relazione
             
         ];
-    }
+    
     $stmt = $pdo->prepare($sql1);
     return $stmt ->execute($stmt1);
 }

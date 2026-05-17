@@ -253,9 +253,9 @@
                     </div><br>
 
                     <div class="d-grid">
-                        <a type="submit" href="reg2.php" class="btn btn-primary-action text-white btn-lg">
+                        <button type="submit" href="reg2.php" class="btn btn-primary-action text-white btn-lg">
                             PROSEGUI
-                        </a>
+                        </button>
                     </div>
                 </form>
 
