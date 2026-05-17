@@ -97,7 +97,7 @@
                     <div class="mb-4">
                         <label for="fotoProfilo" class="form-title">Seleziona dal dispositivo una foto profilo</label>
                         <input type="file" class="form-control" id="fotoProfilo" name="foto" accept="image/*" required>
-                        <div class="form-text">Formati supportati: JPG, PNG, GIF</div>
+                        <div class="form-text">Formati supportati: JPG, PNG</div>
                         <div class="d-flex justify-content-center mt-2">
                             <button type="submit" class="btn btn-primary-action text-white btn-sm px-4">
                                 CARICA FOTO 
@@ -110,7 +110,7 @@
                     <div>
                         <label for="fotoCard" class="form-title">Seleziona dal dispositivo foto prda aggiungere</label>
                         <input type="file" class="form-control" id="fotoCard" name="foto[]" accept="image/*" required>
-                        <div class="form-text">Formati supportati: JPG, PNG, GIF</div>
+                        <div class="form-text">Formati supportati: JPG, PNG</div>
                         <div class="d-flex justify-content-center mt-2">
                             <button type="submit" class="btn btn-primary-action text-white btn-sm px-4">
                                 CARICA FOTO 

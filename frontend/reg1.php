@@ -85,7 +85,7 @@
 
          .form-check-input:focus{
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(13, 7, 10, 0.25);
         }
 
        

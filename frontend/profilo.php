@@ -147,21 +147,20 @@ $aggettivi = $stmtAgg->fetch();
         <div class="text-center mb-4">
             <div class="d-inline-block position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modificaFotoProfilo">
                 <img src="<?= $fotoProfilo['percorso'] ?? 'default.jpg' ?>" class="profile-img shadow">
-                </div>
+            </div>
 
             <h2 class="mt-3"><?= $utente['nome'] . " " . $utente['cognome'] ?></h2>
             <p class="text-muted"><?= $utente['citta'] ?> • <?= $utente['eta'] ?> anni</p>
         </div>
-    </div >
-
+    
         <hr>
 
         <!-- INFO PERSONALI -->
  
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Informazioni personali</h4>
-            <button class="btn btn-sm btn-outline-secondary mb-3" 
-                    data-bs-toggle="modal" 
+            <button class="btn btn-sm btn-outline-secondary mb-3"
+                    data-bs-toggle="modal"
                     data-bs-target="#modificaInformazioni">
                     Modifica
             </button>
@@ -172,7 +171,7 @@ $aggettivi = $stmtAgg->fetch();
             <?php if($utente['distanza'] == 1): ?>
                 <p><strong>Sono aperta ad una relazione a distanza</strong></p>
             <?php endif; ?>
-            
+           
             <p><strong>Età partner max: </strong> <?= $utente['maxEta'] ?></p>
             </div>
         <hr>
@@ -180,13 +179,13 @@ $aggettivi = $stmtAgg->fetch();
         <!-- INTERESSI -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Interessi</h4>
-            <button class="btn btn-sm btn-outline-secondary mb-3" 
-                    data-bs-toggle="modal" 
+            <button class="btn btn-sm btn-outline-secondary mb-3"
+                    data-bs-toggle="modal"
                     data-bs-target="#modificaInteressi">
                     Modifica
             </button>
         </div>
-        
+       
         <div class="mb-4">
             <?php foreach ($interessi as $chiave => $valore): ?>
                 <?php if (!is_numeric($chiave) && ($chiave != "id_utente" && $valore == 1)): ?>
@@ -199,8 +198,8 @@ $aggettivi = $stmtAgg->fetch();
         <!-- AGGETTIVI -->
          <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Come mi descrivo</h4>
-            <button class="btn btn-sm btn-outline-secondary mb-3" 
-                    data-bs-toggle="modal" 
+            <button class="btn btn-sm btn-outline-secondary mb-3"
+                    data-bs-toggle="modal"
                     data-bs-target="#modificaAggettivi">
                     Modifica
             </button>
@@ -215,60 +214,73 @@ $aggettivi = $stmtAgg->fetch();
         <hr>
 
         <!-- GALLERIA FOTO -->
-        <h4 style="color: var(--primary-color);">Galleria foto</h4>
-        <div class="row">
-            <?php foreach ($galleria as $foto): ?>
-                <div class="col-4 mb-3">
-                    <img src="<?= $foto['percorso'] ?>" class="img-fluid rounded">
-                </div>
-            <?php endforeach; ?>
-        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 style="color: var(--primary-color);">Galleria foto</h4>
 
-        <div class="text-center mt-4 btn-primary-action ">
-            <a href="home.php" class="btn btn-secondary">Torna alla Home</a>
+            <button class="btn btn-outline-secondary px-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#carica_nuova_foto">
+                Aggiungi foto
+            </button>
         </div>
+            <div class="row">
+                <?php foreach ($galleria as $foto): ?>
+                    <div class="col-4 mb-3">
+                        <img src="<?= $foto['percorso'] ?>" class="img-fluid rounded">
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary-action text-white btn-lg">
+                    Torna alla home 
+                </button>
+            </div>
+
+        </div>
     </div>
 </div>
 
+
 <!-- cosa fanno i modal -->
 <div class="modal fade" id="modificaFotoProfilo" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm"> 
+    <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content shadow border-0" style="border-radius: 20px;">
-            
+           
             <div class="modal-header border-0 pb-0">
                 <h5 class="form-title w-100 text-center" style="font-size: 1.5rem;">Foto profilo</h5>
             </div>
-            
-            <hr class="mx-4 my-3"> 
+           
+            <hr class="mx-4 my-3">
                 <div class="modal-body pt-0 px-4 pb-4">
                     <div class="d-grid gap-3">
-                        
-                        <a href="<?= $fotoProfilo['percorso'] ?? 'default.jpg' ?>" 
-                        target="_blank" 
+                       
+                        <a href="<?= $fotoProfilo['percorso'] ?? 'default.jpg' ?>"
+                        target="_blank"
                         class="btn btn-outline-primary rounded-pill py-2 text-decoration-none shadow-sm"
                         style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;">
                             Visualizza foto profilo
                         </a>
 
-                        <button type="button" 
+                        <button type="button"
                                 class="btn btn-primary-action rounded-pill py-2 shadow"
                                 style="font-weight: 500;"
-                                data-bs-toggle="modal" 
+                                data-bs-toggle="modal"
                                 data-bs-target="#caricaNuovoProfilo">
                             Modifica foto profilo
                         </button>
-                        
+                       
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-    <div class="modal fade" id="caricaNuovoProfilo" tabindex="-1" aria-hidden="true">
+
+<div class="modal fade" id="caricaNuovoProfilo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content content-box">
-            <form action="azioni.php" method="POST" enctype="multipart/form-data">
+            <form action="azioni_modifica.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="azione" value="carica_foto_profilo">
                 <div class="modal-header border-0 .btn-primary-action:hover">
                     <h5 class="form-title ">Nuova Foto Profilo</h5>
@@ -288,13 +300,17 @@ $aggettivi = $stmtAgg->fetch();
     </div>
 </div>
 
+
+<!-- aggiungo funzione registrazione1 per vedere se posso riusarla per rendere il codice modulare
+ la inserisco in un form
+ forse mi basta questo che c'è già agiungendoci una action -->
 <div class="modal fade" id="modificaInformazioni" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content content-box">
-            <form action="azioni.php" method="POST">
-                <input type="hidden" name="azione" value="modifica_profilo">
+            <form action="azioni_modifica.php" method="POST">
+                <input type="hidden" name="azione" value="registrazione1">
                 <div class="modal-header border-0">
-                    <h5 class="form-title">Modifica Dati</h5>
+                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Dati</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body auth-section">
@@ -314,6 +330,36 @@ $aggettivi = $stmtAgg->fetch();
                         <label>Età</label>
                         <input type="number" name="eta" class="form-control" value="<?= $utente['eta'] ?>">
                     </div>
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" value="<?= $utente['email'] ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" value="<?= $utente['password'] ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label>Sesso</label>
+                        <select class="form-select" name="sesso" value="<?= $utente['sesso'] ?>">
+                            <option value="uomo">Uomo</option>
+                            <option value="donna">Donna</option>
+                        </select>
+
+                    <div class="mb-3">
+                        <label>Relazione a distanza</label>
+                        <input class="form-check-input" type="checkbox" role="switch" name="distanza" <?= $utente['distanza'] == 1 ? 'checked' : '' ?>>
+
+                    </div>    
+                    
+                    </div>
+                    <div class="mb-3">
+                        <label>Differenza eta</label>
+                        <input type="number" name="maxEta" class="form-control" value="<?= $utente['maxEta'] ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label>Relazione</label>
+                        <input type="text" name="relazione" class="form-control" value="<?= $utente['relazione'] ?>">
+                    </div>
                     <button type="submit" class="btn btn-primary-action w-100">Salva Modifiche</button>
                 </div>
             </form>
@@ -324,10 +370,14 @@ $aggettivi = $stmtAgg->fetch();
 <div class="modal fade" id="modificaInteressi" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content content-box">
-            <form action="azioni.php" method="POST">
+            <form action="azioni_modifica.php" method="POST">
                 <input type="hidden" name="azione" value="registrazione_interessi">
+                <!-- aggiungo un hide con nome provenienza per capire da dove arriva il codice, non solo per dirgi dove andare
+                 sto rendendo modulare il codice, quindi usando le stesse funzioni per la registrazione e la modifica del profilo
+                 devo dire all'utente a quale pagina recarsi dopo in base alla casistica di partenza -->
+                <input type="hidden" name="provenienza" value="profilo">
                 <div class="modal-header border-0">
-                    <h5 class="form-title">Modifica Interessi</h5>
+                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Interessi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body auth-section">
@@ -349,9 +399,63 @@ $aggettivi = $stmtAgg->fetch();
         </div>
     </div>
 </div>
+<div class="modal fade" id="modificaAggettivi" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content content-box">
+            <form action="azioni_modifica.php" method="POST">
+                <input type="hidden" name="azione" value="registrazione_aggettivi">
+                <input type="hidden" name="provenienza" value="profilo">
+                <div class="modal-header border-0">
+                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Aggettivi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body auth-section">
+                    <div class="row">
+                        <?php foreach ($aggettivi as $chiave => $valore): ?>
+                            <?php if (!is_numeric($chiave) && $chiave != "id_utente"): ?>
+                                <div class="col-6 col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="<?= $chiave ?>" id="int_<?= $chiave ?>" <?= $valore == 1 ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="int_<?= $chiave ?>"><?= ucfirst($chiave) ?></label>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                    <button type="submit" class="btn btn-primary-action w-100 mt-3">Aggiorna aggettivi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="carica_nuova_foto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content content-box">
+            <form action="azioni_modifica.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="azione" value="carica_nuova_foto">
+
+                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Aggiungi nuova foto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                <div class="modal-body auth-section text-center">
+                    <div class="mb-4">
+                        <label class="form-label text-muted small">
+                            Seleziona un file immagine (JPG, PNG)
+                        </label>
+                        <input type="file" name="foto" class="form-control rounded-pill" accept="image/*">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-action w-100 rounded-pill py-2 shadow mb-2">
+                        Salva
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-    </div>
 </body>
 </html>

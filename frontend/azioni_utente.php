@@ -166,7 +166,7 @@ switch ($azione) {
 
     case 'registrazione2':
         $id_utente = $_SESSION['id_utente'];
-        $sesso     = $_POST['sesso'] ?? null;
+        $sesso     = $_POST['sesso'] ?? '';
         $sessoP    =$_POST['sessoP'] ?? null;
         $relazione =$_POST['relazione'] ?? null;
         $maxEta   =$_POST['maxEta'] ?? null;
@@ -209,83 +209,48 @@ switch ($azione) {
     
         break;
 
-    case 'carica_foto_profilo':
-        if (isset($_FILES['foto'])) {
-            $nome = $_FILES['foto']['name'];
-            $tmp = $_FILES['foto']['tmp_name'];
-            $percorso = "foto/" . $nome;
+    // case 'carica_foto_profilo':
+    //     if (isset($_FILES['foto'])) {
+    //         $nome = $_FILES['foto']['name'];
+    //         $tmp = $_FILES['foto']['tmp_name'];
+    //         $percorso = "foto/" . $nome;
 
-            if (move_uploaded_file($tmp, $percorso)) {
-                $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
-                        VALUES (:id_utente, :percorso, 'profilo')";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([
-                    ':id_utente' => $_SESSION['id_utente'],
-                    ':percorso' => $percorso
-                ]);
+    //         if (move_uploaded_file($tmp, $percorso)) {
+    //             $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
+    //                     VALUES (:id_utente, :percorso, 'profilo')";
+    //             $stmt = $pdo->prepare($sql);
+    //             $stmt->execute([
+    //                 ':id_utente' => $_SESSION['id_utente'],
+    //                 ':percorso' => $percorso
+    //             ]);
 
-                header("Location: reg4.php");
-                exit();
-            }
-        }
-        break;
+    //             header("Location: reg4.php");
+    //             exit();
+    //         }
+    //     }
+    //     break;
 
-    case 'carica_foto_card':
-        if (isset($_FILES['foto'])) {
-            foreach ($_FILES['foto']['name'] as $chiave => $nomeOg) {
-                $tmp = $_FILES['foto']['tmp_name'][$chiave];
-                $nuovoNome = time() . "_" . $nomeOg;
-                $percorso = "foto/" . $nuovoNome;
+    // case 'carica_foto_card':
+    //     if (isset($_FILES['foto'])) {
+    //         foreach ($_FILES['foto']['name'] as $chiave => $nomeOg) {
+    //             $tmp = $_FILES['foto']['tmp_name'][$chiave];
+    //             $nuovoNome = time() . "_" . $nomeOg;
+    //             $percorso = "foto/" . $nuovoNome;
 
-                if (move_uploaded_file($tmp, $percorso)) {
-                    $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
-                            VALUES (:id_utente, :percorso, 'galleria')";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute([
-                        ':id_utente' => $_SESSION['id_utente'],
-                        ':percorso' => $percorso
-                    ]);
-                }
-            }
-            header("Location: reg4.php");
-            exit();
-        }
-        break;
-
-        case 'modifica_profilo':
-            $nome      = $_POST['nome'] ?? null;
-            $cognome   = $_POST['cognome'] ?? null;
-            $eta       = $_POST['eta'] ?? null;
-            $citta     = $_POST['citta'] ?? null;
-
-            if (empty($nome) || empty($cognome) || empty($eta) || empty($citta)) {
-                header("Location: profilo.php");
-                exit();
-            }
-
-            try {
-                $sql = "UPDATE datiregistrazione SET 
-                        nome = :nome, 
-                        cognome = :cognome, 
-                        eta = :eta, 
-                        citta = :citta 
-                        WHERE id_utente = :id_utente";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([
-                    ':nome' => $nome,
-                    ':cognome' => $cognome,
-                    ':eta' => $eta,
-                    ':citta' => $citta
-                    
-                ]);
-
-                header("Location: profilo.php");
-                exit();
-            } catch (Exception $e) {
-                echo "Errore: " . $e->getMessage();
-            }
-
-    // aggiungi modallll
+    //             if (move_uploaded_file($tmp, $percorso)) {
+    //                 $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
+    //                         VALUES (:id_utente, :percorso, 'galleria')";
+    //                 $stmt = $pdo->prepare($sql);
+    //                 $stmt->execute([
+    //                     ':id_utente' => $_SESSION['id_utente'],
+    //                     ':percorso' => $percorso
+    //                 ]);
+    //             }
+    //         }
+    //         header("Location: reg4.php");
+    //         exit();
+    //     }
+    //     break;
 
     default:
         header("Location: home.php");

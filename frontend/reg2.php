@@ -152,7 +152,6 @@
                 </div>
 
                 <br>
-               
 
                 <div class="d-grid">
                     <button type="submit" href="reg4.php" class="btn btn-primary-action text-white btn-lg">
@@ -173,7 +172,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
-<!-- servirà per il server -->
+<!-- servirà per il server a calcolare le distanze tra gli users-->
     function rilevaPosizione(){
         const status = document.getElementById('status-localizzazione');
         const locationInput = document.getElementById('location');
@@ -201,7 +200,7 @@
         );
     }
 
-<!-- br aggiunto per poter inciare il file  -->
+<!-- br aggiunto per poter inviare il file  -->
 </script>
 </body>
 </html>
