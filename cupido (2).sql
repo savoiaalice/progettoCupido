@@ -66,7 +66,7 @@ CREATE TABLE `datiregistrazione` (
   `password` varchar(30) NOT NULL,
   `nome` varchar(30) NOT NULL,
   `cognome` varchar(30) NOT NULL,
-  `sesso` varchar(2) NOT NULL,
+  `sesso` varchar(2),
   `eta` int(2) NOT NULL,
   `citta` varchar(30) NOT NULL,
   `maxEta` int(2) NOT NULL,

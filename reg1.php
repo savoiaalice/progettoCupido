@@ -85,7 +85,7 @@
 
          .form-check-input:focus{
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(13, 7, 10, 0.25);
         }
 
        
@@ -100,7 +100,8 @@
             <div class="col-lg-5 auth-section">
                 <div class="text-center mb-4">
                     <div class="brand-logo mb-2">
-                        <?php include "cupido.php"; ?>
+                        <i class="bi bi-arrow-through-heart"
+                            style="font-size: 2.5rem; color: var(--primary-color);"></i>
                     </div>
                     <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
                 </div>
@@ -252,9 +253,9 @@
                     </div><br>
 
                     <div class="d-grid">
-                        <a type="submit" href="reg2.php" class="btn btn-primary-action text-white btn-lg">
+                        <button type="submit" href="reg2.php" class="btn btn-primary-action text-white btn-lg">
                             PROSEGUI
-                        </a>
+                        </button>
                     </div>
                 </form>
 
@@ -262,7 +263,7 @@
                     <a href="registrazione.php" class="text-decoration-none"
                         style="color: var(--primary-color); font-weight: 600;">
                         Torna indietro
-                    </a>
+</a>
                     </p>
                 </div>
             </div>

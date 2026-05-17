@@ -101,7 +101,7 @@
     <p>
         <?php
             try{
-                $stmt = $pdo-> query("SELECT * FROM users");
+                $stmt = $pdo-> query("SELECT * FROM datiregistrazione");
                 $numero = $stmt->rowCount();
                 echo "Numero di utenti registrati: " . $numero;
             } catch (PDOException $e) {

@@ -79,7 +79,7 @@
             <div class="col-lg-5 auth-section">
                 <div class="text-center mb-4">
                     <div class="brand-logo mb-2">
-                        <?php include "cupido.php"; ?>
+                        <i class="bi bi-arrow-through-heart" style="font-size: 2.5rem; color: var(--primary-color);"></i>
                     </div>
                     <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
                 </div>
@@ -93,30 +93,24 @@
                 </div>
                 <br>
 
-                <form action="carica_foto.php" method="POST" enctype="multipart/form-data">
+                <form action="azioni_utente.php" method="POST" enctype="multipart/form-data">
                     <div class="mb-4">
                         <label for="fotoProfilo" class="form-title">Seleziona dal dispositivo una foto profilo</label>
                         <input type="file" class="form-control" id="fotoProfilo" name="foto" accept="image/*" required>
-                        <div class="form-text">Formati supportati: JPG, PNG, GIF</div>
-                        <div class="d-flex justify-content-center mt-2">
-                            <button type="submit" class="btn btn-primary-action text-white btn-sm px-4">
-                                CARICA FOTO 
-    <!-- ALICE vedi se ti piace con o senza la nuvoletta carica vicino, a me non fa impazzire -->
-                                <i class="bi bi-cloud-arrow-up-fill me-2"></i>
-                            </button>
-                    </div>
+                        <div class="form-text">Formati supportati: JPG, PNG</div>
+                        
                     </div>                     
 
                     <div>
                         <label for="fotoCard" class="form-title">Seleziona dal dispositivo foto prda aggiungere</label>
                         <input type="file" class="form-control" id="fotoCard" name="foto[]" accept="image/*" required>
-                        <div class="form-text">Formati supportati: JPG, PNG, GIF</div>
-                        <div class="d-flex justify-content-center mt-2">
+                        <div class="form-text">Formati supportati: JPG, PNG</div>
+                        <!-- <div class="d-flex justify-content-center mt-2">
                             <button type="submit" class="btn btn-primary-action text-white btn-sm px-4">
                                 CARICA FOTO 
                                 <i class="bi bi-cloud-arrow-up-fill me-2"></i>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
                     <br>
 

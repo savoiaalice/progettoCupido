@@ -29,12 +29,12 @@ switch ($azione) {
             $_SESSION['id_utente'] = $utente['id_utente'];
             header("Location: profilo.php");
             exit();
-        } else { 
+        } else {
             echo "<script>alert('Email o password errati'); window.location.href='index.php';</script>";
             exit();
         }
-        
-        exit();
+        var_dump($_POST);
+    exit();
         break;
 
     case 'registrazione1':
@@ -51,7 +51,7 @@ switch ($azione) {
             empty($email) || empty($password) || empty($eta) || empty($citta) || empty($id_utente)
         ) {
             
-            header("Location: home.php");
+            header("Location: reg3.php");
             exit();
         }
         try {
@@ -93,7 +93,6 @@ switch ($azione) {
 
     case 'registrazione_interessi':
         $id_utente=$_SESSION['id_utente'];
-        
 
         $sql="UPDATE interessi SET
         sport= :sport,
@@ -122,8 +121,24 @@ switch ($azione) {
         ':cena' => isset($_POST['cena']) ? 1 : 0,
         ':id_utente' => $id_utente
         ]);
-        // Aggettivi
-    $sql2 = "UPDATE aggettivi SET 
+    
+    // controllo da dove sto arrivando usando provenienza, tag input hide in profio
+    $provenienza = $_POST['provenienza'] ?? 'registrazione';
+
+    // se vengo dalla pagina del profilo e lo sto modificando, quando finisco la modifica resto in profilo
+    if($provenienza === 'profilo'){
+        header("Location: profilo.php");
+    } else {
+//se sto modificando i dati perchè mi sto registrando, allora continuo con la registrazione nella prossima oagina
+        header("Location: reg4.php");
+    }
+    exit();
+    break;
+
+    case 'registrazione_aggettivi':
+        $id_utente=$_SESSION['id_utente'];
+
+        $sql2 = "UPDATE aggettivi SET 
         solare = :solare,
         riflessivo = :riflessivo,
         spontaneo = :spontaneo,
@@ -140,44 +155,53 @@ switch ($azione) {
         timido = :timido,
         avventuroso = :avventuroso
         WHERE id_utente = :id_utente";
-    $stmt2 = $pdo->prepare($sql2);
-    $stmt2->execute([
-        ':solare' => isset($_POST['solare']) ? 1 : 0,
-        ':riflessivo' => isset($_POST['riflessivo']) ? 1 : 0,
-        ':spontaneo' => isset($_POST['spontaneo']) ? 1 : 0,
-        ':determinato' => isset($_POST['determinato']) ? 1 : 0,
-        ':curioso' => isset($_POST['curioso']) ? 1 : 0,
-        ':sognatore' => isset($_POST['sognatore']) ? 1 : 0,
-        ':empatico' => isset($_POST['empatico']) ? 1 : 0,
-        ':ironico' => isset($_POST['ironico']) ? 1 : 0,
-        ':colto' => isset($_POST['colto']) ? 1 : 0,
-        ':leale' => isset($_POST['leale']) ? 1 : 0,
-        ':tranquillo' => isset($_POST['tranquillo']) ? 1 : 0,
-        ':socievole' => isset($_POST['socievole']) ? 1 : 0,
-        ':premuroso' => isset($_POST['premuroso']) ? 1 : 0,
-        ':timido' => isset($_POST['timido']) ? 1 : 0,
-        ':avventuroso' => isset($_POST['avventuroso']) ? 1 : 0,
-        ':id_utente' => $id_utente
-    ]);
 
-    header("Location: reg2.php");
+        $stmt2 = $pdo->prepare($sql2);
+        $stmt2->execute([
+            ':solare' => isset($_POST['solare']) ? 1 : 0,
+            ':riflessivo' => isset($_POST['riflessivo']) ? 1 : 0,
+            ':spontaneo' => isset($_POST['spontaneo']) ? 1 : 0,
+            ':determinato' => isset($_POST['determinato']) ? 1 : 0,
+            ':curioso' => isset($_POST['curioso']) ? 1 : 0,
+            ':sognatore' => isset($_POST['sognatore']) ? 1 : 0,
+            ':empatico' => isset($_POST['empatico']) ? 1 : 0,
+            ':ironico' => isset($_POST['ironico']) ? 1 : 0,
+            ':colto' => isset($_POST['colto']) ? 1 : 0,
+            ':leale' => isset($_POST['leale']) ? 1 : 0,
+            ':tranquillo' => isset($_POST['tranquillo']) ? 1 : 0,
+            ':socievole' => isset($_POST['socievole']) ? 1 : 0,
+            ':premuroso' => isset($_POST['premuroso']) ? 1 : 0,
+            ':timido' => isset($_POST['timido']) ? 1 : 0,
+            ':avventuroso' => isset($_POST['avventuroso']) ? 1 : 0,
+            ':id_utente' => $id_utente
+        ]);
+    // controllo da dove sto arrivando usando provenienza, tag input hide in profio
+    $provenienza = $_POST['provenienza'] ?? 'registrazione';
+
+    // se vengo dalla pagina del profilo e lo sto modificando, quando finisco la modifica resto in profilo
+    if($provenienza === 'profilo'){
+        header("Location: profilo.php");
+    } else {
+//se sto modificando i dati perchè mi sto registrando, allora continuo con la registrazione nella prossima pagina
+        header("Location: reg4.php");
+    }
     exit();
-        break;
+    break;
+
 
     case 'registrazione2':
         $id_utente = $_SESSION['id_utente'];
-        $sesso     = $_POST['sesso'] ?? '';
+        $sesso     = $_POST['sesso'] ?? null;
         $sessoP    =$_POST['sessoP'] ?? null;
         $relazione =$_POST['relazione'] ?? null;
         $maxEta   =$_POST['maxEta'] ?? null;
         $distanza  =isset($_POST['distanza']) ? 1 : 0;
         if (
             empty($sesso)|| empty($sessoP) ||
-            empty($relazione) || empty($maxEta) 
-            // non c'è controllo su distanza, non è un paramentro obbligatorio
+            empty($relazione) || empty($maxEta) || empty($distanza)
         ) {
             
-            header("Location: reg3.php");
+            header("Location: reg1.php");
             exit();
         }
         try {
@@ -225,7 +249,7 @@ switch ($azione) {
                     ':percorso' => $percorso
                 ]);
 
-                header("Location: schemataPrincipale.php");
+                header("Location: reg4.php");
                 exit();
             }
         }
@@ -248,12 +272,83 @@ switch ($azione) {
                     ]);
                 }
             }
-            header("Location: schemataPrincipale.php");
+            header("Location: reg4.php");
             exit();
         }
+    break;
+
+    case 'modifica_dati':
+        $id_utente = $_SESSION['id_utente'];
+        $nome      = $_POST['nome'] ?? null;
+        $cognome   = $_POST['cognome'] ?? null; 
+        $citta     = $_POST['citta'] ?? null;
+        $eta       = $_POST['eta'] ?? null;
+        $email     = $_POST['email'] ?? null;
+        $password  = $_POST['password'] ?? null;
+        $sesso     = $_POST['sesso'] ?? null;
+        $sessoP    =$_POST['sessoP'] ?? null;
+        $distanza  =isset($_POST['distanza']) ? 1 : 0;
+        $maxEta   =$_POST['maxEta'] ?? null;
+        $relazione =$_POST['relazione'] ?? null;
+        
+        // le check box non inviano dati se sono deselzionate, faccio un controllo e salvo 0 se non fosse stata cliccata 
+        
+        
+        salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $password, 
+        $sesso, $sessoP, $distanza,  $maxEta, $relazione, true);
+        header("Location: profilo.php");
+        exit();
         break;
+    
 
     default:
         header("Location: reg3.php");
         exit();
 }
+
+function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $password, 
+        $sesso, $sessoP, $distanza,  $maxEta, $relazione, $modifica_dati = true) {
+    
+    if($modifica_dati){
+        $sql1 = "UPDATE datiregistrazione SET
+        nome= :nome,
+        cognome= :cognome,
+        citta= :citta,
+        eta= :eta,
+        email= :email,
+        password= :password,
+        sesso= :sesso,
+        sessoP= :sessoP,
+        distanza= :distanza,
+        maxEta= :maxEta,
+        relazione= :relazione
+        WHERE id_utente = :id_utente";
+    
+    } else{
+        $sql1 = "INSERT INTO datiregistrazione (id_utente,
+        nome, cognome, citta, eta, email, password, sesso, distanza,
+        maxEta, relazione)
+        VALUES (:id_utente,
+        :nome, :cognome, :citta, :eta, :email, :password, :sesso,:distanza,
+        :maxEta,  :relazione)";
+    }
+        $stmt1 = [
+            ':id_utente' => $id_utente,
+            ':nome' => $nome,
+            ':cognome' => $cognome,
+            ':citta' => $citta,
+            ':eta' => $eta,
+            ':email' => $email,
+            ':password' => $password,
+            ':sesso' => $sesso,
+            ':sessoP' => $sessoP,
+            ':distanza' => $distanza,
+            ':maxEta' => $maxEta,
+            ':relazione' => $relazione
+            
+        ];
+    
+    $stmt = $pdo->prepare($sql1);
+    return $stmt ->execute($stmt1);
+}
+?>

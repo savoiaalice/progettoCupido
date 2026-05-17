@@ -2,22 +2,24 @@
 require __DIR__ . "/connessioneDB.php";
 session_start();
 
-// controllo se loginn è giusto
+// controllo se login è giusto
 if (!isset($_SESSION['id_utente'])) {
     header("Location: index.php");
     exit();
 }
-// inizia la sessione e riprendo i dati dal database
+// inizia la sessione e prendo i dati dal database
 $id = $_SESSION['id_utente'];
 
-$sql = "SELECT * FROM datiregistrazione WHERE id_utente = :id";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([':id' => $id]);
-$utente = $stmt->fetch();
+// tutte query per prendere le informazioni dal database 
+$sql = "SELECT * FROM datiregistrazione WHERE id_utente = :id"; //"prendi tutte le colonne, dalla tab datiregistrazioni,
+//  che hanno come id l'id dell'utente in sessione adesso"
+$stmt = $pdo->prepare($sql); //pdo permette la connessione al database
+$stmt->execute([':id' => $id]); //execute esegue l'estrapolazione secono i parametri chiesti dalla query 
+$utente = $stmt->fetch(); //fetch prende quei dati e li mette nella variabile 
 
 
 $sqlFotoProfilo = "SELECT percorso FROM foto_utenti
-                   WHERE id_utente = :id AND tipo = 'profilo' LIMIT 1";
+                   WHERE id_utente = :id AND tipo = 'profilo' LIMIT 1"; //limite di una foto profilo alla volta 
 $stmtFoto = $pdo->prepare($sqlFotoProfilo);
 $stmtFoto->execute([':id' => $id]);
 $fotoProfilo = $stmtFoto->fetch();
@@ -120,7 +122,7 @@ $aggettivi = $stmtAgg->fetch();
             border-color: var(--primary-color) !important;
         }
 
-         .form-check-input:focus{
+        .form-check-input:focus{
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
         }
@@ -130,6 +132,7 @@ $aggettivi = $stmtAgg->fetch();
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         .profile-img {
+            /* stiamo imponendo al browser di scalare la foto in queste dimensioni e forma, deve coprire esattamente l'area*/
             width: 180px; height: 180px; border-radius: 50%;
             object-fit: cover; border: 5px solid var(--primary-color);
         }
@@ -145,15 +148,15 @@ $aggettivi = $stmtAgg->fetch();
 <div class="container py-5">
     <div class="profile-card mx-auto col-lg-8">
         <div class="text-center mb-4">
+            <!-- IMMAGINE PROFILO -->
             <div class="d-inline-block position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modificaFotoProfilo">
                 <img src="<?= $fotoProfilo['percorso'] ?? 'default.jpg' ?>" class="profile-img shadow">
-                </div>
+            </div>
 
             <h2 class="mt-3"><?= $utente['nome'] . " " . $utente['cognome'] ?></h2>
             <p class="text-muted"><?= $utente['citta'] ?> • <?= $utente['eta'] ?> anni</p>
         </div>
-    </div >
-
+    
         <hr>
 
         <!-- INFO PERSONALI -->
@@ -215,29 +218,33 @@ $aggettivi = $stmtAgg->fetch();
         <hr>
 
         <!-- GALLERIA FOTO -->
-<div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 style="color: var(--primary-color);">Galleria foto</h4>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 style="color: var(--primary-color);">Galleria foto</h4>
 
-    <button class="btn btn-outline-custom rounded-pill px-3"
-            data-bs-toggle="modal"
-            data-bs-target="#carica_nuova_foto">
-        Aggiungi foto
-    </button>
-</div>
-        <div class="row">
-            <?php foreach ($galleria as $foto): ?>
-                <div class="col-4 mb-3">
-                    <img src="<?= $foto['percorso'] ?>" class="img-fluid rounded">
-                </div>
-            <?php endforeach; ?>
+            <button class="btn btn-outline-secondary px-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#carica_nuova_foto">
+                Aggiungi foto
+            </button>
         </div>
+            <div class="row">
+                <?php foreach ($galleria as $foto): ?>
+                    <div class="col-4 mb-3">
+                        <img src="<?= $foto['percorso'] ?>" class="img-fluid rounded">
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
-        <div class="text-center mt-4 btn-primary-action ">
-            <a href="home.php" class="btn btn-secondary">Torna alla Home</a>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary-action text-white btn-lg">
+                    Torna alla home 
+                </button>
+            </div>
+
         </div>
-
     </div>
 </div>
+
 
 <!-- cosa fanno i modal -->
 <div class="modal fade" id="modificaFotoProfilo" tabindex="-1" aria-hidden="true">
@@ -274,10 +281,10 @@ $aggettivi = $stmtAgg->fetch();
     </div>
 </div>
 
-    <div class="modal fade" id="caricaNuovoProfilo" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="caricaNuovoProfilo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content content-box">
-            <form action="azioni_utente.php" method="POST" enctype="multipart/form-data">
+            <form action="azioni_modifica.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="azione" value="carica_foto_profilo">
                 <div class="modal-header border-0 .btn-primary-action:hover">
                     <h5 class="form-title ">Nuova Foto Profilo</h5>
@@ -297,13 +304,17 @@ $aggettivi = $stmtAgg->fetch();
     </div>
 </div>
 
+
+<!-- aggiungo funzione registrazione1 per vedere se posso riusarla per rendere il codice modulare
+ la inserisco in un form
+ forse mi basta questo che c'è già agiungendoci una action -->
 <div class="modal fade" id="modificaInformazioni" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content content-box">
-            <form action="azioni_utente.php" method="POST">
-                <input type="hidden" name="azione" value="modifica_profilo">
+            <form action="azioni_modifica.php" method="POST">
+                <input type="hidden" name="azione" value="modifica_dati">
                 <div class="modal-header border-0">
-                    <h5 class="form-title">Modifica Dati</h5>
+                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Dati</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body auth-section">
@@ -323,6 +334,37 @@ $aggettivi = $stmtAgg->fetch();
                         <label>Età</label>
                         <input type="number" name="eta" class="form-control" value="<?= $utente['eta'] ?>">
                     </div>
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" value="<?= $utente['email'] ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" value="<?= $utente['password'] ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label>Sesso</label>
+                        <select class="form-select" name="sesso">
+
+                            <option value="uomo" <?= $utente['sesso'] == 'uomo' ? 'selected' : '' ?>>Uomo</option>
+                            <option value="donna" <?= $utente['sesso'] == 'donna' ? 'selected' : '' ?>>Donna</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Relazione a distanza</label>
+                        <input class="form-check-input" type="checkbox" role="switch" name="distanza" value = "1"<?= $utente['distanza'] == 1 ? 'checked' : '' ?>>
+
+                    </div>    
+                    
+                    <div class="mb-3">
+                        <label>Differenza eta</label>
+                        <input type="number" name="maxEta" class="form-control" value="<?= $utente['maxEta'] ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label>Relazione</label>
+                        <input type="text" name="relazione" class="form-control" value="<?= $utente['relazione'] ?>">
+                    </div>
                     <button type="submit" class="btn btn-primary-action w-100">Salva Modifiche</button>
                 </div>
             </form>
@@ -333,10 +375,14 @@ $aggettivi = $stmtAgg->fetch();
 <div class="modal fade" id="modificaInteressi" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content content-box">
-            <form action="azioni_itente.php" method="POST">
+            <form action="azioni_modifica.php" method="POST">
                 <input type="hidden" name="azione" value="registrazione_interessi">
+                <!-- aggiungo un hide con nome provenienza per capire da dove arriva il codice, non solo per dirgi dove andare
+                 sto rendendo modulare il codice, quindi usando le stesse funzioni per la registrazione e la modifica del profilo
+                 devo dire all'utente a quale pagina recarsi dopo in base alla casistica di partenza -->
+                <input type="hidden" name="provenienza" value="profilo">
                 <div class="modal-header border-0">
-                    <h5 class="form-title">Modifica Interessi</h5>
+                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Interessi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body auth-section">
@@ -361,10 +407,11 @@ $aggettivi = $stmtAgg->fetch();
 <div class="modal fade" id="modificaAggettivi" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content content-box">
-            <form action="azioni_utente.php" method="POST">
-                <input type="hidden" name="azione" value="registrazione_agettivi">
+            <form action="azioni_modifica.php" method="POST">
+                <input type="hidden" name="azione" value="registrazione_aggettivi">
+                <input type="hidden" name="provenienza" value="profilo">
                 <div class="modal-header border-0">
-                    <h5 class="form-title">Modifica Aggettivi</h5>
+                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Aggettivi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body auth-section">
@@ -391,10 +438,10 @@ $aggettivi = $stmtAgg->fetch();
 <div class="modal fade" id="carica_nuova_foto" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content content-box">
-            <form action="azioni_utente.php" method="POST" enctype="multipart/form-data">
+            <form action="azioni_modifica.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="azione" value="carica_nuova_foto">
 
-                    <h5 class="form-title">Aggiungi nuova foto</h5>
+                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Aggiungi nuova foto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 
                 <div class="modal-body auth-section text-center">
@@ -415,7 +462,5 @@ $aggettivi = $stmtAgg->fetch();
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-    </div>
 </body>
 </html>
