@@ -9,22 +9,25 @@ switch ($azione) {
     case 'accesso':
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
+        $id_utente=$_POST['id_utente'] ?? '';
 
         $sql = "SELECT * FROM datiregistrazione 
                 WHERE email = :email 
-                AND password = :password";
+                AND password = :password
+                AND id_utente= :id_utente";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':email' => $email,
-            ':password' => $password
+            ':password' => $password,
+            ':id_utente' => $id_utente
         ]);
 
         $utente = $stmt->fetch();
 
         if ($utente) {
             $_SESSION['id_utente'] = $utente['id_utente'];
-            header("Location: profilo.php");
+            header("Location: match.php");
             exit();
         } else {
             echo "<script>alert('Email o password errati'); window.location.href='index.php';</script>";

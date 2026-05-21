@@ -236,9 +236,9 @@ $aggettivi = $stmtAgg->fetch();
             </div>
 
             <div class="d-grid">
-                <button type="submit" class="btn btn-primary-action text-white btn-lg">
+                <a href="match.php" class="btn btn-primary-action text-white btn-lg">
                     Torna alla home 
-                </button>
+                </a>
             </div>
 
         </div>
