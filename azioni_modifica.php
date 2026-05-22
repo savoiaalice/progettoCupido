@@ -235,47 +235,82 @@ switch ($azione) {
         break;
 
     case 'carica_foto_profilo':
-        if (isset($_FILES['foto'])) {
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
             $nome = $_FILES['foto']['name'];
             $tmp = $_FILES['foto']['tmp_name'];
             $percorso = "foto/" . $nome;
 
             if (move_uploaded_file($tmp, $percorso)) {
-                $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
-                        VALUES (:id_utente, :percorso, 'profilo')";
+                $id_utente = $_SESSION['id_utente'];
+
+                //controllo se è presente foto profilo, dal form reg4 è required
+                $sqlControllo = "SELECT * FROM foto_utenti WHERE id_utente = :id_utente AND tipo = 'profilo'LIMIT 1";
+                $stmControllo = $pdo->prepare($sqlControllo);
+                $stmControllo->execute([':id_utente' => $id_utente]);
+                $fotoEsistente = $stmControllo->fetch();
+
+                //dopo che verifico l'esistenza della foto anche nella base di dati la modifico tramite aggiornamneto
+                if($fotoEsistente){
+
+                $sql = "UPDATE foto_utenti SET percorso = :percorso WHERE id_utente = :id_utente AND tipo = 'profilo'";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute([
-                    ':id_utente' => $_SESSION['id_utente'],
+                $stmt->execute([    
+                    ':id_utente' => $id_utente,
                     ':percorso' => $percorso
                 ]);
-
-                header("Location: reg4.php");
-                exit();
-            }
-        }
-        break;
-
-    case 'carica_foto_card':
-        if (isset($_FILES['foto'])) {
-            foreach ($_FILES['foto']['name'] as $chiave => $nomeOg) {
-                $tmp = $_FILES['foto']['tmp_name'][$chiave];
-                $nuovoNome = time() . "_" . $nomeOg;
-                $percorso = "foto/" . $nuovoNome;
-
-                if (move_uploaded_file($tmp, $percorso)) {
+                }else{
+                    //se non dovvesse essefci la foto profilo ne permetto l'inserimento per la proma volta
                     $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
-                            VALUES (:id_utente, :percorso, 'galleria')";
+                    VALUES (:id_utente, :percorso, 'profilo')";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute([
-                        ':id_utente' => $_SESSION['id_utente'],
+                        ':id_utente' => $id_utente,
                         ':percorso' => $percorso
                     ]);
-                }
+                }                
             }
-            header("Location: reg4.php");
+        }
+        header("Location: profilo.php");
+        exit();
+        break;
+
+    case 'carica_nuova_foto':
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM foto_utenti 
+                        WHERE id_utente = :id_utente AND tipo = 'galleria'");
+        $stmt->execute([':id_utente' => $_SESSION['id_utente']]);
+        $fotoCaricate = $stmt->fetchColumn();
+
+        if($fotoCaricate + count($_FILES['foto']['name'])> 6){
+           
+            header("Location: profilo.php");
             exit();
         }
-    break;
+
+
+        if (isset($_FILES['foto']) && !empty($_FILES['foto']['name'][0])) {
+            foreach ($_FILES['foto']['name'] as $chiave => $nomeOg) {
+                if($_FILES['foto']['error'][$chiave] == 0){
+                    $tmp = $_FILES['foto']['tmp_name'][$chiave];
+                    $nuovoNome = time() . "_" . $nomeOg;
+                    $percorso = "foto/" . $nuovoNome;   
+               
+                    
+                    if (move_uploaded_file($tmp, $percorso)) {
+                        $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
+                                VALUES (:id_utente, :percorso, 'galleria')";
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->execute([
+                            ':id_utente' => $_SESSION['id_utente'],
+                            ':percorso' => $percorso
+                        ]);
+                    }
+                }
+            }
+        }
+       
+        header("Location: profilo.php");
+        exit();
+        break;
 
     case 'modifica_dati':
         $id_utente = $_SESSION['id_utente'];
