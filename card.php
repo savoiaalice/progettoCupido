@@ -188,18 +188,18 @@ $id_altro = $id_altro ?? null;
         <div class="row text-center w-100">
 
             <div class="col">
-                <a href="home.php" class="text-decoration-none text-dark">
+                <a href="match.php" class="text-decoration-none text-dark">
                     <?php include "cupido.php"; ?>
                 </a>
             </div>
             <div class="col">
-                <a href="search.php" class="text-decoration-none text-dark">
+                <a href="cerca.php" class="text-decoration-none text-dark">
                     <i class="bi bi-search-heart fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>
 
             <div class="col">
-                <a href="match.php" class="text-decoration-none text-dark">
+                <a href="chatList.php" class="text-decoration-none text-dark">
                     <i class="bi bi-chat-heart fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>

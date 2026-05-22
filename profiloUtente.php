@@ -190,6 +190,40 @@ $aggettivi = $stmtAgg->fetch();
             <p class="text-muted">
                 <i class="bi bi-geo-alt-fill" style="color: var(--primary-color);"></i><?= htmlspecialchars($utente['citta']) ?> • <?= htmlspecialchars($utente['eta']) ?> anni</p>
         </div>
+        <!--Possibilità di ricambiare il like-->
+        <?php
+            $me = $_SESSION['id_utente'];
+            $altro = $_GET['id'];
+
+            // Controllo se lui ha messo like a me
+            $sql = "SELECT * FROM likes 
+                WHERE id_mit = :altro AND id_dest = :me AND stato = 'like'";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+            ':altro' => $altro,
+            ':me' => $me
+            ]);
+            $haMessoLike = $stmt->fetch(PDO::FETCH_ASSOC);
+        ?>
+
+    <?php 
+    if ($haMessoLike): ?>
+        <div class="d-flex justify-content-center">
+        <a href="azione.php?id=<?= $altro ?>&azione=like" 
+            class="btn w-25 mt-2" style="border: 2px solid #a31f5f; background-color:#a31f5f; color:white;">
+            🤍 Ricambia il like
+        </a>
+    </div>
+    <?php else: ?>
+        <div class="d-flex justify-content-center">
+        <a href="azione.php?id=<?= $altro ?>&azione=like" 
+            class="btn w-25 mt-2" style="border: 2px solid #a31f5f; background-color:#a31f5f; color:white;">
+            🤍 Lascia un like...
+        </a>
+    </div>
+
+    <?php endif; ?>
+
     
         <hr>
               <!-- galleria foto -->
@@ -288,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="row text-center w-100">
 
             <div class="col">
-                <a href="home.php" class="text-decoration-none text-dark">
+                <a href="match.php" class="text-decoration-none text-dark">
                     <?php include "cupido.php"; ?>
                 </a>
             </div>
@@ -299,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
 
             <div class="col">
-                <a href="match.php" class="text-decoration-none text-dark">
+                <a href="chatList.php" class="text-decoration-none text-dark">
                     <i class="bi bi-chat-heart fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>

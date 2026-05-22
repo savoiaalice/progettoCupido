@@ -110,7 +110,7 @@ session_start();
                 <!-- logo e nome -->
                 <div class="text-center mb-4">
                     <div class="brand-logo mb-2">
-                        <i class="bi bi-arrow-through-heart" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <?php include "cupido.php"; ?>
                     </div>
                     <h1 class="fw-bold" style="letter-spacing: 2px;">CUPIDO</h1>
                 </div>
@@ -124,10 +124,12 @@ session_start();
                 <!-- oggetto form -->
                 <form id="login-form" method="POST" action="azioni_utente.php">
                     <input type="hidden" name="azione" value="accesso">
+
                     <div class="mb-3">
                         <label for="id_utente" class="form-label small fw-bold">Username</label>
-                        <input type="text" class="form-control" name="id_utente" required>
+                        <input type="id_utente" class="form-control" name="id_utente" required>
                     </div>
+                    
                     <div class="mb-3">
                         <label for="email" class="form-label small fw-bold">Indirizzo Email</label>
                         <input type="email" class="form-control" name="email" required>

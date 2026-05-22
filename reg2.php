@@ -1,5 +1,5 @@
 <?php
-    require __DIR__ . '/connessioneDB.php';
+    require 'connessioneDB.php';
     session_start();
 ?>
 <!DOCTYPE html>
@@ -103,7 +103,7 @@
         <div class="col-lg-5 auth-section">
             <div class="text-center mb-4">
                 <div class="brand-logo mb-2">
-                    <i class="bi bi-arrow-through-heart" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+                    <?php include "cupido.php"; ?>
                 </div>
                 <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
             </div>
@@ -152,6 +152,7 @@
                 </div>
 
                 <br>
+               
 
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary-action text-white btn-lg">
@@ -171,9 +172,8 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-<!-- servirà per il server a calcolare le distanze tra gli users-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+<!-- servirà per il server -->
     function rilevaPosizione(){
         const status = document.getElementById('status-localizzazione');
         const locationInput = document.getElementById('location');
@@ -201,7 +201,7 @@
         );
     }
 
-<!-- br aggiunto per poter inviare il file  -->
+<!-- br aggiunto per poter inciare il file  -->
 </script>
 </body>
 </html>

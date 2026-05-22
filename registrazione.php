@@ -1,10 +1,3 @@
-<?php
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-    require __DIR__ . '/connessioneDB.php';
-    session_start();
-?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -13,7 +6,7 @@
     <title>Cupido - Registrazione</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-   
+    
     <style>
         :root {
             --primary-color: #c62874;
@@ -35,7 +28,7 @@
         }
 
         .hero-section {
-            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)),
+            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)), 
                         url('https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1471&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
@@ -104,7 +97,7 @@
         <div class="col-lg-5 auth-section">
             <div class="text-center mb-4">
                 <div class="brand-logo mb-2">
-                    <i class="bi bi-arrow-through-heart" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+                    <?php include "cupido.php"; ?>
                 </div>
                 <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
             </div>
@@ -127,12 +120,15 @@
                     <input type="text" class="form-control" name="nome" required>
                 </div>
                 <div class="mb-3">
+                    <!-- questo for coincide con l'id dell'input, serve per fare leggere lo screen reader,
+                    elemento utile per i non vedenti,
+                    aumenta l'area di click senza che l'utente debba essere preciso-->
                     <label for="cognome" class="form-label small fw-bold">Cognome</label>
                     <input type="text" class="form-control" name="cognome" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="id_utente" class="form-label small fw-bold">Username</label>
+                    <label for="username" class="form-label small fw-bold">Username</label>
                     <input type="text" class="form-control" name="id_utente" required>
                 </div>
 
@@ -140,15 +136,15 @@
                     <label for="email" class="form-label small fw-bold">Indirizzo Email</label>
                     <input type="email" class="form-control" name="email" required>
                 </div>
-               
+                
                 <div class="mb-3">
                     <label for="password" class="form-label small fw-bold">Password</label>
                     <input type="password" class="form-control" name="password" required>
                 </div>
 
-               
+                
                 <div class="mb-3">
-                    <label for="eta" class="form-label small fw-bold">Età:</label>
+                    <label for="age" class="form-label small fw-bold">Età:</label>
                     <input type="number" class="form-control rounded-pill border-2" name="eta" min="18" max="100" style="width: 100px;" required>
                 </div>
 
@@ -159,7 +155,7 @@
                             <i class="bi bi-geo-alt-fill" text-danger></i>
                         </span>
                         <input type="text" class="form-control border-2 rounded-pill" name="citta" required>
-                        <button type="button" class="btn btn-otline-secondary border-2 rounded-pill">
+                        <button class="btn btn-otline-secondary border-2 rounded-pill">
                             <i class="bi bi-gps-fixed" style="color: var(--primary-color);"></i>
                         </button>
                     </div>
