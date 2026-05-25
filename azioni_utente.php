@@ -13,26 +13,27 @@ switch ($azione) {
 
         $sql = "SELECT * FROM datiregistrazione 
                 WHERE email = :email 
-                AND password = :password
                 AND id_utente= :id_utente";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':email' => $email,
-            ':password' => $password,
             ':id_utente' => $id_utente
         ]);
 
         $utente = $stmt->fetch();
 
-        if ($utente) {
-            $_SESSION['id_utente'] = $utente['id_utente'];
-            header("Location: match.php");
-            exit();
-        } else {
-            echo "<script>alert('Email o password errati'); window.location.href='index.php';</script>";
-            exit();
-        }
+        if (!$utente) {
+        die("Errore: Nessun utente trovato con questa email e ID.");
+    } else {
+        echo "Utente trovato! <br>";
+        echo "Password inserita: " . htmlspecialchars($password) . "<br>";
+        echo "Hash nel database: " . htmlspecialchars($utente['password']) . "<br>";
+        
+        $verifica = password_verify($password, $utente['password']);
+        echo "Risultato password_verify: " . ($verifica ? 'VERO' : 'FALSO');
+        die(); // Blocca tutto qui
+    }
         break;
 
     case 'registrazione1':
@@ -52,6 +53,7 @@ switch ($azione) {
             header("Location: home.php");
             exit();
         }
+        $passwordCriptata = password_hash($password, PASSWORD_DEFAULT);
         try {
             $pdo->beginTransaction();
 
@@ -63,7 +65,7 @@ switch ($azione) {
             $stmt1->execute([
                 ':id_utente' => $id_utente,
                 ':email' => $email,
-                ':pass' => $password,
+                ':pass' => $passwordCriptata,
                 ':nome' => $nome,
                 ':cognome' => $cognome,
                 ':eta' => $eta,
@@ -231,13 +233,15 @@ switch ($azione) {
                 ':id'=>$id_utente,
                 ':percorso'=>$percorso
             ]);
+        }
+            // echo "OK";
+            // } else {
+            // echo "ERRORE MOVE";
+            // }
 
-            echo "OK";
-            } else {
-            echo "ERRORE MOVE";
-            }
-
-break;
+            header("Location: reg4.php");
+            exit();
+        break;
 
 
     case 'carica_foto_card':
@@ -259,7 +263,9 @@ break;
             ]);
         }
 
-    break;
+     header("Location: reg4.php");
+     exut();   
+     break;
 
     default:
         header("Location: home.php");

@@ -104,10 +104,10 @@
                                 CARICA FOTO 
                                 <i class="bi bi-cloud-arrow-up-fill me-2"></i>
                             </button>
-                    </div>
+                        </div>
                     </div> 
                 </form>                    
-                <form action="azioni_utente.php" method="POST" enctype="multipart/form-data">
+                <form action="match.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="azione" value="carica_foto_card">
                     <div class="mb-4">
                         <label for="fotoCard" class="form-title">Seleziona dal dispositivo foto prda aggiungere</label>
@@ -121,13 +121,14 @@
                         </div>
                     </div>
                     <br>
-                </form>
-                <!--
-                <div class="d-grid">
+                    <div class="d-grid">
                         <button type="submit" class="btn btn-primary-action text-white btn-lg">
                             SALVA  
                         </button>
-                    </div>-->
+                    </div>
+                </form>
+                
+                
 
                 <div class="mt-4 text-center">
                     <p class="small"> 

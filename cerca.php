@@ -11,7 +11,7 @@ if (!isset($_SESSION['id_utente'])) {
     exit();
 }
 
-$id_loggato = $_SESSION['id_utente'];
+$id = $_SESSION['id_utente'];
 
 // Inizializziamo l'array degli utenti trovati
 $utenti_trovati = [];
@@ -22,18 +22,19 @@ $citta_cercata = isset($_GET['citta']) ? trim($_GET['citta']) : '';
 if (!empty($citta_cercata)) {
     // Cerchiamo gli utenti della città specificata, escludendo se stessi
     // Nota: adegua i nomi delle colonne se nel tuo DB sono diversi
-    $stmt = $pdo->prepare("SELECT * FROM datiregistrazione WHERE citta LIKE :citta AND id_utente != :id_loggato");
+    $stmt = $pdo->prepare("SELECT * FROM datiregistrazione WHERE citta LIKE :citta AND id_utente != :id");
     $stmt->execute([
         ':citta' => '%' . $citta_cercata . '%',
-        ':id_loggato' => $id_loggato
+        ':id' => $id
     ]);
     $utenti_trovati = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
     // Se non ha ancora cercato nulla, possiamo mostrare ad esempio gli ultimi iscritti (opzionale)
-    $stmt = $pdo->prepare("SELECT * FROM datiregistrazione WHERE id_utente != :id_loggato ORDER BY id_utente DESC LIMIT 6");
-    $stmt->execute([':id_loggato' => $id_loggato]);
+    $stmt = $pdo->prepare("SELECT * FROM datiregistrazione WHERE id_utente != :id ORDER BY id_utente");
+    $stmt->execute([':id' => $id]);
     $utenti_trovati = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -67,6 +68,9 @@ if (!empty($citta_cercata)) {
             border-radius: 15px;
             transition: transform 0.2s, box-shadow 0.2s;
             border: none;
+            min-height: 95px;
+            display: flex;
+            align-items:center;
         }
         .user-result-card:hover {
             transform: translateY(-5px);
@@ -86,6 +90,11 @@ if (!empty($citta_cercata)) {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.25rem rgba(198, 40, 116, 0.25);
         }
+        .avatar{
+            width: 55px; height:55px; border:2px solid var(--primary-color);
+            object-fit:cover;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
@@ -98,7 +107,7 @@ if (!empty($citta_cercata)) {
                 <h3 class="fw-bold mb-3" style="color: var(--primary-color);"><i class="bi bi-search-heart"></i> Trova la tua persona </h3>
                 <form action="cerca.php" method="GET" class="row g-2">
                     <div class="col-9">
-                        <input type="text" name="citta" class="form-control form-control-lg" placeholder="Scrivi una città (es. Milano)..." value="<?= htmlspecialchars($citta_cercata) ?>">
+                        <input type="text" name="citta" class="form-control form-control-lg" placeholder="Inserisci una città (es. Milano)..." value="<?= htmlspecialchars($citta_cercata) ?>">
                     </div>
                     <div class="col-3">
                         <button type="submit" class="btn btn-custom btn-lg w-100">Cerca</button>
@@ -109,32 +118,42 @@ if (!empty($citta_cercata)) {
             <h4 class="fw-bold mb-3 text-dark">Persone che potrebbero interessarti:</h4>
             
             <?php if (empty($utenti_trovati)): ?>
+                
                 <div class="alert alert-light text-center py-4 shadow-sm rounded-4">
                     <i class="bi bi-emoji-frown fs-2 text-muted"></i>
                     <p class="text-muted mt-2 mb-0">Nessun utente trovato con i filtri selezionati.</p>
                 </div>
             <?php else: ?>
                 <div class="row g-3">
-                    <?php foreach ($utenti_trovati as $utente): ?>
+
+                <?php foreach($utenti_trovati as $utente): ?>
+                    <?php $sqlFotoAvatar = "SELECT percorso FROM foto_utenti
+                    WHERE id_utente = :id_cercato AND tipo = 'profilo' LIMIT 1";
+
+                    $stmtFotoAvatar = $pdo->prepare($sqlFotoAvatar);
+                    $stmtFotoAvatar->execute([':id_cercato'=>$utente['id_utente']]);
+                    $fotoAvatar = $stmtFotoAvatar->fetch();
+                    ?>
+               
                         <div class="col-12 col-sm-6">
-                            <div class="card user-result-card p-3 shadow-sm">
+                            <a href="profiloUtente.php?id=<?= urlencode($utente['id_utente']) ?>" class="text-decoration-none text-dark" >
+                            <div class="card user-result-card p-3 shadow-sm h-100 w-100 d-flex flex-row align-items-center" style="cursor-pointer;">
                                 <div class="d-flex align-items-center">
                                     <div class="me-3">
-                                        <i class="bi bi-person-circle fs-1" style="color: var(--primary-color);"></i>
+                                        <img src="<?= htmlspecialchars($fotoAvatar['percorso'] ?? 'default.jpg')?>" class="avatar">
+                                        
+
                                     </div>
                                     <div class="flex-grow-1">
                                         <h5 class="fw-bold mb-0"><?= htmlspecialchars($utente['nome'] . " " . $utente['cognome']) ?></h5>
-                                        <small class="text-muted">
-                                            <i class="bi bi-geo-alt-fill text-muted"></i> <?= htmlspecialchars($utente['citta']) ?> • <?= htmlspecialchars($utente['eta']) ?> anni
+                                        <small class="me-3">
+                                            <i class="bi bi-geo-alt-fill" style="color: var(--primary-color);"></i> <?= htmlspecialchars($utente['citta']) ?> • <?= htmlspecialchars($utente['eta']) ?> anni
                                         </small>
                                     </div>
-                                    <div>
-                                        <a href="profiloUtente.php?id=<?= urlencode($utente['id_utente']) ?>" class="btn btn-sm btn-outline-secondary rounded-pill">
-                                            Vedi <i class="bi bi-arrow-right-short"></i>
-                                        </a>
-                                    </div>
+                                    
                                 </div>
                             </div>
+                            </a>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -158,7 +177,7 @@ if (!empty($citta_cercata)) {
                 </a>
             </div>
             <div class="col">
-                <a href="chatList.php" class="text-decoration-none text-dark">
+                <a href="match.php" class="text-decoration-none text-dark">
                     <i class="bi bi-chat-heart fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>

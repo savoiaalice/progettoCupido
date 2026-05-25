@@ -1,5 +1,5 @@
 <?php
-session_start(); // <-- 1. PRIMISSIMA COSA IN ASSOLUTO!
+session_start(); // PRIMISSIMA COSA IN ASSOLUTO!
 require __DIR__ . "/connessioneDB.php";
 
 // controllo se login è giusto
@@ -30,7 +30,7 @@ $stmtFoto = $pdo->prepare($sqlFotoProfilo);
 $stmtFoto->execute([':id' => $id]);
 $fotoProfilo = $stmtFoto->fetch();
 
-$sqlGalleria = "SELECT percorso FROM foto_utenti 
+$sqlGalleria = "SELECT id_foto, percorso FROM foto_utenti 
                 WHERE id_utente = :id AND tipo = 'galleria'";
 $stmtGall = $pdo->prepare($sqlGalleria);
 $stmtGall->execute([':id' => $id]);
@@ -53,6 +53,7 @@ $aggettivi = $stmtAgg->fetch();
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Profilo Utente</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -69,11 +70,11 @@ $aggettivi = $stmtAgg->fetch();
         }
 
         .main-wrapper {
-            min-height: 100vh;
-            display: flex;
+            min-height: auto;
+            display: block;
             align-items: center;
             justify-content: center;
-            padding: 2rem 0;
+            padding: 1rem 0 80px 0;
         }
 
         .hero-section {
@@ -134,9 +135,12 @@ $aggettivi = $stmtAgg->fetch();
         }
 
         .profile-card {
-            background: white; border-radius: 20px; padding: 2rem;
+            background: white; 
+            border-radius: 20px; 
+            padding: 1rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             position: relative;
+            margin: 0 10px; /*margine laterale*/
         }
         .profile-img {
             width: 180px; height: 180px; border-radius: 50%;
@@ -148,7 +152,6 @@ $aggettivi = $stmtAgg->fetch();
             margin: 3px; display: inline-block;
         }
         
-       
         .galleria {
             width: 100%; 
             padding-top: 100%; 
@@ -171,32 +174,42 @@ $aggettivi = $stmtAgg->fetch();
 
 <body>
 <div class="container py-5">
-    <div class="profile_card mx-auto col-lg-8" style="position: relative;">
+    <div class="profile-card mx-auto col-lg-8" style="position: relative;">
         <a href="logout.php" class="btn btn-primary-action position-absolute text-white btn-sm px-2 py-0"
            style="top:24px; right: 24px; font-size: 12px; padding: 5px 12px; z-index: 10;">
             Logout
         </a>
-    </div>
-    <div class="profile-card mx-auto col-lg-8">
+    
         <div class="text-center mb-4">
-            <div class="d-inline-block position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modificaFotoProfilo">
+            <div class="d-inline-block position-relative" 
+                 style="cursor: pointer;" 
+                 data-bs-toggle="modal" 
+                 data-bs-target="#visualizzaFoto"
+                 data-bs-tipo="profilo"
+                 data-bs-remote="<?= htmlspecialchars($fotoProfilo['percorso'] ?? 'default.jpg') ?>">
                 <img src="<?= $fotoProfilo['percorso'] ?? 'default.jpg' ?>" class="profile-img shadow">
             </div>
 
-            <!-- usiamo htmlspecialchars per stabilizzare il layout, 
-             questa funzione prende tutti i caratteri inseriti da tastiera dall'utente compresi 
-             caratteri speciali e li rende stringa senza fare "capricci"  -->
             <h2 class="mt-3"><?= htmlspecialchars($utente['nome'] . " " . $utente['cognome']) ?></h2>
-            <p class="text-muted">
-                <i class="bi bi-geo-alt-fill" style="color: var(--primary-color);"></i><?= htmlspecialchars($utente['citta']) ?> • <?= htmlspecialchars($utente['eta']) ?> anni</p>
+            <p class="text-muted mb-2">
+                <i class="bi bi-geo-alt-fill" style="color: var(--primary-color);"></i><?= htmlspecialchars($utente['citta']) ?> • <?= htmlspecialchars($utente['eta']) ?> anni
+            </p>
+
+            <button type="button" 
+                    class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+                    style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#caricaNuovoProfilo">
+                <i class="bi bi-pencil-fill me-1"></i> Modifica foto profilo
+            </button>
         </div>
     
         <hr>
-              <!-- galleria foto -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Galleria foto</h4>
             
-            <button class="btn btn-primary-action text-white btn-sm px-2 py-0"
+            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+                    style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal"
                     data-bs-target="#carica_nuova_foto">
                 Aggiungi foto
@@ -208,6 +221,8 @@ $aggettivi = $stmtAgg->fetch();
                 <?php foreach ($galleria as $foto): ?>
                     <div class="col-4 mb-3">
                         <div class="galleria" 
+                             data-bs-tipo="galleria"
+                             data-bs-id="<?= $foto['id_foto'] ?? '' ?>"
                              data-bs-toggle="modal" 
                              data-bs-target="#visualizzaFoto" 
                              data-bs-remote="<?= htmlspecialchars($foto['percorso']) ?>"
@@ -221,13 +236,13 @@ $aggettivi = $stmtAgg->fetch();
             <?php endif; ?>
         </div>
         <hr>
-        <!-- Informazioni personali -->
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h4 style="color: var(--primary-color);">Informazioni personali</h4>
-            <button class="btn btn-primary-action text-white btn-sm px-2 py-0" 
+            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+                    style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal"
                     data-bs-target="#modificaInformazioni">
-                    Modifica
+                    <i class="bi bi-pencil me-1"></i>Modifica
             </button>
         </div>
         <div class="row">
@@ -241,13 +256,13 @@ $aggettivi = $stmtAgg->fetch();
         </div>
         <hr>
 
-        <!-- Interessi -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Interessi</h4>
-            <button class="btn btn-primary-action text-white btn-sm px-2 py-0"
+            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+                    style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal"
                     data-bs-target="#modificaInteressi">
-                    Modifica
+                    <i class="bi bi-pencil me-1"></i>Modifica
             </button>
         </div>
        
@@ -261,17 +276,16 @@ $aggettivi = $stmtAgg->fetch();
             <?php endif; ?>
         </div>
         <hr>
-        <!-- Aggettivi --> 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Come mi descrivo</h4>
-            <button class="btn btn-primary-action text-white btn-sm px-2 py-0"
+            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+                    style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal"
                     data-bs-target="#modificaAggettivi">
-                    Modifica
+                    <i class="bi bi-pencil me-1"></i>Modifica
             </button>
         </div>
         <div class="mb-4">
-        
             <?php if ($aggettivi): ?>
                 <?php foreach ($aggettivi as $chiave => $valore): ?>
                     <?php if (!is_numeric($chiave) && ($chiave != "id_utente" && $valore == 1)): ?>
@@ -279,37 +293,6 @@ $aggettivi = $stmtAgg->fetch();
                     <?php endif; ?>
                 <?php endforeach; ?>
             <?php endif; ?>
-       
-        </div>
-
-    </div>
-</div>
-
-<!-- azioni modal -->
-<div class="modal fade" id="modificaFotoProfilo" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content shadow border-0" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="form-title w-100 text-center" style="font-size: 1.5rem;">Foto profilo</h5>
-            </div>
-            <hr class="mx-4 my-3">
-            <div class="modal-body pt-0 px-4 pb-4">
-                <div class="d-grid gap-3">
-                    <a href="<?= $fotoProfilo['percorso'] ?? 'default.jpg' ?>"
-                       target="_blank"
-                       class="btn btn-outline-primary rounded-pill py-2 text-decoration-none shadow-sm"
-                       style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;">
-                        Visualizza foto profilo
-                    </a>
-                    <button type="button"
-                            class="btn btn-primary-action rounded-pill py-2 shadow"
-                            style="font-weight: 500;"
-                            data-bs-toggle="modal"
-                            data-bs-target="#caricaNuovoProfilo">
-                        Modifica foto profilo
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -336,9 +319,7 @@ $aggettivi = $stmtAgg->fetch();
         </div>
     </div>
 </div>
-<!-- aggiungo funzione registrazione1 per vedere se posso riusarla per rendere il codice modulare
- la inserisco in un form
- forse mi basta questo che c'è già agiungendoci una action -->
+
 <div class="modal fade" id="modificaInformazioni" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content content-box">
@@ -404,9 +385,6 @@ $aggettivi = $stmtAgg->fetch();
         <div class="modal-content content-box">
             <form action="azioni_modifica.php" method="POST">
                 <input type="hidden" name="azione" value="registrazione_interessi">
-                <!-- aggiungo un hide con nome provenienza per capire da dove arriva il codice, non solo per dirgi dove andare
-                 sto rendendo modulare il codice, quindi usando le stesse funzioni per la registrazione e la modifica del profilo
-                 devo dire all'utente a quale pagina recarsi dopo in base alla casistica di partenza -->
                 <input type="hidden" name="provenienza" value="profilo">
                 <div class="modal-header border-0">
                     <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Interessi</h5>
@@ -486,7 +464,17 @@ $aggettivi = $stmtAgg->fetch();
 <div class="modal fade" id="visualizzaFoto" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-transparent border-0 position-relative">
-            <button type="button" class="btn-close btn-close-white position-absolute" data-bs-dismiss="modal" style="top: -30px; right: 0; z-index: 1100;"></button>
+            <div class=" d-flex align-items-center gap-3" style="position: absolute; top: 15px; right: 5px; z-index: 1100;">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <form id="rimuoviFoto" action="azioni_modifica.php" method="POST" class="d-inline m-0 p-0" onsubmit="return confirm('Sicuro di voler cancellare questa foto?')">
+                    <input type="hidden" name="azione" value="elimina_foto">
+                    <input type="hidden" name="id_foto" id="idFotoEliminare" value="">
+                    <button type="submit" class="btn text-white d-flex align-items-center justify-content-center">
+                        <i class="bi bi-trash fs-5"></i>
+                    </button>  
+                </form>
+            </div>
+            
             <div class="modal-body p-0 text-center">
                 <img src="" id="fotoIngrandita" class="img-fluid rounded shadow-lg" style="max-height: 80vh; object-fit: contain;">
             </div>
@@ -496,27 +484,41 @@ $aggettivi = $stmtAgg->fetch();
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- script per permettere di aprire le foto della galleria, senza uno script dovremmo crare un modal per ogni foto caricata dall'utente -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var modalFoto = document.getElementById('visualizzaFoto');
-    if (modalFoto) {
-        modalFoto.addEventListener('show.bs.modal', function (event) {
-            var contenitoreCliccato = event.relatedTarget;
-            var percorsoFile = contenitoreCliccato.getAttribute('data-bs-remote');
-            var imgTarget = document.getElementById('fotoIngrandita');
-            if (imgTarget) {
-                imgTarget.src = percorsoFile;
+    const modalVisualizza = document.getElementById('visualizzaFoto');
+    if(modalVisualizza){
+        modalVisualizza.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const percorsoFoto = button.getAttribute('data-bs-remote');
+            const tipoFoto = button.getAttribute('data-bs-tipo');
+
+            document.getElementById('fotoIngrandita').src = percorsoFoto;
+
+            const formRimuovi = document.getElementById('rimuoviFoto');
+            const idFotoElimina = document.getElementById('idFotoEliminare');
+
+            if(tipoFoto === 'profilo'){
+                if (formRimuovi) {
+                    formRimuovi.style.setProperty('display', 'none', 'important');
+                }
+            } else {
+                if (formRimuovi) {
+                    formRimuovi.style.setProperty('display', 'inline-block', 'important');
+                }
+                const idFoto = button.getAttribute('data-bs-id');
+                if(idFotoElimina){
+                    idFotoElimina.value = idFoto;
+                }
             }
         });
     }
 });
-
 </script>
-    <nav class="navbar fixed-bottom bg-white border-top">
+
+<nav class="navbar fixed-bottom bg-white border-top">
     <div class="container-fluid">
         <div class="row text-center w-100">
-
             <div class="col">
                 <a href="match.php" class="text-decoration-none text-dark">
                     <?php include "cupido.php"; ?>
@@ -527,19 +529,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     <i class="bi bi-search-heart fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>
-
             <div class="col">
-                <a href="chatList.php" class="text-decoration-none text-dark">
+                <a href="match.php" class="text-decoration-none text-dark">
                     <i class="bi bi-chat-heart fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>
-
             <div class="col">
                 <a href="profilo.php" class="text-decoration-none text-dark">
                     <i class="bi bi-person-circle fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>
-            </div>
+        </div>
     </div>
 </nav>
 </body>

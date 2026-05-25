@@ -59,6 +59,7 @@ $aggettivi = $stmtAgg->fetch();
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Profilo Utente</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -75,11 +76,11 @@ $aggettivi = $stmtAgg->fetch();
         }
 
         .main-wrapper {
-            min-height: 100vh;
-            display: flex;
+            min-height: auto;
+            display: block;
             align-items: center;
             justify-content: center;
-            padding: 2rem 0;
+            padding: 1rem 0 80px 0;
         }
 
         .hero-section {
@@ -140,9 +141,12 @@ $aggettivi = $stmtAgg->fetch();
         }
 
         .profile-card {
-            background: white; border-radius: 20px; padding: 2rem;
+            background: white; 
+            border-radius: 20px; 
+            padding: 1rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             position: relative;
+            margin: 0 10px;
         }
         .profile-img {
             width: 180px; height: 180px; border-radius: 50%;
@@ -154,7 +158,6 @@ $aggettivi = $stmtAgg->fetch();
             margin: 3px; display: inline-block;
         }
         
-       
         .galleria {
             width: 100%; 
             padding-top: 100%; 
@@ -167,6 +170,7 @@ $aggettivi = $stmtAgg->fetch();
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover;
+            object-position: center;
             transition: transform 0.3s ease;
         }
         .galleria:hover .galleria-imm {
@@ -179,9 +183,17 @@ $aggettivi = $stmtAgg->fetch();
 <div class="container py-5">
     <div class="profile-card mx-auto col-lg-8">
         <div class="text-center mb-4">
-            <div class="d-inline-block position-relative" style="cursor: pointer;">
-                <img src="<?= $fotoProfilo['percorso'] ?? 'default.jpg' ?>" class="profile-img shadow">
+        
+            <div class="d-inline-block position-relative"
+                
+                data-bs-toggle="modal"
+                data-bs-target="#visualizzaFoto" 
+                data-bs-remote="<?= htmlspecialchars($fotoProfilo['percorso']) ?>"
+                style="cursor: pointer;">    
+                
+                <img src ="<?= htmlspecialchars($fotoProfilo['percorso']) ?>" class="profile-img">
             </div>
+            
 
             <!-- usiamo htmlspecialchars per stabilizzare il layout, 
              questa funzione prende tutti i caratteri inseriti da tastiera dall'utente compresi 
@@ -190,40 +202,6 @@ $aggettivi = $stmtAgg->fetch();
             <p class="text-muted">
                 <i class="bi bi-geo-alt-fill" style="color: var(--primary-color);"></i><?= htmlspecialchars($utente['citta']) ?> • <?= htmlspecialchars($utente['eta']) ?> anni</p>
         </div>
-        <!--Possibilità di ricambiare il like-->
-        <?php
-            $me = $_SESSION['id_utente'];
-            $altro = $_GET['id'];
-
-            // Controllo se lui ha messo like a me
-            $sql = "SELECT * FROM likes 
-                WHERE id_mit = :altro AND id_dest = :me AND stato = 'like'";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-            ':altro' => $altro,
-            ':me' => $me
-            ]);
-            $haMessoLike = $stmt->fetch(PDO::FETCH_ASSOC);
-        ?>
-
-    <?php 
-    if ($haMessoLike): ?>
-        <div class="d-flex justify-content-center">
-        <a href="azione.php?id=<?= $altro ?>&azione=like" 
-            class="btn w-25 mt-2" style="border: 2px solid #a31f5f; background-color:#a31f5f; color:white;">
-            🤍 Ricambia il like
-        </a>
-    </div>
-    <?php else: ?>
-        <div class="d-flex justify-content-center">
-        <a href="azione.php?id=<?= $altro ?>&azione=like" 
-            class="btn w-25 mt-2" style="border: 2px solid #a31f5f; background-color:#a31f5f; color:white;">
-            🤍 Lascia un like...
-        </a>
-    </div>
-
-    <?php endif; ?>
-
     
         <hr>
               <!-- galleria foto -->
@@ -298,6 +276,17 @@ $aggettivi = $stmtAgg->fetch();
     </div>
 </div>
 
+<div class="modal fade" id="visualizzaFoto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0 position-relative">
+            <button type="button" class="btn-close btn-close-white position-absolute" data-bs-dismiss="modal" style="top: -30px; right: 0; z-index: 1100;"></button>
+            <div class="modal-body p-0 text-center">
+                <img src="" id="fotoIngrandita" class="img-fluid rounded shadow-lg" style="max-height: 80vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- script per permettere di aprire le foto della galleria, senza uno script dovremmo crare un modal per ogni foto caricata dall'utente -->
@@ -322,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="row text-center w-100">
 
             <div class="col">
-                <a href="match.php" class="text-decoration-none text-dark">
+                <a href="card.php" class="text-decoration-none text-dark">
                     <?php include "cupido.php"; ?>
                 </a>
             </div>
@@ -333,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
 
             <div class="col">
-                <a href="chatList.php" class="text-decoration-none text-dark">
+                <a href="match.php" class="text-decoration-none text-dark">
                     <i class="bi bi-chat-heart fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>

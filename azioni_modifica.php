@@ -326,14 +326,52 @@ switch ($azione) {
         $maxEta   =$_POST['maxEta'] ?? null;
         $relazione =$_POST['relazione'] ?? null;
         
-        // le check box non inviano dati se sono deselzionate, faccio un controllo e salvo 0 se non fosse stata cliccata 
+        if(!empty($password)){
+            $passwordDaSalvare = password_hash($password, PASSWORD_DEFAULT);
+        }else{
+            $passwordDaSalvare = null;
+        }        
         
-        
-        salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $password, 
+        salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $passwordDaSalvare, 
         $sesso, $sessoP, $distanza,  $maxEta, $relazione, true);
         header("Location: profilo.php");
         exit();
         break;
+
+    case 'elimina_foto':
+        $id_utente = $_SESSION['id_utente'];
+        if(isset($_POST['id_foto']) && !empty($_POST['id_foto'])){
+            $id_foto = intval($_POST['id_foto']);
+
+            // recupero percorso per poter eliminarlo
+            $sqlPercorso = "SELECT percorso FROM foto_utenti
+                WHERE id_foto=:id_foto AND id_utente = :id_utente AND tipo = 'galleria'";
+            $stmtPercorso = $pdo->prepare($sqlPercorso);
+            $stmtPercorso->execute([
+                ':id_foto'=> $id_foto,
+                ':id_utente'=> $id_utente
+            ]);
+            $foto = $stmtPercorso->fetch();
+
+            if($foto){
+                $percorsoFoto = $foto['percorso'];
+
+                $sqlElimina = "DELETE FROM foto_utenti
+                        WHERE id_foto = :id_foto AND id_utente = :id_utente";
+                $stmtElimina= $pdo->prepare($sqlElimina);
+                $stmtElimina->execute([
+                    ':id_foto' => $id_foto,
+                    ':id_utente' => $id_utente
+
+                ]);
+                if(file_exists($percorsoFoto) && is_file($percorsoFoto)){
+                    unlink($percorsoFoto);
+                }
+            }
+        }
+        header("Location: profilo.php");
+                exit();
+                break;
     
 
     default:
@@ -341,7 +379,7 @@ switch ($azione) {
         exit();
 }
 
-function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $password, 
+function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $passwordDaSalvare, 
         $sesso, $sessoP, $distanza,  $maxEta, $relazione, $modifica_dati = true) {
     
     if($modifica_dati){

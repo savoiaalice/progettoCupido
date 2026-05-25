@@ -45,8 +45,7 @@ if (!$matchTrovato) {
         window.location.href = 'profilo.php';
     </script>
     ";
-}else{
-    include "card.php";
 }
 
 
+include "card.php";
