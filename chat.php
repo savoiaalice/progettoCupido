@@ -5,11 +5,9 @@ session_start();
 if (!isset($_SESSION['id_utente'])) {
     die("ERRORE: utente non loggato.");
 }
-
 $id_utente = $_SESSION['id_utente'];
 $id_altro = isset($_GET['id']) && $_GET['id'] !== '' ? $_GET['id'] : null;
 $chatVuota = ($id_altro === null);
-
 
 $altro = null;
 if (!$chatVuota) {
@@ -28,6 +26,7 @@ if (!$chatVuota) {
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
         <?php if ($chatVuota): ?>
             Chat
@@ -36,16 +35,14 @@ if (!$chatVuota) {
         <?php endif; ?>
     </title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
         body {
             margin: 0;
-            background: #f7f7f7;
-            font-family: Arial, sans-serif;
+            background: #fce4ec;
+            font-family: "Montserrat", sans-serif;
         }
         .chat-header {
             background: #a31f5f;
@@ -76,34 +73,43 @@ if (!$chatVuota) {
             margin: 8px 0;
             max-width: 70%;
             margin-left: auto;
+            word-wrap: break-word;
         }
         .suo {
-            background: #e4e4e4;
+            background: white;
             color: #333;
             padding: 10px 14px;
             border-radius: 12px;
             margin: 8px 0;
             max-width: 70%;
             margin-right: auto;
+            word-wrap: break-word;
         }
-        .chat-input {
-            display: flex;
-            padding: 10px;
+        .chat-input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background: white;
             border-top: 1px solid #ccc;
+            padding: 10px;
         }
-        .chat-input input {
+        .chat-input-container form {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+        }
+        .chat-input-container input {
             flex: 1;
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #ccc;
         }
-        .chat-input button {
+        .chat-input-container button {
             background: #a31f5f;
             color: white;
             border: none;
             padding: 10px 16px;
-            margin-left: 10px;
             border-radius: 8px;
             cursor: pointer;
         }
@@ -140,22 +146,19 @@ if (!$chatVuota) {
                 Quando farai match o riceverai un like, potrai iniziare a chattare da qui.
             </div>
 
-            <!-- BOX NOTIFICHE -->
-            <div id="notificheBox" style="margin-top:20px; font-size:20px; color:#a31f5f;"></div>
+            <div id="notificheBox" style="margin-top:20px; font-size:18px; color:#a31f5f; font-weight: 600;"></div>
         </div>
     <?php else: ?>
         <div id="chat-box"></div>
     <?php endif; ?>
 
-    <!-- FORM MESSAGGIO (serve anche se disabilitato) -->
-    <div class="chat-input">
-        <form id="formMessaggio" style="display:flex; width:100%;">
-            <input type="text" id="testo" placeholder="Scrivi un messaggio..." <?php if ($chatVuota) echo 'disabled'; ?>>
+    <div class="chat-input-container">
+        <form id="formMessaggio">
+            <input type="text" id="testo" name="testo" placeholder="Scrivi un messaggio..." <?php if ($chatVuota) echo 'disabled'; ?> autocomplete="off">
             <button type="submit" <?php if ($chatVuota) echo 'disabled'; ?>>Invia</button>
         </form>
     </div>
 
-    <!-- SCRIPT CHAT -->
     <script>
         const CHAT_ID_ALTRO = <?= $chatVuota ? 'null' : json_encode($id_altro) ?>;
         const chatBox = document.getElementById("chat-box");
@@ -163,34 +166,38 @@ if (!$chatVuota) {
         function caricaChat() {
             if (!CHAT_ID_ALTRO) return;
 
-            fetch("caricaChat.php?id=" + CHAT_ID_ALTRO)
+            // encodeURIComponent serve a proteggere l'URL se l'username contiene caratteri speciali o spazi
+            fetch("caricaChat.php?id=" + encodeURIComponent(CHAT_ID_ALTRO))
                 .then(r => r.text())
                 .then(html => {
                     chatBox.innerHTML = html;
                     chatBox.scrollTop = chatBox.scrollHeight;
-                });
+                }).catch(err => console.error("Errore caricamento chat:", err));
         }
 
-        document.getElementById("formMessaggio").addEventListener("submit", function(e){
-            e.preventDefault();
-            if (!CHAT_ID_ALTRO) return;
+        if (!<?= $chatVuota ? 'true' : 'false' ?>) {
+            document.getElementById("formMessaggio").addEventListener("submit", function(e){
+                e.preventDefault();
+                if (!CHAT_ID_ALTRO) return;
 
-            const testo = document.getElementById("testo").value.trim();
-            if (!testo) return;
+                const inputTesto = document.getElementById("testo");
+                const testo = inputTesto.value.trim();
+                if (!testo) return;
 
-            const data = new URLSearchParams();
-            data.append("testo", testo);
-            data.append("id_dest", CHAT_ID_ALTRO);
+                const data = new URLSearchParams();
+                data.append("testo", testo);
+                data.append("id_dest", CHAT_ID_ALTRO);
 
-            fetch("inviaMessaggio.php", {
-                method: "POST",
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: data.toString()
-            }).then(() => {
-                document.getElementById("testo").value = "";
-                caricaChat();
+                fetch("inviaMessaggio.php", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data.toString()
+                }).then(() => {
+                    inputTesto.value = "";
+                    caricaChat();
+                }).catch(err => console.error("Errore invio messaggio:", err));
             });
-        });
+        }
 
         if (CHAT_ID_ALTRO) {
             setInterval(caricaChat, 1500);
@@ -198,10 +205,9 @@ if (!$chatVuota) {
         }
     </script>
 
-    <!-- SCRIPT NOTIFICHE 
     <script>
         function aggiornaNotificheChatVuota() {
-            if (CHAT_ID_ALTRO) return;
+            if (CHAT_ID_ALTRO) return; // Se la chat è attiva, questo script si ferma
 
             fetch("notifiche.php")
                 .then(r => r.json())
@@ -214,14 +220,14 @@ if (!$chatVuota) {
                     if (data.messaggi > 0) html += `💬 ${data.messaggi} messaggi non letti<br>`;
 
                     box.innerHTML = html;
-                });
+                }).catch(err => console.get ? console.error("Errore notifiche:", err) : null);
         }
 
-        setInterval(aggiornaNotificheChatVuota, 2000);
-        aggiornaNotificheChatVuota();
+        if (!CHAT_ID_ALTRO) {
+            setInterval(aggiornaNotificheChatVuota, 2000);
+            aggiornaNotificheChatVuota();
+        }
     </script>
-    -->
-    
 
 </body>
 </html>
