@@ -6,91 +6,6 @@ $azione = $_POST['azione'] ?? '';
 
 switch ($azione) {
 
-    case 'accesso':
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $id_utente= $_POST['id_utente'] ?? '';
-
-        $sql = "SELECT * FROM datiregistrazione 
-                WHERE email = :email 
-                AND password = :password
-                AND id_utente= :id_utente";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':email' => $email,
-            ':password' => $password,
-            ':id_utente' => $id_utente
-        ]);
-
-        $utente = $stmt->fetch();
-
-        if ($utente) {
-            $_SESSION['id_utente'] = $utente['id_utente'];
-            header("Location: profilo.php");
-            exit();
-        } else {
-            echo "<script>alert('Email o password errati'); window.location.href='index.php';</script>";
-            exit();
-        }
-        var_dump($_POST);
-    exit();
-        break;
-
-    case 'registrazione1':
-        $id_utente = $_POST['id_utente'] ?? null;
-        $email     = $_POST['email'] ?? null;
-        $password  = $_POST['password'] ?? null; 
-        $nome      = $_POST['nome'] ?? null;
-        $cognome   = $_POST['cognome'] ?? null;
-        $eta       = $_POST['eta'] ?? null;
-        $citta     = $_POST['citta'] ?? null;
-
-        if (
-            empty($nome)|| empty($cognome) ||
-            empty($email) || empty($password) || empty($eta) || empty($citta) || empty($id_utente)
-        ) {
-            
-            header("Location: reg3.php");
-            exit();
-        }
-        try {
-            $pdo->beginTransaction();
-
-            $sql1 = "INSERT INTO datiregistrazione 
-                    (id_utente, email, password, nome, cognome, sesso, eta, citta, maxEta, distanza, sessoP, relazione) 
-                     VALUES 
-                    (:id_utente, :email, :pass, :nome, :cognome, NULL, :eta, :citta, NULL, NULL, NULL, NULL)";
-            $stmt1 = $pdo->prepare($sql1);
-            $stmt1->execute([
-                ':id_utente' => $id_utente,
-                ':email' => $email,
-                ':pass' => $password,
-                ':nome' => $nome,
-                ':cognome' => $cognome,
-                ':eta' => $eta,
-                ':citta' => $citta,
-            ]);
-            //inserisco già l'id_utente nelle altre tabelle per poi verificare che sia lo stesso ed apportare delle modifiche//
-            $sql2 = "INSERT INTO interessi (id_utente) VALUES (:id_utente)";
-            $stmt2 = $pdo->prepare($sql2);
-            $stmt2->execute([':id_utente' => $id_utente]);
-
-            $sql3 = "INSERT INTO aggettivi (id_utente) VALUES (:id_utente)";
-            $stmt3 = $pdo->prepare($sql3);
-            $stmt3->execute([':id_utente' => $id_utente]);
-
-
-            $pdo->commit();
-            $_SESSION['id_utente'] = $id_utente; //sta prendendo ora l'id e lo sta associando alla tabella//
-            header("Location: reg1.php");
-            exit();
-        }catch (Exception $e) {
-            $pdo->rollBack();
-            echo "Errore: " . $e->getMessage();}
-    
-        break;
-
     case 'registrazione_interessi':
         $id_utente=$_SESSION['id_utente'];
 
@@ -188,52 +103,6 @@ switch ($azione) {
     exit();
     break;
 
-
-    case 'registrazione2':
-        $id_utente = $_SESSION['id_utente'];
-        $sesso     = $_POST['sesso'] ?? null;
-        $sessoP    =$_POST['sessoP'] ?? null;
-        $relazione =$_POST['relazione'] ?? null;
-        $maxEta   =$_POST['maxEta'] ?? null;
-        $distanza  =isset($_POST['distanza']) ? 1 : 0;
-        if (
-            empty($sesso)|| empty($sessoP) ||
-            empty($relazione) || empty($maxEta) || empty($distanza)
-        ) {
-            
-            header("Location: reg1.php");
-            exit();
-        }
-        try {
-            $pdo->beginTransaction();
-
-            $sql1 = "UPDATE datiregistrazione SET 
-                    sesso= :sesso,
-                    sessoP= :sessoP,
-                    relazione= :relazione,
-                    maxEta= :maxEta,
-                    distanza= :distanza
-                    WHERE id_utente = :id_utente";
-            $stmt1 = $pdo->prepare($sql1);
-            $stmt1->execute([
-                ':sesso' => $sesso,
-                ':maxEta' => $maxEta,
-                ':distanza' => $distanza,
-                ':sessoP' => $sessoP,
-                ':relazione' => $relazione,
-                ':id_utente' => $id_utente
-            ]);
-
-
-            $pdo->commit();
-            header("Location: reg4.php");
-            exit();
-        }catch (Exception $e) {
-            $pdo->rollBack();
-            echo "Errore: " . $e->getMessage();}
-    
-        break;
-
     case 'carica_foto_profilo':
         if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
             $nome = $_FILES['foto']['name'];
@@ -319,21 +188,14 @@ switch ($azione) {
         $citta     = $_POST['citta'] ?? null;
         $eta       = $_POST['eta'] ?? null;
         $email     = $_POST['email'] ?? null;
-        $password  = $_POST['password'] ?? null;
         $sesso     = $_POST['sesso'] ?? null;
         $sessoP    =$_POST['sessoP'] ?? null;
         $distanza  =isset($_POST['distanza']) ? 1 : 0;
         $maxEta   =$_POST['maxEta'] ?? null;
         $relazione =$_POST['relazione'] ?? null;
-        
-        if(!empty($password)){
-            $passwordDaSalvare = password_hash($password, PASSWORD_DEFAULT);
-        }else{
-            $passwordDaSalvare = null;
-        }        
-        
-        salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $passwordDaSalvare, 
-        $sesso, $sessoP, $distanza,  $maxEta, $relazione, true);
+    
+        salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, 
+        $sesso, $sessoP, $distanza,  $maxEta, $relazione, $latitudine, $longitudine, true);
         header("Location: profilo.php");
         exit();
         break;
@@ -372,6 +234,10 @@ switch ($azione) {
         header("Location: profilo.php");
                 exit();
                 break;
+
+        case 'cambia_password':
+            $id_utente = $_SESSION['id_utente'];
+            
     
 
     default:
@@ -379,8 +245,8 @@ switch ($azione) {
         exit();
 }
 
-function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $passwordDaSalvare, 
-        $sesso, $sessoP, $distanza,  $maxEta, $relazione, $modifica_dati = true) {
+function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, 
+        $sesso, $sessoP, $distanza,  $maxEta, $relazione, $latitudine, $longitudine, $modifica_dati = true) {
     
     if($modifica_dati){
         $sql1 = "UPDATE datiregistrazione SET
@@ -389,7 +255,6 @@ function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $pas
         citta= :citta,
         eta= :eta,
         email= :email,
-        password= :password,
         sesso= :sesso,
         sessoP= :sessoP,
         distanza= :distanza,
@@ -399,10 +264,10 @@ function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $pas
     
     } else{
         $sql1 = "INSERT INTO datiregistrazione (id_utente,
-        nome, cognome, citta, eta, email, password, sesso, distanza,
+        nome, cognome, citta, eta, email, sesso, distanza,
         maxEta, relazione)
         VALUES (:id_utente,
-        :nome, :cognome, :citta, :eta, :email, :password, :sesso,:distanza,
+        :nome, :cognome, :citta, :eta, :email, :sesso,:distanza,
         :maxEta,  :relazione)";
     }
         $stmt1 = [
@@ -412,7 +277,6 @@ function salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, $pas
             ':citta' => $citta,
             ':eta' => $eta,
             ':email' => $email,
-            ':password' => $password,
             ':sesso' => $sesso,
             ':sessoP' => $sessoP,
             ':distanza' => $distanza,
