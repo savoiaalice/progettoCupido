@@ -65,7 +65,6 @@ function getInformazioni($utente, $pdo){
     }else{
         return $riga;
     }
-
 }
 
 function getLikes($id_mit, $id_dest, $pdo){
@@ -116,17 +115,33 @@ function calcolaMatch($utenteA, $utenteB, $pdo) {
 
     $rigaA=getInformazioni($utenteA, $pdo);
     $rigaB=getInformazioni($utenteB, $pdo);
+
     $etaA=$rigaA['eta'];
     $etaB=$rigaB['eta'];
+
     $maxEtaA=$rigaA['maxEta'];
     $maxEtaB=$rigaB['maxEta'];
 
-    if(interessiMatch($interessiA, $interessiB) && interessiMatch($aggettiviA, $aggettiviB) && ($rigaA['sessoP']==$rigaB['sesso'] && $rigaA['sesso']==$rigaB['sessoP']) && $rigaA['relazione']==$rigaB['relazione'] && (($rigaA['distanza']!==null && $rigaB['distanza']!==null) || ($rigaA['distanza']===null && $rigaB['distanza']===null && $rigaA['citta']==$rigaB['citta'])) && abs($etaA-$etaB)<$maxEtaA && abs($etaA-$etaB)<$maxEtaB && getLikes($utenteA, $utenteB, $pdo)){
+    $interessi = interessiMatch($interessiA, $interessiB)
+        && interessiMatch($aggettiviA, $aggettiviB)
+        && ($rigaA['sessoP'] == $rigaB['sesso'] && $rigaA['sesso'] == $rigaB['sessoP'])
+        && $rigaA['relazione'] == $rigaB['relazione'];
+
+    $distanza = (isset($rigaA['distanza']) && $rigaA['distanza'] == 1 
+    && isset($rigaB['distanza']) && $rigaB['distanza'] == 1);
+    $stessaCitta = ($rigaA['citta'] == $rigaB['citta']);
+
+    $condizioneCitta = ($distanza || $stessaCitta);
+
+    $condiioneEtaLike = abs($etaA - $etaB) < $maxEtaA
+        && abs($etaA - $etaB) < $maxEtaB
+        && getLikes($utenteA, $utenteB, $pdo);
+
+
+    if($interessi && $condizioneCitta && $condiioneEtaLike){
         return true;
     }else{
         return false;
     }
-
 }
-
 ?>

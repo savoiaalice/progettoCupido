@@ -414,6 +414,12 @@ ALTER TABLE `foto_utenti`
 --
 ALTER TABLE `interessi`
   ADD CONSTRAINT `interessi_ibfk_1` FOREIGN KEY (`id_utente`) REFERENCES `datiregistrazione` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `datiregistrazione`
+  ADD COLUMN `latitudine` DECIMAL(10, 8) NULL;
+ALTER TABLE `datiregistrazione` 
+  ADD COLUMN `longitudine` DECIMAL(11, 8) NULL;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

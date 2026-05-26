@@ -176,10 +176,54 @@ $aggettivi = $stmtAgg->fetch();
         .galleria:hover .galleria-imm {
             transform: scale(1.05);
         }
+         .cupido-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            font-size: 20px;
+            position: relative;
+        }
+        /* ICONA NOTIFICHE */
+        .notifiche-icon {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 1.8rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        .notifiche-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: red;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+            display: none;
+        }
     </style>
 </head>
 
 <body>
+<div class="cupido-header position-relative">
+    <h2 class="fw-bold h2" style="letter-spacing: 2px; margin: 0;">CUPIDO</h2>
+
+    <div class="notifiche-icon">
+        <i class="bi bi-bell"></i>
+        <span id="badgeNotifiche" class="notifiche-badge">0</span>
+    </div>
+</div>
+
+<div id="popupNotifiche" style="display:none; position:fixed; top:70px; right:15px; width:280px; background:white; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.2); z-index:9999; padding:15px;">
+    <h5 class="fw-bold mb-2" style="color:#a31f5f;">Notifiche</h5>
+    <div id="contenutoNotifiche" style="max-height:300px; overflow-y:auto; font-size: 0.9rem;"></div>
+    <button onclick="chiudiPopup()" style="margin-top:10px; width:100%; background:#a31f5f; color:white; border:none; padding:8px; border-radius:8px;">
+        Chiudi
+    </button>
+</div>
 <div class="container py-5">
     <div class="profile-card mx-auto col-lg-8">
         <div class="text-center mb-4">
@@ -335,5 +379,136 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
     </div>
 </nav>
+<script>
+    const badge = document.getElementById("badgeNotifiche");
+    const popup = document.getElementById("popupNotifiche");
+    const contenuto = document.getElementById("contenutoNotifiche");
+    let popupAperto = false;
+
+    // Funzione per generare la grafica delle notifiche con il link al profilo
+    function generaHtmlNotifiche(lista) {
+        let html = "";
+        if (!lista || lista.length === 0) {
+            return '<p class="text-muted m-0">Nessuna notifica presente</p>';
+        }
+       
+        lista.forEach(n => {
+            let mit = n.nome + " " + n.cognome;
+            // Se la notifica è vecchia (letto == 1) la rendiamo leggermente opaca
+            let stileLetta = (parseInt(n.letto) === 1) ? 'style="opacity: 0.55;"' : '';
+           
+            // CREAZIONE DEL LINK AL PROFILO: usiamo id_mit per identificare l'utente
+            let linkProfilo = `<a href="profiloUtente.php?id=${n.id_mit}" class="text-decoration-none fw-bold" style="color: #a31f5f;">${mit}</a>`;
+
+            if (n.tipo === "like") {
+                html += `
+                <div class="mb-2 pb-2 border-bottom d-flex justify-content-between align-items-center" ${stileLetta}>
+                    <span>❤️ <b>${linkProfilo}</b> ti ha messo like</span>
+                    <div class="azione-container">
+                        ${parseInt(n.letto) === 0 ? `
+                        <button onclick="ricambiaLike(this, '${n.id_mit}')" class="btn btn-sm text-white" style="background-color:#a31f5f; font-size:0.75rem;">
+                            Ricambia
+                        </button>` : '<span class="text-muted" style="font-size:0.75rem;">Letta</span>'}
+                    </div>
+                </div>`;
+            }
+            if (n.tipo === "match") {
+                html += `
+                    <div class="mb-2 pb-2 border-bottom d-flex justify-content-between align-items-center" ${stileLetta}>
+                        <span>❤️‍🔥 Match con <b>${linkProfilo}</b>!</span>
+                        <a href="chat.php?id=${n.id_mit}" class="btn btn-sm btn-primary" style="font-size:0.72rem; padding: 3px 8px;">Chatta 💬</a>
+                    </div>`;
+            }
+            if (n.tipo === "messaggio") {
+                html += `<div class="mb-2 pb-2 border-bottom" ${stileLetta}>💬 Nuovo messaggio da <b>${linkProfilo}</b></div>`;
+            }
+        });
+        return html;
+    }
+
+    // Aggiornamento del badge in background (ogni 5 secondi)
+    function aggiornaNotifiche() {
+        if (popupAperto) return;
+
+        fetch("notifiche.php")
+            .then(r => r.json())
+            .then(data => {
+                const totale = data.like + data.match + data.messaggi;
+                if (totale > 0) {
+                    badge.style.display = "inline-block";
+                    badge.textContent = totale;
+                } else {
+                    badge.style.display = "none";
+                }
+            })
+    }
+    //funzione per ricambiare il like
+    function ricambiaLike(bottone, idMit) {
+        // Disabilitiamo il bottone immediatamente per evitare click doppi/multipli
+        bottone.disabled = true;
+        bottone.textContent = "Attendere...";
+
+        // Eseguiamo la chiamata asincrona ad azione.php
+        fetch(`azione.php?id=${encodeURIComponent(idMit)}&azione=like`)
+            .then(r => {
+                if (!r.ok) throw new Error("Errore di rete");
+                // Gestisci qui se azione.php risponde in JSON o testo semplice.
+                // Assumiamo che l'azione vada a buon fine se il server risponde status 200.
+                return r.text();
+            })
+            .then(() => {
+                // Troviamo il contenitore del bottone cliccato e sostituiamo il contenuto
+                const container = bottone.closest(".azione-container");
+                if (container) {
+                    container.innerHTML = '<span class="text-muted" style="font-size:0.75rem;">Letta</span>';
+                }
+            })
+            .catch(err => {
+                console.error("Errore durante il ricambio del like:", err);
+                alert("Impossibile ricambiare il like in questo momento. Riprova.");
+                bottone.disabled = false;
+                bottone.textContent = "Ricambia";
+            });
+    }
+
+    // Gestione del click sulla campanella
+    document.querySelector(".notifiche-icon").addEventListener("click", function() {
+        fetch("notifiche.php")
+            .then(r => r.json())
+            .then(data => {
+                // Carica l'HTML della lista (comprendente le ultime 20 tra lette e non lette)
+                contenuto.innerHTML = generaHtmlNotifiche(data.lista);
+                popup.style.display = "block";
+                badge.style.display = "none"; // Nasconde graficamente il numero all'apertura
+                popupAperto = true; // Blocca il timer in background
+            })
+    });
+
+    // Chiusura del popup
+    function chiudiPopup() {
+        popup.style.display = "none";
+       
+        badge.style.display = "none";
+        badge.textContent = "0";
+
+        // Invia il segnale al database per marcare tutto come letto
+        fetch("notifiche_lette.php")
+            .then(r => r.json())
+            .then(res => {
+                if(res.success) {
+                    popupAperto = false;
+                   
+                    // Sovrascrive la lista nel popup con quella aggiornata dal server (dove tutto è ora opaco)
+                    contenuto.innerHTML = generaHtmlNotifiche(res.lista);
+                   
+                    aggiornaNotifiche();
+                }
+            })
+    }
+
+    // Inizializzazione timer automatico
+    setInterval(aggiornaNotifiche, 5000);
+    aggiornaNotifiche();
+</script>
 </body>
 </html>

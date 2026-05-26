@@ -188,7 +188,7 @@
             <hr class="my-4">
 
             <div class="mt-4 text-center">
-                <form action="match.php" method="POST">
+                <form action="profilo.php" method="POST">
                     <div class="d-flex justify-content-center mt-3">
                         <button type="submit" class="btn btn-primary-action text-white rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2">
                             SALVA

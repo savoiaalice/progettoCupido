@@ -16,13 +16,14 @@ switch ($azione) {
         }
 
         $sql = "SELECT * FROM datiregistrazione
-                WHERE email = :stringaLogin
-                OR id_utente = :stringaLogin
+                WHERE email = :emailLogin
+                OR id_utente = :idLogin
                 LIMIT 1";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
-            'stringaLogin' => $cellaLogin
+            ':emailLogin' => $cellaLogin,
+            ':idLogin' => $cellaLogin
         ]);
 
         $utente = $stmt->fetch();
@@ -35,6 +36,7 @@ switch ($azione) {
             echo "<script>alert('Email/Username o password errati'); window.location.href='index.php';</script>";
             exit();
         }
+        
         break;
 
     case 'registrazione1':
@@ -149,7 +151,7 @@ switch ($azione) {
                 solare = :solare,
                 riflessivo = :riflessivo,
                 spontaneo = :spontaneo,
-                determined = :determinato,
+                determinato = :determinato,
                 curioso = :curioso,
                 sognatore = :sognatore,
                 empatico = :empatico,
