@@ -11,7 +11,7 @@ switch ($azione) {
         $password = $_POST['password'] ?? '';
 
         if(empty($cellaLogin) || empty($password)){
-            echo "<script>alert('Tutti i campi sono obbligatori!'); </script>";
+            echo "<script>alert('Tutti i campi sono obbligatori!'); window.history.back();</script>";
             exit();
         }
 
@@ -36,64 +36,74 @@ switch ($azione) {
             echo "<script>alert('Email/Username o password errati'); window.location.href='index.php';</script>";
             exit();
         }
-        
         break;
 
     case 'registrazione1':
-        $id_utente = trim($_POST['id_utente'] ?? null);
-        $email     = trim($_POST['email'] ?? null);
-        $password  = $_POST['password'] ?? null;
-        $nome      = trim($_POST['nome'] ?? null);
-        $cognome   = trim($_POST['cognome'] ?? null);
-        $eta       = $_POST['eta'] ?? null;
-        $citta     = trim($_POST['citta'] ?? null);
+        $id_utente   = trim($_POST['id_utente'] ?? null);
+        $email       = trim($_POST['email'] ?? null);
+        $password    = $_POST['password'] ?? null;
+        $nome        = trim($_POST['nome'] ?? null);
+        $cognome     = trim($_POST['cognome'] ?? null);
+        $data         = $_POST['data'] ?? null;
+        $citta       = trim($_POST['citta'] ?? null);
+        // INTEGRATO: Recupero dei campi inviati dal form tramite JavaScript
+        $latitudine  = $_POST['latitudine'] ?? null;
+        $longitudine = $_POST['longitudine'] ?? null;
 
         if (
             empty($nome)|| empty($cognome) ||
-            empty($email) || empty($password) || empty($eta) || empty($citta) || empty($id_utente)
+            empty($email) || empty($password) || empty($data) || empty($citta) || empty($id_utente)
         ) {
             header("Location: home.php");
             exit();
         }
 
-        
         $regexNome = "/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð '-]+$/u";
         if(!preg_match($regexNome, $nome) || !preg_match($regexNome, $cognome)){
-            echo "<script>alert('Nome e cognome non accettano caratteri speciali!'); </script>";
+            echo "<script>alert('Nome e cognome non accettano caratteri speciali!'); window.history.back();</script>";
             exit();
         }
         
-        // REGEX COMPLESSITÀ PASSWORD: 8-20 char, 1 maiuscola, 1 minuscola, 1 numero, 1 speciale
         $regexPassword = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/';
         if(!preg_match($regexPassword, $password)){
-            echo "<script>alert('La password deve contenere alemno:\\n- 8 caratteri \\n- una lettera maiuscola \\n- una minuscola \\n- un numero \\n- un carattere speciale!'); window.history.back();</script>";
+            echo "<script>alert('La password deve contenere almeno:\\n- 8 caratteri \\n- una lettera maiuscola \\n- una minuscola \\n- un numero \\n- un carattere speciale!'); window.history.back();</script>";
+            exit();
+        }
+        $data_nascita = new DateTime($data);
+        $oggi = new DateTime();
+        $differenza = $oggi ->diff($data_nascita);
+        $eta = $differenza->y;
+
+        if($eta<18){
+            echo "<script>alert('Non hai gli anni giusti'); window.history.back(); </script>";
             exit();
         }
         
         try {
             $pdo->beginTransaction();
 
-            // Cifratura sicura della password
             $passwordCifrata = password_hash($password, PASSWORD_DEFAULT);
 
+            // INTEGRATO: Aggiunte le colonne 'latitudine' e 'longitudine' all'interno della INSERT
             $sql1 = "INSERT INTO datiregistrazione
-                    (id_utente, email, password, nome, cognome, sesso, eta, citta, maxEta, distanza, sessoP, relazione)
+                    (id_utente, email, password, nome, cognome, sesso, eta, citta, latitudine, longitudine, maxEta, distanza, sessoP, relazione, `data`)
                      VALUES
-                    (:id_utente, :email, :pass, :nome, :cognome, NULL, :eta, :citta, NULL, NULL, NULL, NULL)";
+                    (:id_utente, :email, :pass, :nome, :cognome, NULL, :eta, :citta, :latitudine, :longitudine, NULL, NULL, NULL, NULL, :data)";
             $stmt1 = $pdo->prepare($sql1);
             
-            // CORRETTO: Adesso inseriamo la password cifrata ($passwordCifrata) e non quella in chiaro!
             $stmt1->execute([
-                ':id_utente' => $id_utente,
-                ':email' => $email,
-                ':pass' => $passwordCifrata, 
-                ':nome' => $nome,
-                ':cognome' => $cognome,
-                ':eta' => $eta,
-                ':citta' => $citta,
+                ':id_utente'   => $id_utente,
+                ':email'       => $email,
+                ':pass'        => $passwordCifrata, 
+                ':nome'        => $nome,
+                ':cognome'     => $cognome,
+                ':eta'         => $eta,
+                ':citta'       => $citta,
+                ':latitudine'  => $latitudine,  // Assegnato segnaposto
+                ':longitudine' => $longitudine,  // Assegnato segnaposto
+                ':data'        =>$data
             ]);
             
-            // Inserimento record di inizializzazione nelle tabelle correlate
             $sql2 = "INSERT INTO aggettivi (id_utente) VALUES (:id_utente)";
             $stmt2 = $pdo->prepare($sql2);
             $stmt2->execute([':id_utente' => $id_utente]);
@@ -111,7 +121,6 @@ switch ($azione) {
             $pdo->rollBack();
             echo "Errore durante la registrazione: " . $e->getMessage();
         }
-   
         break;
 
     case 'registrazione_interessi':
@@ -146,7 +155,6 @@ switch ($azione) {
             ':id_utente' => $id_utente
         ]);
 
-        // Aggettivi
         $sql2 = "UPDATE aggettivi SET
                 solare = :solare,
                 riflessivo = :riflessivo,
@@ -238,12 +246,10 @@ switch ($azione) {
             $percorso = "foto/" . time() . "_" . $nome;
 
             if (move_uploaded_file($temp, $percorso)) {
-                // elimina la vecchia foto profilo
                 $sqldel = "DELETE FROM foto_utenti WHERE id_utente = :id_utente AND tipo = 'profilo'";
                 $stmldel = $pdo->prepare($sqldel);
                 $stmldel->execute([':id_utente' => $id_utente]);
 
-                // inserisce la nuova
                 $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) VALUES (:id, :percorso, 'profilo')";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([

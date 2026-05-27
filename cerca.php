@@ -262,8 +262,8 @@ if (!empty($citta_cercata)) {
                 .then(response => response.json())
                 .then(data => {
                     if(data && data.address){
-                        // CORRETTO: Fallback su town o village se city non esiste
-                        const nomeComune = data.address.city || data.address.town || data.address.village;
+                        
+                        const nomeComune = data.address.city || data.address.town || data.address.village || data.address.municipality;
                         if(nomeComune){
                             citta.value = nomeComune;
                         } else {
@@ -294,7 +294,6 @@ if (!empty($citta_cercata)) {
                 const iconaGps = btnGps.querySelector('i');
                 const iconaOg = iconaGps ? iconaGps.className : '';
                 
-                // CORRETTO: Sistemata sintassi if(iconaGps)
                 if(iconaGps){
                     iconaGps.className = "bi bi-arrow-repeat spinner-border spinner-border-sm me-1";
                 }
@@ -324,7 +323,7 @@ if (!empty($citta_cercata)) {
                             default:
                                 alert("Errore nel recupero della posizione.");
                         }
-                    }, // CORRETTO: Chiusura dell'oggetto opzioni con parentesi tonda corretta
+                    }, 
                     {
                        enableHighAccuracy: true, 
                        timeout: 8000,
@@ -439,7 +438,6 @@ if (!empty($citta_cercata)) {
         return html;
     }
 
-    // Aggiornamento del badge in background (ogni 5 secondi)
     function aggiornaNotifiche() {
         if (popupAperto) return;
 

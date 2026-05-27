@@ -121,8 +121,8 @@
                 </div>
                
                 <div class="mb-3">
-                    <label for="eta" class="form-label small fw-bold">Età:</label>
-                    <input type="number" id="eta" class="form-control rounded-pill border-2" name="eta" min="18" max="100" style="width: 100px;" required>
+                    <label for="data" class="form-label small fw-bold">Data di Nascita:</label>
+                    <input type="date" id="data" class="form-control rounded-pill border-2" name="data" min="18" max="100" style="width: 100px;" required>
                 </div>
 
                 <input type="hidden" id="latitudine" name="latitudine">
@@ -183,7 +183,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if(data && data.address){
-                        // CORRETTO: Fallback su town o village se city non esiste
                         const nomeComune = data.address.city || data.address.town || data.address.village;
                         if(nomeComune){
                             citta.value = nomeComune;

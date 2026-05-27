@@ -1,6 +1,8 @@
 <?php
 require 'connessioneDB.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 function getInteressi($utente, $pdo){
     $interessi=[];
     $sql="SELECT * FROM interessi WHERE id_utente= :utente";
@@ -113,34 +115,70 @@ function calcolaMatch($utenteA, $utenteB, $pdo) {
     $aggettiviA = getAggettivi($utenteA, $pdo);
     $aggettiviB = getAggettivi($utenteB, $pdo);
 
-    $rigaA=getInformazioni($utenteA, $pdo);
-    $rigaB=getInformazioni($utenteB, $pdo);
+    $rigaA = getInformazioni($utenteA, $pdo);
+    $rigaB = getInformazioni($utenteB, $pdo);
 
-    $etaA=$rigaA['eta'];
-    $etaB=$rigaB['eta'];
+    // Se uno dei due utenti non esiste nel DB, esci subito
+    if (!$rigaA || !$rigaB) {
+        return false;
+    }
 
-    $maxEtaA=$rigaA['maxEta'];
-    $maxEtaB=$rigaB['maxEta'];
+    $etaA = $rigaA['eta'];
+    $etaB = $rigaB['eta'];
+    $maxEtaA = $rigaA['maxEta'];
+    $maxEtaB = $rigaB['maxEta'];
 
     $interessi = interessiMatch($interessiA, $interessiB)
         && interessiMatch($aggettiviA, $aggettiviB)
         && ($rigaA['sessoP'] == $rigaB['sesso'] && $rigaA['sesso'] == $rigaB['sessoP'])
         && $rigaA['relazione'] == $rigaB['relazione'];
 
-    $distanza = (isset($rigaA['distanza']) && $rigaA['distanza'] == 1 
-    && isset($rigaB['distanza']) && $rigaB['distanza'] == 1);
-    $stessaCitta = ($rigaA['citta'] == $rigaB['citta']);
-
-    $condizioneCitta = ($distanza || $stessaCitta);
-
-    $condiioneEtaLike = abs($etaA - $etaB) < $maxEtaA
+    $condizioneEtaLike = abs($etaA - $etaB) < $maxEtaA
         && abs($etaA - $etaB) < $maxEtaB
+        // Assicura che l'utente A non abbia già interagito (like/dislike) con B
         && getLikes($utenteA, $utenteB, $pdo);
 
+    // prendo coordinate dal database
+    $latA = $rigaA['latitudine'] ?? null;
+    $latB = $rigaB['latitudine'] ?? null;
+    $longA = $rigaA['longitudine'] ?? null;
+    $longB = $rigaB['longitudine'] ?? null;
 
-    if($interessi && $condizioneCitta && $condiioneEtaLike){
-        return true;
+    if ($latA == null || $latB == null || $longA == null || $longB == null) {
+        return false;
+    }
+
+    // Formula di Haversine per le distanze reali in km
+    $raggioTerra = 6371;
+
+    $diffLat = deg2rad($latB - $latA);
+    $diffLong = deg2rad($longB - $longA);
+
+    $passaggioA = sin($diffLat / 2) * sin($diffLat / 2) +
+                  cos(deg2rad($latA)) * cos(deg2rad($latB)) *
+                  sin($diffLong / 2) * sin($diffLong / 2);
+    $passaggioB = 2 * atan2(sqrt($passaggioA), sqrt(1 - $passaggioA));
+    
+    // Distanza reale calcolata
+    $distanzaReale = $raggioTerra * $passaggioB;
+
+    $tipoRelazione = ($distanzaReale <= 85) ? 0 : 1;
+
+    // compatibilità sulle distanze
+    if($tipoRelazione == 1){
+        $distanzaCompatibile = ($rigaA['distanza'] == 1 && $rigaB['distanza'] == 1);
     }else{
+        $distanzaCompatibile = true;
+    }
+    
+
+   
+    // condizioni match
+    if ($interessi && $condizioneEtaLike && $distanzaCompatibile) {
+        // Salviamo la distanza numerica reale per poterla mostrare graficamente nella card
+        $GLOBALS['distanza_effettiva'] = $distanzaReale;
+        return true;
+    } else {
         return false;
     }
 }
