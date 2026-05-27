@@ -5,11 +5,12 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require __DIR__ . "/connessioneDB.php";
 require __DIR__ . "/funzioniMatch.php";
+//require __DIR__ . "/controllo_sessione.php";
 
 // Se l'utente non è loggato, reindirizza alla pagina di login/index
-if (!isset($_SESSION['id_utente'])) {
-    header("Location: index.php"); 
-    exit;
+if (!isset($_SESSION['id_utente']) || empty($_SESSION['id_utente'])) {
+    header("Location: index.php");
+    exit();
 }
 
 $id_utente = $_SESSION['id_utente'];
@@ -77,7 +78,7 @@ if ($matchTrovato) {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
                 <div class="modal-header border-0 justify-content-center pt-4">
-                    <h3 class="modal-title fw-bold text-center" id="noMatchModalLabel" style="color: #a31f5f;">
+                    <h3 class="modal-title fw-bold text-center" id="noMatchModalLabel" style="color: #8d0c0c;">
                         🔍 Nessun Match Trovato
                     </h3>
                 </div>
@@ -90,7 +91,7 @@ if ($matchTrovato) {
                     </p>
                 </div>
                 <div class="modal-footer border-0 d-flex flex-column gap-2 pb-4 px-4">
-                    <a href="cerca.php" class="btn btn-lg w-100 text-white fw-bold" style="background-color: #a31f5f; border-radius: 10px;">
+                    <a href="cerca.php" class="btn btn-lg w-100 text-white fw-bold" style="background-color: #8d0c0c; border-radius: 10px;">
                         Usa i Filtri di Ricerca 🎯
                     </a>
                     <a href="profilo.php" class="btn btn-light w-100 border text-secondary" style="border-radius: 10px;">

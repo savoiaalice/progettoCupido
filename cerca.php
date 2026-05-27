@@ -2,8 +2,11 @@
 <html lang="en">
 <?php
 require __DIR__ . "/connessioneDB.php";
+require __DIR__ . "/funzioniMatch.php";
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Controllo di sicurezza: l'utente deve essere loggato
 if (!isset($_SESSION['id_utente'])) {
@@ -11,30 +14,102 @@ if (!isset($_SESSION['id_utente'])) {
     exit();
 }
 
-$id = $_SESSION['id_utente'];
+$id_utente = $_SESSION['id_utente'];
 
-// Inizializziamo l'array degli utenti trovati
-$utenti_trovati = [];
+$stmtUt = $pdo->prepare("SELECT latitudine, longitudine FROM datiregistrazione 
+    WHERE id_utente = :id_utente");
+$stmtUt->execute([':id_utente' => $id_utente]);
+$mioProfilo = $stmtUt->fetch(PDO::FETCH_ASSOC);
 
-// Gestiamo la ricerca quando l'utente compila il form
 $citta_cercata = isset($_GET['citta']) ? trim($_GET['citta']) : '';
 
-if (!empty($citta_cercata)) {
-    // Cerchiamo gli utenti della città specificata, escludendo se stessi
-    // Nota: adegua i nomi delle colonne se nel tuo DB sono diversi
-    $stmt = $pdo->prepare("SELECT * FROM datiregistrazione WHERE citta LIKE :citta AND id_utente != :id");
-    $stmt->execute([
-        ':citta' => '%' . $citta_cercata . '%',
-        ':id' => $id
-    ]);
-    $utenti_trovati = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    // Se non ha ancora cercato nulla, possiamo mostrare ad esempio gli ultimi iscritti (opzionale)
-    $stmt = $pdo->prepare("SELECT * FROM datiregistrazione WHERE id_utente != :id ORDER BY id_utente");
-    $stmt->execute([':id' => $id]);
-    $utenti_trovati = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// 1. Controlliamo se sono presenti coordinate nell'URL (da GPS o da suggerimento cliccato)
+$coordinatePresenti = (!empty($_GET['latitudine']) && !empty($_GET['longitudine']));
+
+// Questa sarà la coordinata "centro" attorno a cui calcolare i 150 km
+$centroLat = null;
+$centroLong = null;
+
+if ($coordinatePresenti) {
+    $centroLat = floatval($_GET['latitudine']);
+    $centroLong = floatval($_GET['longitudine']);
+    
+    // Raggio di 150 km in gradi
+    $raggioLat = 1.3;
+    $raggioLong = 1.8;
+    
+    $latMin = $centroLat - $raggioLat;
+    $latMax = $centroLat + $raggioLat;
+    $longMin = $centroLong - $raggioLong;
+    $longMax = $centroLong + $raggioLong;
 }
 
+// 2. Esecuzione della Query sul Database
+if ($coordinatePresenti) {
+    
+    // SCENARIO A: Abbiamo delle coordinate precise (Tasto GPS OPPURE Città scelta dai suggerimenti)
+    // Cerca le persone nel raggio di 150km da QUELLO specifico punto geografico
+    $sql = "SELECT * FROM datiregistrazione 
+            WHERE id_utente != :id_utente
+              AND (latitudine BETWEEN :latMin AND :latMax)
+              AND (longitudine BETWEEN :longMin AND :longMax)
+            ORDER BY id_utente DESC LIMIT 50";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':id_utente' => $id_utente,
+        ':latMin'    => $latMin,
+        ':latMax'    => $latMax,
+        ':longMin'   => $longMin,
+        ':longMax'   => $longMax
+    ]);
+
+} else if (!empty($citta_cercata)) {
+    
+    // SCENARIO B: L'utente ha scritto una città a mano SENZA cliccare sui suggerimenti
+    $sql = "SELECT * FROM datiregistrazione 
+            WHERE id_utente != :id_utente
+              AND citta LIKE :citta
+            ORDER BY id_utente DESC LIMIT 50";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':citta'     => '%' . $citta_cercata . '%',
+        ':id_utente' => $id_utente
+    ]);
+
+} else {
+    
+    // SCENARIO C: Prima apertura della pagina -> Mostra TUTTI gli utenti globali
+    $sql = "SELECT * FROM datiregistrazione 
+            WHERE id_utente != :id_utente
+            ORDER BY id_utente DESC LIMIT 50";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':id_utente' => $id_utente
+    ]);
+}
+
+$utenti_preliminari = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$utenti_trovati = [];
+
+// 3. IL FILTRO DI PRECISIONE (CORRETTO!)
+// Ora cicliamo i risultati e calcoliamo la distanza reale dal CENTRO della ricerca
+foreach ($utenti_preliminari as $utente) {
+    
+    if ($coordinatePresenti) {
+        // Se stiamo cercando per area (GPS o suggerimento), calcola i KM di distanza dal punto cercato
+        $distanzaReale = getDistanza($centroLat, $centroLong, $utente['latitudine'], $utente['longitudine']);
+        
+        // Se l'utente è dentro i 150 km, lo teniamo
+        if ($distanzaReale !== false && $distanzaReale <= 150) {
+            $utente['distanza_km'] = round($distanzaReale, 1);
+            $utenti_trovati[] = $utente;
+        }
+    } else {
+        // Se è la prima apertura o ricerca testuale pura, non filtriamo per KM e mostriamo l'utente
+        $utente['distanza_km'] = null; // o nascondi la scritta dei km nel box
+        $utenti_trovati[] = $utente;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -49,13 +124,28 @@ if (!empty($citta_cercata)) {
     
     <style>
         :root {
-            --primary-color: #a31f5f;
-            --accent-color: #fce4ec;
+            --primary-color: #8d0c0c;
+            --accent-color: #fcfae4;
         }
         body {
             background-color: var(--accent-color);
             font-family: 'Montserrat', sans-serif;
             padding-bottom: 80px;
+        }
+        /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('./cupidini.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.45;
         }
          .cupido-header {
             background: var(--primary-color);
@@ -111,7 +201,7 @@ if (!empty($citta_cercata)) {
             font-weight: 600;
         }
         .btn-custom:hover {
-            background-color: #a31f5f;
+            background-color: #8d0c0c;
             color: white;
         }
         .form-control:focus {
@@ -147,10 +237,11 @@ if (!empty($citta_cercata)) {
         <div class="col-md-8">
             
             <div class="search-card p-4 mb-4">
-                <input type="hidden" id="latitudine" name="latitudine">
-                <input type="hidden" id="longitudine" name="longitudine">
+                
                 <h3 class="fw-bold mb-3" style="color: var(--primary-color);"><i class="bi bi-search-heart"></i> Trova la tua persona nelle vicinanze </h3>
                 <form action="cerca.php" method="GET" class="row g-2">
+                    <input type="hidden" id="latitudine" name="latitudine">
+                    <input type="hidden" id="longitudine" name="longitudine">
                     <div class="mb-3 position-relative">
                    
                     <div class="input-group">
@@ -158,7 +249,7 @@ if (!empty($citta_cercata)) {
                             <i class="bi bi-geo-alt-fill bi-crosshairs" style="color: var(--primary-color);"></i>
                         </button>
                         
-                        <input type="text" id="citta" name="citta" class="form-control  border border-2 border-start-0 rounded-pill-end" placeholder="Inserisci la città...(es. Roma)" autocomplete="off" required>
+                        <input type="text" id="citta" name="citta" class="form-control  border border-2 border-start-0 rounded-pill-end" placeholder="Inserisci la città...(es. Roma)" autocomplete="off">
                         
                         
                     </div>
@@ -233,7 +324,7 @@ if (!empty($citta_cercata)) {
                 </a>
             </div>
             <div class="col">
-                <a href="match.php" class="text-decoration-none text-dark">
+                <a href="chat_completa.php" class="text-decoration-none text-dark">
                     <i class="bi bi-chat-heart fs-3" style="color:#a31f5f;"></i>
                 </a>
             </div>
@@ -256,34 +347,36 @@ if (!empty($citta_cercata)) {
         const btnGps = document.getElementById('btn-gps');
         let timerDigitare = null; 
 
+        const moduloCerca = document.querySelector('form[action="cerca.php"]');
+
+        // Funzione usata SOLO quando clicchi sul tasto GPS
         function catturaPosizione(lat, lon){
             citta.value = "Cerco la città...";
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=it`)
+            
+            fetch(`geocoding.php?lat=${lat}&lon=${lon}`)
                 .then(response => response.json())
                 .then(data => {
                     if(data && data.address){
-                        
                         const nomeComune = data.address.city || data.address.town || data.address.village || data.address.municipality;
-                        if(nomeComune){
-                            citta.value = nomeComune;
-                        } else {
-                            citta.value = data.display_name.split(',')[0];
-                        }
-
-                        campoLat.value = lat;
-                        campoLong.value = lon;
-                    }else{
-                        citta.value = "";
-                        alert("Impossibile determinare la città. Ti prego inseriscila.");
+                        citta.value = nomeComune ? nomeComune : data.display_name.split(',')[0];
+                    } else {
+                        citta.value = "Posizione Rilevata";
                     }
+                    campoLat.value = lat;
+                    campoLong.value = lon;
+                    
+                    if(moduloCerca) moduloCerca.submit();
                 })
                 .catch(errore => {
-                    console.error("Errore reverse geocoding di nominatim: ", errore);
-                    citta.value = "";
-                    alert("Errore nel recupero della città!");
+                    console.error("Errore reverse geocoding: ", errore);
+                    citta.value = "Posizione Rilevata";
+                    campoLat.value = lat;
+                    campoLong.value = lon;
+                    if(moduloCerca) moduloCerca.submit();
                 });
         }
 
+        // Click sul tasto GPS
         if(btnGps){
             btnGps.addEventListener('click', function(e){
                 e.preventDefault();
@@ -293,46 +386,23 @@ if (!empty($citta_cercata)) {
                 }
                 const iconaGps = btnGps.querySelector('i');
                 const iconaOg = iconaGps ? iconaGps.className : '';
-                
-                if(iconaGps){
-                    iconaGps.className = "bi bi-arrow-repeat spinner-border spinner-border-sm me-1";
-                }
+                if(iconaGps) iconaGps.className = "bi bi-arrow-repeat spinner-border spinner-border-sm me-1";
                 
                 navigator.geolocation.getCurrentPosition(
                     function(position){
-                        // CORRETTO: Sistemata sintassi if(iconaGps) e parentesi
-                        if(iconaGps){
-                            iconaGps.className = iconaOg;
-                        }
+                        if(iconaGps) iconaGps.className = iconaOg;
                         catturaPosizione(position.coords.latitude, position.coords.longitude);
                     }, 
                     function(errore){
-                        if(iconaGps){
-                            iconaGps.className = iconaOg;
-                        }
-                        switch(errore.code){
-                            case errore.PERMISSION_DENIED:
-                                alert("Permesso negato. Attiva la localizzazione dalle impostazioni del dispositivo.");
-                                break;
-                            case errore.POSITION_UNAVAILABLE:
-                                alert("Posizione non disponibile. Riprova tra poco.");
-                                break;
-                            case errore.TIMEOUT:
-                                alert("Ci sto mettendo troppo tempo a trovare la tua posizione.");
-                                break;
-                            default:
-                                alert("Errore nel recupero della posizione.");
-                        }
+                        if(iconaGps) iconaGps.className = iconaOg;
+                        alert("Errore nel recupero della posizione GPS.");
                     }, 
-                    {
-                       enableHighAccuracy: true, 
-                       timeout: 8000,
-                       maximumAge: 0 
-                    }
+                    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
                 );
             });
         }
 
+        // Quando l'utente digita a mano nel campo città
         citta.addEventListener('input', function(){
             clearTimeout(timerDigitare);
             const testoCercato = citta.value.trim();
@@ -343,11 +413,12 @@ if (!empty($citta_cercata)) {
             }
             
             timerDigitare = setTimeout(()=>{
+                // Interroghiamo direttamente Nominatim per i suggerimenti testuali (la ricerca testuale di solito non soffre di blocchi CORS aggressivi come la geolocalizzazione inversa)
                 fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(testoCercato)}&addressdetails=1&limit=5&accept-language=it&featuretype=settlement`)
                 .then(response => response.json())
                 .then(dati => {
                     listaSuggerimento.innerHTML = '';
-                    if(dati.length > 0){
+                    if(dati && dati.length > 0){
                         listaSuggerimento.style.display = 'block';
 
                         const nomiMostrati = new Set();
@@ -355,9 +426,7 @@ if (!empty($citta_cercata)) {
                             const dettagli = localita.display_name.split(',').slice(0, 3).join(',');
                             const dettagliP = dettagli.trim();
 
-                            if(nomiMostrati.has(dettagliP)){
-                                return;
-                            }
+                            if(nomiMostrati.has(dettagliP)) return;
                             nomiMostrati.add(dettagliP);
                             
                             const suggMenu = document.createElement('button');
@@ -369,6 +438,7 @@ if (!empty($citta_cercata)) {
                                 const nomePulito = localita.address.city || localita.address.town || localita.address.village || dettagli.split(',')[0];
                                 citta.value = nomePulito;
 
+                                // Quando clicchi su un suggerimento, assegna le coordinate di quel suggerimento
                                 campoLat.value = localita.lat;
                                 campoLong.value = localita.lon;
 
@@ -381,7 +451,15 @@ if (!empty($citta_cercata)) {
                     }
                 })
                 .catch(errore => console.error("Errore nel trovare la citta: ", errore));
-            }, 300);
+            }, 400); // 400ms di ritardo per non intasare le richieste mentre scrive
+        });
+
+        // Se l'utente cancella tutto a mano con il tasto Backspace, azzera i campi nascosti
+        citta.addEventListener('keyup', function(e) {
+            if(citta.value.trim() === "") {
+                campoLat.value = "";
+                campoLong.value = "";
+            }
         });
 
         document.addEventListener('click', function(evento){
@@ -389,6 +467,16 @@ if (!empty($citta_cercata)) {
                 listaSuggerimento.style.display = 'none';
             }
         });
+        
+        // Prima dell'invio manuale del form, se i campi nascosti hanno ancora dati vecchi ma il testo è cambiato, li puliamo
+        if(moduloCerca) {
+            moduloCerca.addEventListener('submit', function() {
+                if(campoLat.value !== "" && citta.value === "") {
+                    campoLat.value = "";
+                    campoLong.value = "";
+                }
+            });
+        }
     });
 </script>
 <script>
@@ -522,4 +610,5 @@ if (!empty($citta_cercata)) {
     aggiornaNotifiche();
 </script>
 </body>
+</html>
 </html>

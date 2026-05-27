@@ -135,7 +135,7 @@ function calcolaMatch($utenteA, $utenteB, $pdo) {
 
     $condizioneEtaLike = abs($etaA - $etaB) < $maxEtaA
         && abs($etaA - $etaB) < $maxEtaB
-        // Assicura che l'utente A non abbia già interagito (like/dislike) con B
+        
         && getLikes($utenteA, $utenteB, $pdo);
 
     // prendo coordinate dal database
@@ -181,5 +181,29 @@ function calcolaMatch($utenteA, $utenteB, $pdo) {
     } else {
         return false;
     }
+}
+function getDistanza($latA, $longA, $latB, $longB) {
+    // Se le coordinate sono vuote, zero o nulle, non calcolare
+    if (empty($latA) || empty($longA) || empty($latB) || empty($longB)) {
+        return false;
+    }
+
+    // Forza la conversione in float per evitare problemi di stringhe in PHP
+    $latA = (float)$latA;
+    $longA = (float)$longA;
+    $latB = (float)$latB;
+    $longB = (float)$longB;
+
+    $raggioTerra = 6371; // Raggio della Terra in Km
+
+    $diffLat = deg2rad($latB - $latA);
+    $diffLong = deg2rad($longB - $longA);
+
+    $passaggioA = sin($diffLat / 2) * sin($diffLat / 2) +
+                  cos(deg2rad($latA)) * cos(deg2rad($latB)) *
+                  sin($diffLong / 2) * sin($diffLong / 2);
+    $passaggioB = 2 * atan2(sqrt($passaggioA), sqrt(1 - $passaggioA));
+    
+    return $raggioTerra * $passaggioB;
 }
 ?>

@@ -1,9 +1,11 @@
 <?php
 require __DIR__ . "/connessioneDB.php";
+//require __DIR__ . "/controllo_sessione.php";
 session_start();
 
-if (!isset($_SESSION['id_utente'])) {
-    die("ERRORE: utente non loggato.");
+if (!isset($_SESSION['id_utente']) || empty($_SESSION['id_utente'])) {
+    header("Location: index.php");
+    exit();
 }
 $id_utente = $_SESSION['id_utente'];
 $id_altro = isset($_GET['id']) && $_GET['id'] !== '' ? $_GET['id'] : null;
@@ -21,6 +23,14 @@ if (!$chatVuota) {
         $chatVuota = true;
     }
 }
+$sql_lette="UPDATE messaggi
+            SET letto=1
+            WHERE id_mit=:id_mit AND id_dest=:id_dest";
+$stmt_lette=$pdo->prepare($sql_lette);
+$stmt_lette->execute([
+    ':id_mit'=>$id_altro,
+    ':id_dest'=>$id_utente
+]);
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -41,11 +51,26 @@ if (!$chatVuota) {
     <style>
         body {
             margin: 0;
-            background: #fce4ec;
+            background: #fcfae4;
             font-family: "Montserrat", sans-serif;
         }
+        /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('./cupidini.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.45;
+        }
         .chat-header {
-            background: #a31f5f;
+            background: #8d0c0c;
             color: white;
             padding: 15px;
             font-size: 18px;
@@ -66,7 +91,7 @@ if (!$chatVuota) {
             padding: 15px;
         }
         .mio {
-            background: #a31f5f;
+            background: #8d0c0c;
             color: white;
             padding: 10px 14px;
             border-radius: 12px;
@@ -106,7 +131,7 @@ if (!$chatVuota) {
             border: 1px solid #ccc;
         }
         .chat-input-container button {
-            background: #a31f5f;
+            background: #8d0c0c;
             color: white;
             border: none;
             padding: 10px 16px;
@@ -146,7 +171,7 @@ if (!$chatVuota) {
                 Quando farai match o riceverai un like, potrai iniziare a chattare da qui.
             </div>
 
-            <div id="notificheBox" style="margin-top:20px; font-size:18px; color:#a31f5f; font-weight: 600;"></div>
+            <div id="notificheBox" style="margin-top:20px; font-size:18px; color:#8d0c0c; font-weight: 600;"></div>
         </div>
     <?php else: ?>
         <div id="chat-box"></div>

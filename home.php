@@ -1,8 +1,9 @@
 <?php
-    require __DIR__ . "/connessioneDB.php";
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
-
-    ?>
+}
+require __DIR__ . "/connessioneDB.php";
+?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -11,149 +12,223 @@
     <title>Cupido - Registrazione</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary-color: #c62874;
-            --accent-color: #fce4ec;
-            --text-main: #333;
-        }
+    :root {
+        --primary-color: #8d0c0c;
+        --text-main: #000000;
+    }
 
-        body {
-            background-color: var(--accent-color);
-            font-family: 'Monteserrat';
-        }
+    body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+        background-color: #fce4ec;
+    }
 
-        .main-wrapper {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
+    /* Il tuo collage fotografico come sfondo a schermo intero con opacità */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: url('./fotoOrizzontale.png'); 
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.45;
+    }
+
+    /* Navbar posizionata in alto a destra */
+    .navbar-custom {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 1.5rem 2rem;
+        z-index: 10;
+    }
+
+    .navbar-custom .btn-link-custom {
+        color: #000000;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 1.05rem;
+    }
+
+    .navbar-custom .btn-link-custom:hover {
+        color: var(--primary-color);
+    }
+
+    /* Contenitore principale a tutta pagina */
+    .main-container {
+        min-height: 100vh;
+        display: flex;
+        position: relative;
+        padding: 2rem;
+    }
+
+    /* Titolo a sinistra "Trova la tua metà." */
+    .left-headline {
+        position: absolute;
+        left: 5%;
+        top: 48%;
+        transform: translateY(-50%);
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #000000;
+        max-width: 450px;
+        line-height: 1.2;
+    }
+
+    /* SPECIFICHE GENERALI DEL RIQUADRO BIANCO (Funzionano SEMPRE, anche su PC) */
+    .popup-box {
+        background-color: rgba(255, 255, 255, 0.95); /* Sfondo bianco al 95% */
+        padding: 3rem 2.5rem;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        position: absolute;
+        right: 12%;
+        top: 52%;
+        transform: translateY(-50%);
+        max-width: 460px;
+        width: 100%;
+        z-index: 2;
+        backdrop-filter: blur(8px);
+    }
+
+    .right-content-box {
+        width: 100%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .brand-title {
+        font-size: 2.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #000000;
+        margin-top: -0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .site-description {
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: black;
+        line-height: 1.5;
+        margin-bottom: 2rem;
+    }
+
+    .btn-action-white {
+        background-color: #8d0c0c;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 14px 32px;
+        border-radius: 50px;
+        border: none;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-action-white:hover {
+        background-color: #d45e5e;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        color: white;
+    }
+
+    /* 📱 ADATTAMENTO RESPONSIVE (Solo variazioni per Tablet/Mobile) */
+    @media (max-width: 991px) {
+        body::before {
+            opacity: 0.5;
+        }
+        .navbar-custom {
+            position: relative;
+            width: 100%;
             justify-content: center;
-            padding: 2rem 0; /* Spazio extra per scroll su schermi piccoli */
+            padding: 1rem;
         }
+        .main-container {
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 1rem;
+        }
+        .left-headline {
+            position: relative;
+            left: auto;
+            top: auto;
+            transform: none;
+            text-align: center;
+            font-size: 2.2rem;
+            margin-top: 2rem;
+            margin-bottom: 3rem;
+        }
+        .popup-box {
+            position: relative;
+            right: auto;
+            top: auto;
+            transform: none;
+            margin: 2rem auto;
+            max-width: 90%;
+            padding: 2rem 1.5rem;
+        }
+    }
 
-        .hero-section {
-            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)), 
-                        url('https://images.unsplash.com/reserve/Af0sF2OS5S5gatqrKzVP_Silhoutte.jpg?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-                        /*foto della pagina di apertura*/
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 3rem;
+    @media (max-width: 576px) {
+        body::before {
+            background-image: url('fotoVerticale.png');
         }
-
-        .auth-section {
-            background-color: #ffffff;
-            padding: 3rem;
-        }
-
-        .form-title {
-            color: var(--primary-color);
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .btn-primary-action {
-            background-color: var(--primary-color);
-            border: none;
-            padding: 12px;
-            font-weight: 600;
-            transition: opacity 0.3s;
-        }
-
-        .btn-primary-action:hover {
-            background-color: #a31f5f;
-            opacity: 0.9;
-        }
-
-        .content-box {
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        }
-        .btn-outline-custom{
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-            font-weight: 600;
-        }
-        .btn-outline-custom:hover{
-            background-color: #a31f5f;
-            color:white;
-            border-color: #a31f5f;
-        }
-
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
-        }
-
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
-        }
+    }
+</style>
     </style>
 </head>
 
 <body>
-    <!-- verifico se gli utenti sono inseriti e raggiungibili -->
-<!--     
-    <p>
-        <?php
-            try{
-                $stmt = $pdo-> query("SELECT * FROM datiregistrazione");
-                $numero = $stmt->rowCount();
-                echo "Numero di utenti registrati: " . $numero;
-            } catch (PDOException $e) {
-                echo "Errore nel recupero dei dati: " . $e->getMessage();
-            }
-        ?>
-    </p> -->
+
+    <div class="navbar-custom d-flex gap-4 justify-content-end align-items-center">
+        <a href="index.php" class="btn-action-white py-2 px-3" style="font-size: 0.95rem;">Accedi</a>
+    </div>
+
+    <div class="container-fluid main-container">
     
-    <nav class="navbar navbar-expand-lg fixed-top px-4 py-3"> <!--barra di navigazione-->
-        <div class="container-fluid justify-content-end">
-            <div class="d-flex gap-2"> <!--dice ai div di rimanere fluidi nell'allinearsi, invece di andare a capo-->
-                <a href="index.php" class="btn btn-outline-custom rounded-pill px-4 text-center">
-                    Accedi
-                </a>
-                <a href="registrazione.php" class="btn btn-primary-action text-white rounded-pill px-4">
-                    Registrati
-                </a>
-            </div>
-        </div>
-    </nav>
+    <div class="left-headline">
+        Trova la tua metà.
+    </div>
 
-    <!--struttura della fascia grafica centrale-->
-    <div class="container main-wrapper">
-        <div class="row content-box w-100">
+    <div class="popup-box">
+        <div class="right-content-box">
+            <div class="brand-logo">
+                <?php include "cupido.php"; ?>
+            </div>
             
-            <div class="col-lg-7 d-none d-lg-flex hero-section flex-column justify-content-center text-center">
-                <!-- eventuale contenuto scritto nel centro 
-                VUOTA COME è ADESSO SI PUò TOGLIERE-->
-            </div>
-
-            <div class="col-lg-5 auth-section">
-                <div class="text-center mb-4">
-                    <div class="brand-logo mb-2">
-                        <!-- icona -->
-                        <i class="bi bi-arrow-through-heart" style="font-size: 2.5rem; color: var(--primary-color);"></i>
-                    </div>
-                    <!--  -->
-                    <h1 class="fw-bold h1" style="letter-spacing: 2px;">CUPIDO</h1>
-                </div>
-                <div class="text-center">
-                    <h3>
-                        Cupido è il sito che, tenendo conto dei tuoi interessi e preferenze in ambito relazionale, ti aiuta a trovare la persona giusta.
-                    </h3>
-                </div>
-                
-                <!-- 
-                la uso in reg4, qua non sembra servire
-                <form action="carica-foto.php"></form> -->
-
-            </div>
+            <h1 class="brand-title">CUPIDO</h1>
+            
+            <p class="site-description">
+                Cupido è il sito che, tenendo conto dei tuoi interessi e preferenze in ambito relazionale, ti aiuta a trovare la persona giusta.
+            </p>
+            
+            <a href="registrazione.php" class="btn-action-white btn-registrati">
+                Inizia la tua storia
+            </a>
         </div>
     </div>
+
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -14,91 +14,143 @@ session_start();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-        /* Definizione dei colori a tema senza rinominare le classi */
+        /* Configurazione colori identica alla Home */
         :root {
-            --primary-color: #c62874;
+            --primary-color: #8d0c0c; /* Rosso Cupido */
             --accent-color: #fce4ec;
-            --text-main: #333;
+            --text-main: #000000;
         }
 
         body {
             background-color: var(--accent-color);
-            font-family: 'Montserrat';
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        /* Container principale del layout */
+        /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('./fotoOrizzontale.png'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.45;
+        }
+
+        /* Wrapper principale centrato a schermo intero */
         .main-wrapper {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 2rem;
         }
 
-        /* Sezione di sinistra: Immagine e Logo */
+        /* Il blocco contenitore unito (Stile scheda arrotondata ed elegante) */
+        .content-box {
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            background: transparent;
+        }
+
+        /* Sezione SINISTRA: Immagine Hero riadattata */
         .hero-section {
-            background: linear-gradient(rgba(224, 82, 96, 0.6), rgba(0, 0, 0, 0.6)),
+            background: linear-gradient(rgba(141, 12, 12, 0.45), rgba(0, 0, 0, 0.65)),
                 url('https://images.unsplash.com/photo-1518199266791-c379a92b9414?q=80&w=1470&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             color: white;
-            padding: 3rem;
+            padding: 4rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        /* Sezione di destra: Form di Login */
+        /* Sezione DESTRA: Il form diventa un box bianco semi-trasparente effetto vetro */
         .auth-section {
-            background-color: #ffffff;
-            padding: 3rem;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 3.5rem 3rem;
+            backdrop-filter: blur(8px);
+        }
+
+        /* Larghezza personalizzata per desktop */
+        .col-lg-5 {
+            max-width: 480px;
         }
 
         .form-title {
             color: var(--primary-color);
-            font-weight: bold;
-            margin-bottom: 1.5rem;
+            font-weight: 700;
         }
 
-        /* Pulsante d'azione principale */
+        /* Elementi di input rifiniti */
+        .form-control {
+            border-radius: 10px;
+            padding: 11px 14px;
+            border: 1px solid #ced4da;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(141, 12, 12, 0.25);
+        }
+
+        /* Pulsante Accedi Ovale e Rosso come i bottoni principali della Home */
         .btn-primary-action {
             background-color: var(--primary-color);
             border: none;
-            padding: 12px;
+            padding: 14px;
             font-weight: 600;
-            transition: opacity 0.3s;
+            border-radius: 50px; /* Trasformato in ovale coordinato */
+            box-shadow: 0 4px 15px rgba(141, 12, 12, 0.2);
+            transition: all 0.3s ease;
         }
 
         .btn-primary-action:hover {
-            background-color: #c62874;
-            opacity: 0.9;
+            background-color: #d45e5e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(141, 12, 12, 0.3);
+            opacity: 1;
         }
 
-        /* Utility per i bordi arrotondati del contenitore */
-        .content-box {
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        /* RESPONSIVENESS OTTIMIZZATA (Senza alterare le classi strutturali) */
+        @media (max-width: 991px) {
+            .content-box {
+                max-width: 540px;
+            }
         }
 
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
-        }
-
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
-        }
-        .form-check-input:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
-        }
-        .form-check-input{
-            cursor: pointer;
-        }
-
-        .form-check-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
+        @media (max-width: 576px) {
+            body::before {
+                background-image: url('fotoVerticale.png'); /* Sfondo mobile della Home */
+            }
+            .main-wrapper {
+                padding: 1rem;
+            }
+            .auth-section {
+                padding: 2rem 1.5rem; /* Spazi più compatti e fluidi */
+            }
+            .hero-section {
+                padding: 2.5rem 1.5rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .btn-lg {
+                padding: 12px 14px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>

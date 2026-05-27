@@ -1,6 +1,7 @@
 <?php
 session_start(); // <-- 1. PRIMISSIMA COSA IN ASSOLUTO!
 require __DIR__ . "/connessioneDB.php";
+// require __DIR__ . "/controllo_sessione.php";
 
 // controllo se login è giusto
 if (!isset($_SESSION['id_utente']) || empty($_SESSION['id_utente'])) {
@@ -65,14 +66,29 @@ $aggettivi = $stmtAgg->fetch();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary-color: #c62874;
-            --accent-color: #fce4ec;
+            --primary-color: #8d0c0c;
+            --accent-color: #fcfae4;
             --text-main: #333;
         }
 
         body {
             background-color: var(--accent-color);
             font-family: 'Montserrat', sans-serif;
+        }
+        /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('./cupidini.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.45;
         }
 
         .main-wrapper {
@@ -113,7 +129,7 @@ $aggettivi = $stmtAgg->fetch();
         }
 
         .btn-primary-action:hover {
-            background-color: #a31f5f;
+            background-color: #8d0c0c;
             opacity: 0.9;
             color: white;
         }
@@ -218,9 +234,9 @@ $aggettivi = $stmtAgg->fetch();
 </div>
 
 <div id="popupNotifiche" style="display:none; position:fixed; top:70px; right:15px; width:280px; background:white; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.2); z-index:9999; padding:15px;">
-    <h5 class="fw-bold mb-2" style="color:#a31f5f;">Notifiche</h5>
+    <h5 class="fw-bold mb-2" style="color:#8d0c0c;">Notifiche</h5>
     <div id="contenutoNotifiche" style="max-height:300px; overflow-y:auto; font-size: 0.9rem;"></div>
-    <button onclick="chiudiPopup()" style="margin-top:10px; width:100%; background:#a31f5f; color:white; border:none; padding:8px; border-radius:8px;">
+    <button onclick="chiudiPopup()" style="margin-top:10px; width:100%; background:#8d0c0c; color:white; border:none; padding:8px; border-radius:8px;">
         Chiudi
     </button>
 </div>
@@ -246,6 +262,39 @@ $aggettivi = $stmtAgg->fetch();
             <p class="text-muted">
                 <i class="bi bi-geo-alt-fill" style="color: var(--primary-color);"></i><?= htmlspecialchars($utente['citta']) ?> • <?= htmlspecialchars($utente['eta']) ?> anni</p>
         </div>
+        <!--Possibilità di ricambiare il like-->
+        <?php
+            $me = $_SESSION['id_utente'];
+            $altro = $_GET['id'];
+
+            // Controllo se lui ha messo like a me
+            $sql = "SELECT * FROM likes 
+                WHERE id_mit = :altro AND id_dest = :me AND stato = 'like'";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+            ':altro' => $altro,
+            ':me' => $me
+            ]);
+            $haMessoLike = $stmt->fetch(PDO::FETCH_ASSOC);
+        ?>
+
+    <?php 
+    if ($haMessoLike): ?>
+        <div class="d-flex justify-content-center">
+        <a href="azione.php?id=<?= $altro ?>&azione=like" 
+            class="btn w-25 mt-2" style="border: 2px solid #8d0c0c; background-color:#8d0c0c; color:white;">
+            🤍 Ricambia il like
+        </a>
+    </div>
+    <?php else: ?>
+        <div class="d-flex justify-content-center">
+        <a href="azione.php?id=<?= $altro ?>&azione=like" 
+            class="btn w-25 mt-2" style="border: 2px solid #8d0c0c; background-color:#8d0c0c; color:white;">
+            🤍 Lascia un like...
+        </a>
+    </div>
+
+    <?php endif; ?>
     
         <hr>
               <!-- galleria foto -->
@@ -361,19 +410,19 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             <div class="col">
                 <a href="cerca.php" class="text-decoration-none text-dark">
-                    <i class="bi bi-search-heart fs-3" style="color:#a31f5f;"></i>
+                    <i class="bi bi-search-heart fs-3" style="color:#8d0c0c;"></i>
                 </a>
             </div>
 
             <div class="col">
-                <a href="match.php" class="text-decoration-none text-dark">
-                    <i class="bi bi-chat-heart fs-3" style="color:#a31f5f;"></i>
+                <a href="chat_completa.php" class="text-decoration-none text-dark">
+                    <i class="bi bi-chat-heart fs-3" style="color:#8d0c0c;"></i>
                 </a>
             </div>
 
             <div class="col">
                 <a href="profilo.php" class="text-decoration-none text-dark">
-                    <i class="bi bi-person-circle fs-3" style="color:#a31f5f;"></i>
+                    <i class="bi bi-person-circle fs-3" style="color:#8d0c0c;"></i>
                 </a>
             </div>
             </div>
@@ -398,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let stileLetta = (parseInt(n.letto) === 1) ? 'style="opacity: 0.55;"' : '';
            
             // CREAZIONE DEL LINK AL PROFILO: usiamo id_mit per identificare l'utente
-            let linkProfilo = `<a href="profiloUtente.php?id=${n.id_mit}" class="text-decoration-none fw-bold" style="color: #a31f5f;">${mit}</a>`;
+            let linkProfilo = `<a href="profiloUtente.php?id=${n.id_mit}" class="text-decoration-none fw-bold" style="color: #8d0c0c;">${mit}</a>`;
 
             if (n.tipo === "like") {
                 html += `
@@ -406,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span>❤️ <b>${linkProfilo}</b> ti ha messo like</span>
                     <div class="azione-container">
                         ${parseInt(n.letto) === 0 ? `
-                        <button onclick="ricambiaLike(this, '${n.id_mit}')" class="btn btn-sm text-white" style="background-color:#a31f5f; font-size:0.75rem;">
+                        <button onclick="ricambiaLike(this, '${n.id_mit}')" class="btn btn-sm text-white" style="background-color:#8d0c0c; font-size:0.75rem;">
                             Ricambia
                         </button>` : '<span class="text-muted" style="font-size:0.75rem;">Letta</span>'}
                     </div>

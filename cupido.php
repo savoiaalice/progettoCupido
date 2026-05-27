@@ -2,7 +2,7 @@
 echo '
 <svg width="60" height="60" viewBox="0 0 1024 1024" version="1.0" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
 <g transform="translate(0.000000,896.000000) scale(0.100000,-0.100000)"
-fill="#a31f5f" stroke="#a31f5f" stroke-width="20">
+fill="#8d0c0c" stroke="#8d0c0c" stroke-width="20">
 <path d="M9867 8170 c-135 -51 -272 -213 -324 -380 -24 -76 -26 -101 -26 -230
 1 -106 5 -157 17 -188 18 -51 13 -70 -23 -78 -53 -11 -79 -26 -90 -50 -15 -34
 -14 -39 13 -68 15 -17 22 -34 19 -50 -3 -13 0 -33 6 -44 9 -16 8 -23 -2 -29

@@ -1,12 +1,13 @@
 <?php
 require 'connessioneDB.php';
+//require __DIR__ . "/controllo_sessione.php";
 
 session_start();
 
 // Se l'utente non è loggato, reindirizza
-if (!isset($_SESSION['id_utente'])) {
-    header("Location: index.php"); 
-    exit;
+if (!isset($_SESSION['id_utente']) || empty($_SESSION['id_utente'])) {
+    header("Location: index.php");
+    exit();
 }
 
 $id_utente = $_SESSION['id_utente'];
@@ -95,14 +96,29 @@ if (!empty($id_interazioni)) {
 
     <style>
         :root {
-            --primary-color: #a31f5f;
-            --accent-color: #fce4ec;
+            --primary-color: #8d0c0c;
+            --accent-color: #fcfae4;
             --text-main: #333;
         }
         body {
             background-color: var(--accent-color);
             font-family: "Montserrat", sans-serif;
             padding-bottom: 80px;
+        }
+         /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('./cupidini.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.45;
         }
         .cupido-header {
             background: var(--primary-color);
@@ -167,9 +183,9 @@ if (!empty($id_interazioni)) {
     </div>
 
     <div id="popupNotifiche" style="display:none; position:fixed; top:70px; right:15px; width:290px; background:white; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.2); z-index:9999; padding:15px;">
-        <h5 class="fw-bold mb-2" style="color:#a31f5f;">Notifiche</h5>
+        <h5 class="fw-bold mb-2" style="color:#8d0c0c;">Notifiche</h5>
         <div id="contenutoNotifiche" style="max-height:300px; overflow-y:auto; font-size: 0.9rem;"></div>
-        <button onclick="chiudiPopup()" style="margin-top:10px; width:100%; background:#a31f5f; color:white; border:none; padding:8px; border-radius:8px;">
+        <button onclick="chiudiPopup()" style="margin-top:10px; width:100%; background:#8d0c0c; color:white; border:none; padding:8px; border-radius:8px;">
             Chiudi
         </button>
     </div>
@@ -200,9 +216,9 @@ if (!empty($id_interazioni)) {
         <div class="container-fluid">
             <div class="row text-center w-100">
                 <div class="col"><a href="match.php" class="text-decoration-none text-dark"><?php include "cupido.php"; ?></a></div>
-                <div class="col"><a href="cerca.php" class="text-decoration-none text-dark"><i class="bi bi-search-heart" style="font-size: 1.9rem; color:#a31f5f;"></i></a></div>
-                <div class="col"><a href="chatList.php" class="text-decoration-none text-dark"><i class="bi bi-chat-heart" style="font-size: 1.9rem; color:#a31f5f;"></i></a></div>
-                <div class="col"><a href="profilo.php" class="text-decoration-none text-dark"><i class="bi bi-person-circle" style="font-size: 1.9rem; color:#a31f5f;"></i></a></div>
+                <div class="col"><a href="cerca.php" class="text-decoration-none text-dark"><i class="bi bi-search-heart" style="font-size: 1.9rem; color:#8d0c0c;"></i></a></div>
+                <div class="col"><a href="chatList.php" class="text-decoration-none text-dark"><i class="bi bi-chat-heart" style="font-size: 1.9rem; color:#8d0c0c;"></i></a></div>
+                <div class="col"><a href="profilo.php" class="text-decoration-none text-dark"><i class="bi bi-person-circle" style="font-size: 1.9rem; color:#8d0c0c;"></i></a></div>
             </div>
         </div>
     </nav>
@@ -226,7 +242,7 @@ if (!empty($id_interazioni)) {
             let stileLetta = (parseInt(n.letto) === 1) ? 'style="opacity: 0.55;"' : '';
             
             // CREAZIONE DEL LINK AL PROFILO: usiamo id_mit per identificare l'utente
-            let linkProfilo = `<a href="profiloUtente.php?id=${n.id_mit}" class="text-decoration-none fw-bold" style="color: #a31f5f;">${mit}</a>`;
+            let linkProfilo = `<a href="profiloUtente.php?id=${n.id_mit}" class="text-decoration-none fw-bold" style="color: #8d0c0c;">${mit}</a>`;
 
             if (n.tipo === "like") {
                 html += `
@@ -234,7 +250,7 @@ if (!empty($id_interazioni)) {
                     <span>❤️ <b>${linkProfilo}</b> ti ha messo like</span>
                     <div class="azione-container">
                         ${parseInt(n.letto) === 0 ? `
-                        <button onclick="ricambiaLike(this, '${n.id_mit}')" class="btn btn-sm text-white" style="background-color:#a31f5f; font-size:0.75rem;">
+                        <button onclick="ricambiaLike(this, '${n.id_mit}')" class="btn btn-sm text-white" style="background-color:#8d0c0c; font-size:0.75rem;">
                             Ricambia
                         </button>` : '<span class="text-muted" style="font-size:0.75rem;">Letta</span>'}
                     </div>
