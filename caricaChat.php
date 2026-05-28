@@ -8,6 +8,17 @@ if (!isset($_SESSION['id_utente']) || !isset($_GET['id'])) {
 
 $id_utente = $_SESSION['id_utente'];
 $id_altro = $_GET['id'];
+//recupero la foto profilo del mittente
+$sql_foto="SELECT percorso
+            FROM foto_utenti
+            WHERE id_utente=:id_utente AND tipo='profilo'";
+$stmt_foto=$pdo->prepare($sql_foto);
+$stmt_foto->execute([
+    ':id_utente'=>$id_altro
+]);
+$dati=$stmt_foto->fetch(PDO::FETCH_ASSOC);
+//se l'utente non ha foto profilo seleziono una standard
+$foto_profilo=$dati['percorso'];
 //segno come letti i messaggi che l'altro ha inviato a me
 $sql="UPDATE messaggi
         SET letto=1
@@ -26,6 +37,9 @@ $stmt_not->execute([
     ':id_mit'=>$id_altro,
     ':id_dest'=>$id_utente
 ]);
+
+//stampo la foto profilo
+echo "<input type='hidden' id='url-foto-rilevata' value='".htmlspecialchars($foto_profilo)."'>";
 
 // Seleziono tutti i messaggi scambiati tra i due utenti
 $sql = "SELECT * FROM messaggi 
