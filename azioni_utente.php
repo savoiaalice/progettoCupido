@@ -238,11 +238,12 @@ switch ($azione) {
         }
         break;
 
-    case 'carica_foto_profilo':
+    case 'carica_foto':
+    
         $id_utente = $_SESSION['id_utente'] ?? null;
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $nome = $_FILES['foto']['name'];
-            $temp = $_FILES['foto']['tmp_name'];
+        if (isset($_FILES['foto_profilo']) && $_FILES['foto_profilo']['error'] === UPLOAD_ERR_OK) {
+            $nome = $_FILES['foto_profilo']['name'];
+            $temp = $_FILES['foto_profilo']['tmp_name'];
             $percorso = "foto/" . time() . "_" . $nome;
 
             if (move_uploaded_file($temp, $percorso)) {
@@ -257,37 +258,40 @@ switch ($azione) {
                     ':percorso' => $percorso
                 ]);
             }
+        }else{
+            die("Foto profilo obbligatoria!");
         }
-        header("Location: reg4.php");
-        exit();
-        break;
+        if (isset($_FILES['foto_galleria']) && is_array($_FILES['foto_galleria']['name'])) {
+            $numeroFile = count($_FILES['foto_galleria']['name']);
+            
+            for ($i = 0; $i < $numeroFile; $i++) {
+                if ($_FILES['foto_galleria']['error'][$i] === UPLOAD_ERR_OK) {
+                    
+                    $nomeOriginale = $_FILES['foto_galleria']['name'][$i];
+                    $tempFile = $_FILES['foto_galleria']['tmp_name'][$i];
 
-    case 'carica_foto_card':
-        $id_utente = $_SESSION['id_utente'] ?? null;
+                    $nuovoNome = time() . "_" . $i . "_" . basename($nomeOriginale);
+                    $percorsoFinale = "foto/" . $nuovoNome;
 
-        if (isset($_FILES['foto']['tmp_name']) && is_array($_FILES['foto']['tmp_name'])) {
-            foreach ($_FILES['foto']['tmp_name'] as $index => $tmp) {
-                if ($_FILES['foto']['error'][$index] === UPLOAD_ERR_OK) {
-                    $nome = $_FILES['foto']['name'][$index];
-                    $percorso = "foto/" . time() . "_" . $nome;
-
-                    if (move_uploaded_file($tmp, $percorso)) {
-                        $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) VALUES (:id, :percorso, 'galleria')";
+                    if (move_uploaded_file($tempFile, $percorsoFinale)) {
+                        $sql = "INSERT INTO foto_utenti (id_utente, percorso, tipo) 
+                                VALUES (:id, :percorso, 'galleria')";
                         $stmt = $pdo->prepare($sql);
                         $stmt->execute([
                             ':id' => $id_utente,
-                            ':percorso' => $percorso
+                            ':percorso' => $percorsoFinale
                         ]);
                     }
                 }
             }
         }
-
-        header("Location: reg4.php");
+        header("Location: match.php");
         exit();
         break;
+
 
     default:
         header("Location: reg3.php");
         exit();
 }
+?>

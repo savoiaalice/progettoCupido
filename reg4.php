@@ -158,51 +158,33 @@
                 
                 <hr class="my-4">
 
-                <form action="azioni_utente.php" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="azione" value="carica_foto_profilo">
-                    <div class="mb-4">
-                        <label for="fotoProfilo" class="form-label small fw-bold" style="color: var(--text-main);">
-                            <i class="bi bi-person-bounding-box me-2" style="color: var(--primary-color);"></i>
-                            Seleziona la tua foto profilo 
-                        </label>
-                        <input type="file" class="form-control shadow-sm" id="fotoProfilo" name="foto" accept="image/*" required>
-                        <div class="form-text ps-2 small">Formati supportati: JPG, PNG</div>
-                        
-                        <div class="d-flex justify-content-center mt-3">
-                            <button type="submit" class="btn btn-primary-action text-white btn-sm d-flex align-items-center gap-2">
-                                <i class="bi bi-cloud-arrow-up-fill"></i>
-                                CARICA FOTO PROFILO
-                            </button>
-                        </div>
-                    </div>
-                </form>                    
-                
-                <hr class="my-4">
-
-                <form action="azioni_utente.php" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="azione" value="carica_foto_card">
-                    <div class="mb-4">
-                        <label for="fotoCard" class="form-label small fw-bold" style="color: var(--text-main);">
-                            <i class="bi bi-images me-2" style="color: var(--primary-color);"></i>
-                            Aggiungi foto alla tua galleria personale
-                        </label>
-                        <input type="file" class="form-control shadow-sm" id="fotoCard" name="foto[]" accept="image/*" multiple required>
-                        <div class="form-text ps-2 small">Formati supportati: JPG, PNG</div>
-                        
-                        <div class="d-flex justify-content-center mt-3">
-                            <button type="submit" class="btn btn-primary-action text-white btn-sm d-flex align-items-center gap-2">
-                                <i class="bi bi-cloud-arrow-up-fill"></i>
-                                AGGIUNGI ALLA GALLERIA
-                            </button>
-                        </div>                    
-                    </div>
-                </form>
-                
-                <hr class="my-4">
-
                 <div class="mt-4 text-center">
-                    <form action="match.php" method="POST">
-                        <div class="d-flex justify-content-center mt-3 mb-3">
+                    <form action="azioni_utente.php" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="azione" value="carica_foto">
+                        <div class="d-flex flex-column align-items-center mt-3 mb-3">
+                            
+                            <div class="mb-4 w-100" style="max-width: 600px;">
+                                <label for="fotoProfilo" class="form-label small fw-bold" style="color: var(--text-main);">
+                                    <i class="bi bi-person-bounding-box me-2" style="color: var(--primary-color);"></i>
+                                    Seleziona la tua foto profilo 
+                                </label>
+                                <input type="file" class="form-control shadow-sm" id="fotoProfilo" name="foto_profilo" accept="image/*" required>
+                                <div class="form-text ps-2 small">Formati supportati: JPG, PNG</div>
+                            </div>
+
+                            <hr class="my-2 w-100" style="max-width: 600px;">
+
+                            <div class="mb-4 w-100" style="max-width: 600px;">
+                                <label for="fotoCard" class="form-label small fw-bold" style="color: var(--text-main);">
+                                    <i class="bi bi-images me-2" style="color: var(--primary-color);"></i>
+                                    Aggiungi foto alla tua galleria personale
+                                </label>
+                                <input type="file" class="form-control shadow-sm" id="fotoCard" name="foto_galleria[]" accept="image/*" multiple>
+                                <div class="form-text ps-2 small">Formati supportati: JPG, PNG</div>
+                            </div>
+
+                            <hr class="my-2 w-100" style="max-width: 600px;">
+                                
                             <button type="submit" class="btn btn-primary-action text-white d-flex align-items-center gap-2">
                                 SALVA
                             </button>
