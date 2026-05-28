@@ -3,6 +3,7 @@
 <?php
 require __DIR__ . "/connessioneDB.php";
 require __DIR__ . "/funzioniMatch.php";
+require __DIR__ . "/controllo_sessione.php";
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
