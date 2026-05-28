@@ -8,12 +8,30 @@ if (!isset($_SESSION['id_utente']) || !isset($_GET['id'])) {
 
 $id_utente = $_SESSION['id_utente'];
 $id_altro = $_GET['id'];
+//segno come letti i messaggi che l'altro ha inviato a me
+$sql="UPDATE messaggi
+        SET letto=1
+        WHERE id_mit=:id_mit AND id_dest=:id_dest and letto=0";
+$stmt=$pdo->prepare($sql);
+$stmt->execute([
+    ':id_mit'=>$id_altro,
+    ':id_dest'=>$id_utente
+]);
+//Ovviamente se leggo il messaggio anche la notifica del messaggio deve apparire letta
+$sql_not="UPDATE notifica
+            SET letto=1
+            WHERE id_mit=:id_mit AND id_dest=:id_dest AND tipo='messaggio' AND letto=0" ;
+$stmt_not=$pdo->prepare($sql_not);
+$stmt_not->execute([
+    ':id_mit'=>$id_altro,
+    ':id_dest'=>$id_utente
+]);
 
-// Seleziono tutti i messaggi scambiati tra i due utenti usando i segnaposto ?
+// Seleziono tutti i messaggi scambiati tra i due utenti
 $sql = "SELECT * FROM messaggi 
         WHERE (id_mit = ? AND id_dest = ?) 
            OR (id_mit = ? AND id_dest = ?) 
-        ORDER BY data ASC"; // Controlla se la colonna si chiama 'data' o 'data_invio'
+        ORDER BY data ASC";
 
 $stmt = $pdo->prepare($sql);
 
@@ -28,8 +46,25 @@ $stmt->execute([
 $messaggi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($messaggi as $messaggio) {
-    // Se il mittente sono io la classe è "mio", altrimenti è "suo"
-    $classe = ($messaggio['id_mit'] == $id_utente) ? "mio" : "suo";
-    echo "<div class='$classe'>" . htmlspecialchars($messaggio['testo']) . "</div>";
+    //vedo se il messaggio è mio o dell'altro utente
+    if($messaggio['id_mit']==$id_utente){
+        $classe="mio";
+        //metto la spunta sui messaggi letti
+        if($messaggio['letto']==1){
+            $spunta="<i class='bi bi-check2-all text-info' style='font-size: 0.95rem; margin-left: 5px;'></i>";
+        }else{
+            $spunta="<i class='bi bi-check2' style='color: rgba(255,255,255,0.7); font-size: 0.95rem; margin-left: 5px;'></i>";
+        }
+    }else{
+        $classe="suo";
+        $spunta="";
+    }
+    //stampiamo il messaggio con la spunta integrata
+    echo "<div class='$classe'>";
+    echo "<span>" . htmlspecialchars($messaggio['testo']) . "</span>";
+    if (!empty($spunta)) {
+        echo " " . $spunta;
+    }
+    echo "</div>";
 }
 ?>

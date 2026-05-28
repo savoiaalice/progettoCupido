@@ -38,23 +38,13 @@ if(!$chatVuota){
     
     if(!$altro){
         $chatVuota = true;
-    } else {
-        // Query SQL corretta per l'aggiornamento dei messaggi letti
-        $sql_lette = "UPDATE messaggi 
-                      SET letto = 1 
-                      WHERE id_mit = :id_mit AND id_dest = :id_dest";
-        $stmt_lette = $pdo->prepare($sql_lette);
-        $stmt_lette->execute([
-            ':id_mit' => $id_altro,
-            ':id_dest' => $id_utente
-        ]);
     }
 }
 
 // Array di appoggio per salvare gli ID delle interazioni valide
 $id_interazioni = [];
 
-// 1) Estraiamo i MATCH reali in cui l'utente corrente è il destinatario
+//Estraiamo i MATCH reali in cui l'utente corrente è il destinatario
 $sql = "SELECT id_mit 
         FROM notifica 
         WHERE id_dest = :id_utente AND tipo = 'match'";
@@ -68,7 +58,7 @@ while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
     }
 }
 
-// 2) Estraiamo le CHAT già attive
+//Estraiamo le CHAT già attive
 $sql = "SELECT DISTINCT IF(id_mit = ?, id_dest, id_mit) AS altro 
         FROM messaggi 
         WHERE id_mit = ? OR id_dest = ?";
@@ -96,13 +86,16 @@ if (!empty($id_interazioni)) {
 
     if ($quanti > 0) {
         $placeholders = implode(',', array_fill(0, $quanti, '?'));
-        
-        $sql = "SELECT id_utente, nome, cognome 
-                FROM datiregistrazione 
-                WHERE id_utente IN ($placeholders)";
+        //seleziona i dati del destinatario e conta quanti messaggi non letti ci sono
+        $sql = "SELECT d.id_utente, d.nome, d.cognome,
+                (SELECT COUNT(*) FROM messaggi m 
+                    WHERE m.id_mit = d.id_utente AND m.id_dest = ? AND m.letto = 0) as non_letti
+                FROM datiregistrazione d
+                WHERE d.id_utente IN ($placeholders)";
         $stmt = $pdo->prepare($sql);
-        
-        $stmt->execute($id_puliti);
+        //uniamo i paramentri da eseguire
+        $par=array_merge([$id_utente], $id_puliti);
+        $stmt->execute($par);
         $righe_utenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($righe_utenti as $u) {
@@ -111,7 +104,8 @@ if (!empty($id_interazioni)) {
                 'id_altro' => $id_alt,
                 'nome'     => $u['nome'],
                 'cognome'  => $u['cognome'],
-                'tipo'     => 'match'
+                'tipo'     => 'match',
+                'non_letti'=> $u['non_letti']//salvo il numero di messaggi non letti
             ];
         }
     }
@@ -294,14 +288,23 @@ if (!empty($id_interazioni)) {
             <?php else: ?>
                 <?php foreach ($utenti as $u): ?>
                     <div class="contact-card <?php if($id_altro === $u['id_altro']) echo 'active'; ?>" 
-                         onclick="selezionaUtente('<?= htmlspecialchars($u['id_altro']) ?>', '<?= htmlspecialchars($u['nome'] . ' ' . $u['cognome']) ?>')">
-                        <div class="fw-bold" style="color: var(--primary-color);"><?= htmlspecialchars($u['nome'] . " " . $u['cognome']) ?></div>
-                        <span class="text-muted small"><i class="bi bi-chat-heart"></i> Clicca per chattare</span>
-                    </div>
-                <?php endforeach; ?>
+                        onclick="selezionaUtente('<?= htmlspecialchars($u['id_altro']) ?>', '<?= htmlspecialchars($u['nome'] . ' ' . $u['cognome']) ?>')">
+        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="fw-bold" style="color: var(--primary-color);">
+                                <?= htmlspecialchars($u['nome'] . " " . $u['cognome']) ?>
+                            </div>
+                                <?php if (isset($u['non_letti']) && $u['non_letti'] > 0): ?>
+                                <span class="badge bg-danger rounded-pill"><?= $u['non_letti'] ?></span>
+                                <?php endif; ?>
+                            </div>
+        
+                                 <span class="text-muted small"><i class="bi bi-chat-heart"></i> Clicca per chattare</span>
+                         </div>
+                    <?php endforeach; ?>
             <?php endif; ?>
+            </div>
         </div>
-    </div>
 
     <div class="chat-main" id="chat-panel">
         <div class="chat-header d-flex align-items-center gap-2">
@@ -340,6 +343,12 @@ if (!empty($id_interazioni)) {
     let timerChat = null;
 
     function selezionaUtente(id, nomeCompleto) {
+        // Rimuove il badge delle notifiche dall'utente cliccato immediatamente
+        if(event && event.currentTarget) {
+            const badge = event.currentTarget.querySelector('.badge');
+            if(badge) badge.remove();
+        }
+
         CHAT_ID_ALTRO = id;
         nomeHeaderChat.textContent = nomeCompleto;
         inputTesto.disabled = false;
@@ -354,8 +363,6 @@ if (!empty($id_interazioni)) {
             document.getElementById("sidebar-panel").style.display = "none";
             document.getElementById("chat-panel").style.display = "flex";
         }
-
-        fetch("notifiche_lette_singola.php?id=" + encodeURIComponent(id)); 
 
         caricaChat();
         clearInterval(timerChat);
