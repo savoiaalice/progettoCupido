@@ -5,7 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require __DIR__ . "/connessioneDB.php";
 require __DIR__ . "/funzioniMatch.php";
-require __DIR__ . "/controllo_sessione.php";
 
 // Se l'utente non è loggato, reindirizza alla pagina di login/index
 if (!isset($_SESSION['id_utente']) || empty($_SESSION['id_utente'])) {
@@ -26,14 +25,11 @@ if($id_altro === null){
 }
 
 $altro = null;
-$foto_altro = 'uploads/default.jpg'; // Immagine di fallback iniziale
-
 if(!$chatVuota){
-    // MODIFICA: Recuperiamo i dati dell'altro utente unendo la tabella foto_utenti filtrata per 'profilo'
-    $sql = "SELECT d.id_utente, d.nome, d.cognome, f.percorso
-            FROM datiregistrazione d
-            LEFT JOIN foto_utenti f ON d.id_utente = f.id_utente AND f.tipo = 'profilo'
-            WHERE d.id_utente = :id_utente";
+    // Nome tabella uniformato in datiregistrazione (minuscolo)
+    $sql = "SELECT id_utente, nome, cognome
+            FROM datiregistrazione
+            WHERE id_utente = :id_utente";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         ':id_utente' => $id_altro
@@ -42,17 +38,13 @@ if(!$chatVuota){
     
     if(!$altro){
         $chatVuota = true;
-    } else {
-        if(!empty($altro['percorso'])) {
-            $foto_altro = $altro['percorso'];
-        }
     }
 }
 
 // Array di appoggio per salvare gli ID delle interazioni valide
 $id_interazioni = [];
 
-// Estraiamo i MATCH reali in cui l'utente corrente è il destinatario
+//Estraiamo i MATCH reali in cui l'utente corrente è il destinatario
 $sql = "SELECT id_mit 
         FROM notifica 
         WHERE id_dest = :id_utente AND tipo = 'match'";
@@ -66,7 +58,7 @@ while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
     }
 }
 
-// Estraiamo le CHAT già attive
+//Estraiamo le CHAT già attive
 $sql = "SELECT DISTINCT IF(id_mit = ?, id_dest, id_mit) AS altro 
         FROM messaggi 
         WHERE id_mit = ? OR id_dest = ?";
@@ -94,32 +86,26 @@ if (!empty($id_interazioni)) {
 
     if ($quanti > 0) {
         $placeholders = implode(',', array_fill(0, $quanti, '?'));
-        
-        // MODIFICA CRUCIALE: LEFT JOIN con foto_utenti filtrando tassativamente sul tipo 'profilo'
-        $sql = "SELECT d.id_utente, d.nome, d.cognome, f.percorso,
+        //seleziona i dati del destinatario e conta quanti messaggi non letti ci sono
+        $sql = "SELECT d.id_utente, d.nome, d.cognome,
                 (SELECT COUNT(*) FROM messaggi m 
                     WHERE m.id_mit = d.id_utente AND m.id_dest = ? AND m.letto = 0) as non_letti
                 FROM datiregistrazione d
-                LEFT JOIN foto_utenti f ON d.id_utente = f.id_utente AND f.tipo = 'profilo'
                 WHERE d.id_utente IN ($placeholders)";
-                
         $stmt = $pdo->prepare($sql);
-        $par = array_merge([$id_utente], $id_puliti);
+        //uniamo i paramentri da eseguire
+        $par=array_merge([$id_utente], $id_puliti);
         $stmt->execute($par);
         $righe_utenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($righe_utenti as $u) {
             $id_alt = $u['id_utente'];
-            // Se non c'è una foto profilo nel database, usa quella di default
-            $foto_card = (!empty($u['percorso'])) ? $u['percorso'] : 'uploads/default.jpg';
-            
             $utenti[] = [
-                'id_altro'     => $id_alt,
-                'nome'         => $u['nome'],
-                'cognome'      => $u['cognome'],
-                'foto_profilo' => $foto_card,
-                'tipo'         => 'match',
-                'non_letti'    => $u['non_letti']
+                'id_altro' => $id_alt,
+                'nome'     => $u['nome'],
+                'cognome'  => $u['cognome'],
+                'tipo'     => 'match',
+                'non_letti'=> $u['non_letti']//salvo il numero di messaggi non letti
             ];
         }
     }
@@ -170,6 +156,7 @@ if (!empty($id_interazioni)) {
         body {
             background-color: var(--accent-color);
             font-family: "Montserrat", sans-serif;
+            /* Rimosso il padding-bottom che serviva per la vecchia navbar fissa */
             padding-bottom: 0; 
         }
         .cupido-header {
@@ -303,47 +290,30 @@ if (!empty($id_interazioni)) {
                     <div class="contact-card <?php if($id_altro === $u['id_altro']) echo 'active'; ?>" 
                         onclick="selezionaUtente('<?= htmlspecialchars($u['id_altro']) ?>', '<?= htmlspecialchars($u['nome'] . ' ' . $u['cognome']) ?>')">
         
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="<?= htmlspecialchars($u['foto_profilo']) ?>" alt="Avatar" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;">
-                            
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <a href="profiloUtente.php?id=<?= htmlspecialchars($u['id_altro']) ?>" class="fw-bold text-decoration-none" style="color: var(--primary-color);" onclick="event.stopPropagation();">
-                                        <?= htmlspecialchars($u['nome'] . " " . $u['cognome']) ?>
-                                    </a>
-                                    
-                                    <?php if (isset($u['non_letti']) && $u['non_letti'] > 0): ?>
-                                        <span class="badge bg-danger rounded-pill"><?= $u['non_letti'] ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <span class="text-muted" style="font-size: 0.8rem;"><i class="bi bi-chat-heart"></i> Clicca per chattare</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="fw-bold" style="color: var(--primary-color);">
+                                <?= htmlspecialchars($u['nome'] . " " . $u['cognome']) ?>
                             </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+                                <?php if (isset($u['non_letti']) && $u['non_letti'] > 0): ?>
+                                <span class="badge bg-danger rounded-pill"><?= $u['non_letti'] ?></span>
+                                <?php endif; ?>
+                            </div>
+        
+                                 <span class="text-muted small"><i class="bi bi-chat-heart"></i> Clicca per chattare</span>
+                         </div>
+                    <?php endforeach; ?>
             <?php endif; ?>
+            </div>
         </div>
-    </div>
 
     <div class="chat-main" id="chat-panel">
-        <div class="chat-header d-flex align-items-center gap-3">
+        <div class="chat-header d-flex align-items-center gap-2">
             <button class="btn text-white back-btn p-0 border-0 fs-4 d-none" onclick="tornaAllaLista()">←</button>
-    
-            <div id="header-profilo-utente" class="d-flex align-items-center gap-2" style="<?= $chatVuota ? 'display:none !important;' : '' ?>">
-                <a href="profiloUtente.php?id=<?= $id_altro ?>" id="link-foto-profilo">
-                    <img id="foto-header-chat" src="<?= htmlspecialchars($foto_altro) ?>" alt="Foto" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid white;">
-                </a>
-                
-                <a id="link-profilo" href="profiloUtente.php?id=<?= $id_altro ?>" class="text-white text-decoration-none fw-bold" style="letter-spacing: 1px; font-size: 1.3rem;">
-                    <span id="nome-header-chat">
-                        <?= $chatVuota ? 'Seleziona una chat' : htmlspecialchars($altro['nome'] . " " . $altro['cognome']) ?>
-                    </span>
-                </a>
-            </div>
-    
-            <?php if ($chatVuota): ?>
-                <span id="placeholder-header" class="fw-bold m-0" style="letter-spacing: 2px; font-size: 1.5rem;">Seleziona una chat</span>
-            <?php endif; ?>
+            <a id="versoProfilo" class="text-white text-decoration-none" style="display: flex; align-items: center;" >
+                <span id="nome-header-chat" class="fw-bold m-0" style="letter-spacing: 2px; font-size: 1.5rem;">
+                    <?= $chatVuota ? 'Seleziona una chat' : htmlspecialchars($altro['nome'] . " " . $altro['cognome']) ?>
+                </span>
+            </a>
         </div>
 
         <div id="chat-box">
@@ -365,7 +335,6 @@ if (!empty($id_interazioni)) {
     </div>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     let CHAT_ID_ALTRO = <?= $chatVuota ? 'null' : json_encode($id_altro) ?>;
@@ -376,31 +345,22 @@ if (!empty($id_interazioni)) {
     let timerChat = null;
 
     function selezionaUtente(id, nomeCompleto) {
-        if(window.event && window.event.currentTarget) {
-            const badge = window.event.currentTarget.querySelector('.badge');
+        // Rimuove il badge delle notifiche dall'utente cliccato immediatamente
+        if(event && event.currentTarget) {
+            const badge = event.currentTarget.querySelector('.badge');
             if(badge) badge.remove();
         }
 
         CHAT_ID_ALTRO = id;
         nomeHeaderChat.textContent = nomeCompleto;
-        
-        document.getElementById("link-profilo").href = "profiloUtente.php?id=" + id;
-        document.getElementById("link-foto-profilo").href = "profiloUtente.php?id=" + id;
-    
-        document.getElementById("header-profilo-utente").style.setProperty("display", "flex", "important");
-        const placeholder = document.getElementById("placeholder-header");
-        if(placeholder) placeholder.style.display = "none";
-
         inputTesto.disabled = false;
         btnInvia.disabled = false;
+        const linkProfilo = document.getElementById("versoProfilo");
+        linkProfilo.href = "profiloUtente.php?id=" + encodeURIComponent(id);
 
         document.querySelectorAll('.contact-card').forEach(card => card.classList.remove('active'));
-        
-        // Risoluzione cross-browser per recuperare l'elemento cliccato
-        const evt = window.event;
-        if(evt) {
-            let targetCard = evt.currentTarget || evt.target.closest('.contact-card');
-            if(targetCard) targetCard.classList.add('active');
+        if(event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
         }
 
         if(window.innerWidth <= 768) {
@@ -420,30 +380,16 @@ if (!empty($id_interazioni)) {
     }
 
     function caricaChat() {
-    if (!CHAT_ID_ALTRO) return;
+        if (!CHAT_ID_ALTRO) return;
 
-    fetch("caricaChat.php?id=" + encodeURIComponent(CHAT_ID_ALTRO))
-        .then(r => r.text())
-        .then(html => {
-            // Calcoliamo se l'utente è vicino al fondo prima di sovrascrivere l'HTML
-            // Lasciamo un margine di tolleranza di 50px
-            const isAtBottom = (chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 50);
-
-            chatBox.innerHTML = html;
-            
-            // Aggiorna l'immagine recuperando l'input hidden stampato da caricaChat.php
-            const hiddenFoto = document.getElementById("url-foto-rilevata");
-            if(hiddenFoto) {
-                document.getElementById("foto-header-chat").src = hiddenFoto.value;
-            }
-
-            // Esegue lo scroll automatico SOLO se l'utente era già in fondo alla pagina
-            if (isAtBottom) {
+        fetch("caricaChat.php?id=" + encodeURIComponent(CHAT_ID_ALTRO))
+            .then(r => r.text())
+            .then(html => {
+                chatBox.innerHTML = html;
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        })
-        .catch(err => console.error("Errore caricamento chat:", err));
-}
+            })
+            .catch(err => console.error("Errore caricamento chat:", err));
+    }
 
     document.getElementById("formMessaggio").addEventListener("submit", function(e){
         e.preventDefault();
