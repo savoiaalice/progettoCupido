@@ -1,118 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
 <?php
-require __DIR__ . "/connessioneDB.php";
-require __DIR__ . "/funzioniMatch.php";
-require __DIR__ . "/controllo_sessione.php";
+require __DIR__ . "/connessioneDB.php"; 
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+// 1. RESET
+if (isset($_GET['reset'])) {
+    unset($_SESSION['filtri']);
+    header("Location: cerca.php");
+    exit;
 }
 
-// Controllo di sicurezza: l'utente deve essere loggato
-if (!isset($_SESSION['id_utente'])) {
-    header("Location: index.php");
-    exit();
+// 2. ACQUISIZIONE
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (isset($_GET['nomeUtente'])) $_SESSION['filtri']['nomeUtente'] = trim($_GET['nomeUtente']);
+    if (isset($_GET['eta']))        $_SESSION['filtri']['eta']        = intval($_GET['eta']);
+    if (isset($_GET['citta']))      $_SESSION['filtri']['citta']      = trim($_GET['citta']);
 }
 
-$id_utente = $_SESSION['id_utente'];
 
-$stmtUt = $pdo->prepare("SELECT latitudine, longitudine FROM datiregistrazione 
-    WHERE id_utente = :id_utente");
-$stmtUt->execute([':id_utente' => $id_utente]);
-$mioProfilo = $stmtUt->fetch(PDO::FETCH_ASSOC);
+$nomeUtente = $_SESSION['filtri']['nomeUtente'] ?? '';
+$eta  = $_SESSION['filtri']['eta'] ?? 0;
+$citta = $_SESSION['filtri']['citta'] ?? '';
 
-$citta_cercata = isset($_GET['citta']) ? trim($_GET['citta']) : '';
+$sql = "SELECT * FROM datiregistrazione WHERE id_utente != :id_utente";
+$params = [':id_utente' => $_SESSION['id_utente']];
 
-// 1. Controlliamo se sono presenti coordinate nell'URL (da GPS o da suggerimento cliccato)
-$coordinatePresenti = (!empty($_GET['latitudine']) && !empty($_GET['longitudine']));
-
-// Questa sarà la coordinata "centro" attorno a cui calcolare i 150 km
-$centroLat = null;
-$centroLong = null;
-
-if ($coordinatePresenti) {
-    $centroLat = floatval($_GET['latitudine']);
-    $centroLong = floatval($_GET['longitudine']);
-    
-    // Raggio di 150 km in gradi
-    $raggioLat = 1.3;
-    $raggioLong = 1.8;
-    
-    $latMin = $centroLat - $raggioLat;
-    $latMax = $centroLat + $raggioLat;
-    $longMin = $centroLong - $raggioLong;
-    $longMax = $centroLong + $raggioLong;
+if (!empty($nomeUtente)) {
+    $sql .= " AND CONCAT_WS (' ', nome, cognome) LIKE :nomeUtente";
+    $params[':nomeUtente'] = '%' . $nomeUtente . '%';
 }
 
-// 2. Esecuzione della Query sul Database
-if ($coordinatePresenti) {
-    
-    // SCENARIO A: Abbiamo delle coordinate precise (Tasto GPS OPPURE Città scelta dai suggerimenti)
-    // Cerca le persone nel raggio di 150km da QUELLO specifico punto geografico
-    $sql = "SELECT * FROM datiregistrazione 
-            WHERE id_utente != :id_utente
-              AND (latitudine BETWEEN :latMin AND :latMax)
-              AND (longitudine BETWEEN :longMin AND :longMax)
-            ORDER BY id_utente DESC LIMIT 50";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':id_utente' => $id_utente,
-        ':latMin'    => $latMin,
-        ':latMax'    => $latMax,
-        ':longMin'   => $longMin,
-        ':longMax'   => $longMax
-    ]);
-
-} else if (!empty($citta_cercata)) {
-    
-    // SCENARIO B: L'utente ha scritto una città a mano SENZA cliccare sui suggerimenti
-    $sql = "SELECT * FROM datiregistrazione 
-            WHERE id_utente != :id_utente
-              AND citta LIKE :citta
-            ORDER BY id_utente DESC LIMIT 50";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':citta'     => '%' . $citta_cercata . '%',
-        ':id_utente' => $id_utente
-    ]);
-
-} else {
-    
-    // SCENARIO C: Prima apertura della pagina -> Mostra TUTTI gli utenti globali
-    $sql = "SELECT * FROM datiregistrazione 
-            WHERE id_utente != :id_utente
-            ORDER BY id_utente DESC LIMIT 50";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':id_utente' => $id_utente
-    ]);
+if ($eta > 18) {
+    $sql .= " AND eta = :eta";
+    $params[':eta'] = $eta;
+}
+if (!empty($citta)) {
+    $sql .= " AND citta LIKE :citta";
+    $params[':citta'] = '%' . $citta . '%';
 }
 
-$utenti_preliminari = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$utenti_trovati = [];
+$sql .= " ORDER BY id_utente DESC LIMIT 50";
 
-// 3. IL FILTRO DI PRECISIONE (CORRETTO!)
-// Ora cicliamo i risultati e calcoliamo la distanza reale dal CENTRO della ricerca
-foreach ($utenti_preliminari as $utente) {
-    
-    if ($coordinatePresenti) {
-        // Se stiamo cercando per area (GPS o suggerimento), calcola i KM di distanza dal punto cercato
-        $distanzaReale = getDistanza($centroLat, $centroLong, $utente['latitudine'], $utente['longitudine']);
-        
-        // Se l'utente è dentro i 150 km, lo teniamo
-        if ($distanzaReale !== false && $distanzaReale <= 150) {
-            $utente['distanza_km'] = round($distanzaReale, 1);
-            $utenti_trovati[] = $utente;
-        }
-    } else {
-        // Se è la prima apertura o ricerca testuale pura, non filtriamo per KM e mostriamo l'utente
-        $utente['distanza_km'] = null; // o nascondi la scritta dei km nel box
-        $utenti_trovati[] = $utente;
-    }
-}
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$utenti_trovati = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -122,101 +54,11 @@ foreach ($utenti_preliminari as $utente) {
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="stile.css">
     
-    <style>
-        :root {
-            --primary-color: #8d0c0c;
-            --accent-color: #fcfae4;
-        }
-        body {
-            background-color: var(--accent-color);
-            font-family: 'Montserrat', sans-serif;
-            padding-bottom: 80px;
-        }
-        /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-image: url('./cupidini.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.45;
-        }
-         .cupido-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 15px;
-            font-size: 20px;
-            position: relative;
-        }
-        /* ICONA NOTIFICHE */
-        .notifiche-icon {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            font-size: 1.8rem;
-            color: white;
-            cursor: pointer;
-        }
-
-        .notifiche-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: red;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 50%;
-            display: none;
-        }
-        .search-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            margin-top: 2rem;
-        }
-        .user-result-card {
-            background: white;
-            border-radius: 15px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: none;
-            min-height: 95px;
-            display: flex;
-            align-items:center;
-        }
-        .user-result-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .btn-custom {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            font-weight: 600;
-        }
-        .btn-custom:hover {
-            background-color: #8d0c0c;
-            color: white;
-        }
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(198, 40, 116, 0.25);
-        }
-        .avatar{
-            width: 55px; height:55px; border:2px solid var(--primary-color);
-            object-fit:cover;
-            border-radius: 50%;
-        }
-    </style>
 </head>
 <body>
+
 <div class="cupido-header position-relative">
     <h2 class="fw-bold h2" style="letter-spacing: 2px; margin: 0;">CUPIDO</h2>
 
@@ -233,46 +75,53 @@ foreach ($utenti_preliminari as $utente) {
         Chiudi
     </button>
 </div>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            
-            <div class="search-card p-4 mb-4">
-                
-                <h3 class="fw-bold mb-3" style="color: var(--primary-color);"><i class="bi bi-search-heart"></i> Trova la tua persona nelle vicinanze </h3>
-                <form action="cerca.php" method="GET" class="row g-2">
-                    <input type="hidden" id="latitudine" name="latitudine">
-                    <input type="hidden" id="longitudine" name="longitudine">
-                    <div class="mb-3 position-relative">
-                   
-                    <div class="input-group">
-                        <button type="button" id="btn-gps" class="btn rounded-pill-start border border-2 border-end-0 bg-white" title="Rileva posizione">
-                            <i class="bi bi-geo-alt-fill bi-crosshairs" style="color: var(--primary-color);"></i>
-                        </button>
-                        
-                        <input type="text" id="citta" name="citta" class="form-control  border border-2 border-start-0 rounded-pill-end" placeholder="Inserisci la città...(es. Roma)" autocomplete="off">
-                        
-                        
-                    </div>
-                    
-                    <div id="suggerimento" class="list-group position-absolute w-100 shadow"></div>
-                </div>
-                <div class="col-3">
-                        <button type="submit" class="btn btn-custom btn-lg w-100">Cerca</button>
-                    </div>
-                </form>
-            </div>
 
-            <h4 class="fw-bold mb-3 text-dark">Persone che potrebbero interessarti:</h4>
+
+<div class="container py-4">
+<form action="cerca.php" method="GET">
+    <div class="row">
+        <div class="col-12 col-md-3">
+    <!-- barra verticale dei filtri -->
+            <div class="card p-4 filter-card mb-4">
+                <h5 class="fw-bold mb-3" style="color: var(--primary-color)"><i class="bi bi-funnel"></i> Filtri Avanzati</h5>
+                <label class="form-label small fw-bold" style="color: var(--text-main)">Persone vicino a me</label>
+                <button type="button" id="btn-gps" class="btn rounded-start-pill border border-2 border-end-0 bg-white" title="Rileva posizione">
+                    <i class="bi bi-geo-alt-fill bi-crosshairs" style="color: var(--primary-color);"></i>
+                </button>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" style="color: var(--text-main)">Età</label>
+                        <input type="number" name="eta" class="form-control" placeholder="Es. 25" value="<?= htmlspecialchars($_SESSION['filtri']['eta'] ?? '') ?>">
+                    
+                        <label class="form-label small fw-bold" style="color: var(--text-main)">Città</label>
+                        <input type="text" id="citta-field" name="citta" class="form-control" placeholder="Cerca città..." value="<?= htmlspecialchars($_SESSION['filtri']['citta'] ?? '') ?>" autocomplete="off">
+                        <div id="suggerimento" class="list-group position-absolute w-100 shadow" style="z-index: 1000;"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary-action w-100">Applica Filtri</button>
+                    <a href="cerca.php?reset= 1" class="btn w-100 text-muted small" style="color: var(--text-main)">Reset</a>
+                
+            </div>
+        </div>
+
+
+
+        <div class="col-12 col-md-9">
+            <div class="search-card p-4 mb-2">
+                <h3 class="fw-bold mb-3" style="color: var(--primary-color);"> Cerca la tua persona </h3>
+                <div class="item-ancorato">
+                    <input type="text" name="nomeUtente" class="form-control" placeholder="Cerca per nome..." 
+                    value="<?= htmlspecialchars($_SESSION['filtri']['nomeUtente'] ?? '') ?>">
+                    <button type="submit" class="btn btn-primary-action"><i class="bi bi-search-heart"></i></button>
+                </div>
+            </div>            
             
-            <?php if (empty($utenti_trovati)): ?>
+                <?php if (empty($utenti_trovati)): ?>
                 
                 <div class="alert alert-light text-center py-4 shadow-sm rounded-4">
                     <i class="bi bi-emoji-frown fs-2 text-muted"></i>
                     <p class="text-muted mt-2 mb-0">Nessun utente trovato con i filtri selezionati.</p>
                 </div>
             <?php else: ?>
-                <div class="row g-3">
+                <div class="row g-3 mb-5">
 
                 <?php foreach($utenti_trovati as $utente): ?>
                     <?php $sqlFotoAvatar = "SELECT percorso FROM foto_utenti
@@ -285,7 +134,7 @@ foreach ($utenti_preliminari as $utente) {
                
                         <div class="col-12 col-sm-6">
                             <a href="profiloUtente.php?id=<?= urlencode($utente['id_utente']) ?>" class="text-decoration-none text-dark" >
-                            <div class="card user-result-card p-3 shadow-sm h-100 w-100 d-flex flex-row align-items-center" style="cursor-pointer;">
+                            <div class="profile-card p-3 shadow-sm h-100 w-100 d-flex flex-row align-items-center" style="cursor-pointer;">
                                 <div class="d-flex align-items-center">
                                     <div class="me-3">
                                         <img src="<?= htmlspecialchars($fotoAvatar['percorso'] ?? 'default.jpg')?>" class="avatar">
@@ -306,9 +155,10 @@ foreach ($utenti_preliminari as $utente) {
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
-
         </div>
     </div>
+                    
+</form>            
 </div>
 
 <nav class="navbar fixed-bottom bg-white border-top">
@@ -336,149 +186,54 @@ foreach ($utenti_preliminari as $utente) {
             </div>
         </div>
     </div>
-</nav>
-
+</nav>      
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const citta = document.getElementById('citta');
-        const listaSuggerimento = document.getElementById('suggerimento');
-        const campoLat = document.getElementById('latitudine');
-        const campoLong = document.getElementById('longitudine');
-        const btnGps = document.getElementById('btn-gps');
-        let timerDigitare = null; 
-
-        const moduloCerca = document.querySelector('form[action="cerca.php"]');
-
-        // Funzione usata SOLO quando clicchi sul tasto GPS
-        function catturaPosizione(lat, lon){
-            citta.value = "Cerco la città...";
-            
-            fetch(`geocoding.php?lat=${lat}&lon=${lon}`)
-                .then(response => response.json())
-                .then(data => {
-                    if(data && data.address){
-                        const nomeComune = data.address.city || data.address.town || data.address.village || data.address.municipality;
-                        citta.value = nomeComune ? nomeComune : data.display_name.split(',')[0];
-                    } else {
-                        citta.value = "Posizione Rilevata";
-                    }
-                    campoLat.value = lat;
-                    campoLong.value = lon;
-                    
-                    if(moduloCerca) moduloCerca.submit();
-                })
-                .catch(errore => {
-                    console.error("Errore reverse geocoding: ", errore);
-                    citta.value = "Posizione Rilevata";
-                    campoLat.value = lat;
-                    campoLong.value = lon;
-                    if(moduloCerca) moduloCerca.submit();
-                });
-        }
-
-        // Click sul tasto GPS
-        if(btnGps){
-            btnGps.addEventListener('click', function(e){
-                e.preventDefault();
-                if(!navigator.geolocation){
-                    alert("Geolocalizzazione non supportata dal tuo browser.");
-                    return;
-                }
-                const iconaGps = btnGps.querySelector('i');
-                const iconaOg = iconaGps ? iconaGps.className : '';
-                if(iconaGps) iconaGps.className = "bi bi-arrow-repeat spinner-border spinner-border-sm me-1";
-                
-                navigator.geolocation.getCurrentPosition(
-                    function(position){
-                        if(iconaGps) iconaGps.className = iconaOg;
-                        catturaPosizione(position.coords.latitude, position.coords.longitude);
-                    }, 
-                    function(errore){
-                        if(iconaGps) iconaGps.className = iconaOg;
-                        alert("Errore nel recupero della posizione GPS.");
-                    }, 
-                    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-                );
+    const inputCitta = document.getElementById('citta-field');
+    const lista = document.getElementById('suggerimento');
+    inputCitta.addEventListener('input', function() {
+        if(this.value.length < 2) { lista.style.display = 'none'; return; }
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.value)}&addressdetails=1&limit=5`)
+        .then(r => r.json())
+        .then(dati => {
+            lista.innerHTML = '';
+            dati.forEach(localita => {
+                const btn = document.createElement('button');
+                btn.type = 'button'; btn.className = 'list-group-item list-group-item-action small';
+                btn.textContent = localita.display_name.split(',')[0];
+                btn.onclick = () => { inputCitta.value = btn.textContent; lista.style.display = 'none'; };
+                lista.appendChild(btn);
             });
-        }
-
-        // Quando l'utente digita a mano nel campo città
-        citta.addEventListener('input', function(){
-            clearTimeout(timerDigitare);
-            const testoCercato = citta.value.trim();
-
-            if(testoCercato.length < 1){
-                listaSuggerimento.style.display = 'none';
-                return;
-            }
-            
-            timerDigitare = setTimeout(()=>{
-                // Interroghiamo direttamente Nominatim per i suggerimenti testuali (la ricerca testuale di solito non soffre di blocchi CORS aggressivi come la geolocalizzazione inversa)
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(testoCercato)}&addressdetails=1&limit=5&accept-language=it&featuretype=settlement`)
-                .then(response => response.json())
-                .then(dati => {
-                    listaSuggerimento.innerHTML = '';
-                    if(dati && dati.length > 0){
-                        listaSuggerimento.style.display = 'block';
-
-                        const nomiMostrati = new Set();
-                        dati.forEach(localita => {
-                            const dettagli = localita.display_name.split(',').slice(0, 3).join(',');
-                            const dettagliP = dettagli.trim();
-
-                            if(nomiMostrati.has(dettagliP)) return;
-                            nomiMostrati.add(dettagliP);
-                            
-                            const suggMenu = document.createElement('button');
-                            suggMenu.type = 'button';
-                            suggMenu.className = 'list-group-item list-group-item-action text-start small py-2';
-                            suggMenu.textContent = dettagli;
-
-                            suggMenu.addEventListener('click', function(){
-                                const nomePulito = localita.address.city || localita.address.town || localita.address.village || dettagli.split(',')[0];
-                                citta.value = nomePulito;
-
-                                // Quando clicchi su un suggerimento, assegna le coordinate di quel suggerimento
-                                campoLat.value = localita.lat;
-                                campoLong.value = localita.lon;
-
-                                listaSuggerimento.style.display = 'none';
-                            });
-                            listaSuggerimento.appendChild(suggMenu);
-                        });
-                    } else {
-                        listaSuggerimento.style.display = 'none';
-                    }
-                })
-                .catch(errore => console.error("Errore nel trovare la citta: ", errore));
-            }, 400); // 400ms di ritardo per non intasare le richieste mentre scrive
+            lista.style.display = 'block';
         });
-
-        // Se l'utente cancella tutto a mano con il tasto Backspace, azzera i campi nascosti
-        citta.addEventListener('keyup', function(e) {
-            if(citta.value.trim() === "") {
-                campoLat.value = "";
-                campoLong.value = "";
-            }
-        });
-
-        document.addEventListener('click', function(evento){
-            if(evento.target !== citta){
-                listaSuggerimento.style.display = 'none';
-            }
-        });
-        
-        // Prima dell'invio manuale del form, se i campi nascosti hanno ancora dati vecchi ma il testo è cambiato, li puliamo
-        if(moduloCerca) {
-            moduloCerca.addEventListener('submit', function() {
-                if(campoLat.value !== "" && citta.value === "") {
-                    campoLat.value = "";
-                    campoLong.value = "";
-                }
-            });
-        }
     });
+</script>
+<script>
+    document.getElementById('btn-gps').addEventListener('click', function() {
+    if (!navigator.geolocation) {
+        alert("Geolocalizzazione non supportata.");
+        return;
+    }
+
+    // Effetto caricamento
+    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Ricerca...';
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+        // Scriviamo le coordinate nei campi nascosti
+        document.getElementById('latitudine').value = position.coords.latitude;
+        document.getElementById('longitudine').value = position.coords.longitude;
+        
+        // Impostiamo la distanza di default a 60km (se hai un input range, aggiornalo)
+        // Se non hai un input range, il PHP userà 60 di default
+        
+        // Inviamo il form
+        document.querySelector('form[action="cerca.php"]').submit();
+    }, function(error) {
+        alert("Impossibile rilevare la posizione.");
+        document.getElementById('btn-vicine').innerHTML = '<i class="bi bi-geo-alt"></i> Persone vicine a me';
+    });
+});
 </script>
 <script>
     const badge = document.getElementById("badgeNotifiche");
@@ -611,5 +366,4 @@ foreach ($utenti_preliminari as $utente) {
     aggiornaNotifiche();
 </script>
 </body>
-</html>
 </html>
