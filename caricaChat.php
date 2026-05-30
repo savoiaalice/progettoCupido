@@ -65,7 +65,7 @@ foreach ($messaggi as $messaggio) {
         $classe="mio";
         //metto la spunta sui messaggi letti
         if($messaggio['letto']==1){
-            $spunta="<i class='bi bi-check2-all text-info' style='font-size: 0.95rem; margin-left: 5px;'></i>";
+            $spunta="<i class='bi bi-check2-all' style='color: #fcfae4; font-size: 0.95rem; margin-left: 5px;'></i>";
         }else{
             $spunta="<i class='bi bi-check2' style='color: rgba(255,255,255,0.7); font-size: 0.95rem; margin-left: 5px;'></i>";
         }
