@@ -3,24 +3,30 @@ require __DIR__ . "/connessioneDB.php";
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-// 1. RESET
+// cosa sucede quando clicco il tasto reset dei filtri
+// vengo reindirizzato alla pagina filtri 
 if (isset($_GET['reset'])) {
     unset($_SESSION['filtri']);
     header("Location: cerca.php");
     exit;
 }
 
-// 2. ACQUISIZIONE
+if (!isset($_SESSION['id_utente'])) {
+    header("Location: index.php");
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['nomeUtente'])) $_SESSION['filtri']['nomeUtente'] = trim($_GET['nomeUtente']);
     if (isset($_GET['eta']))        $_SESSION['filtri']['eta']        = intval($_GET['eta']);
     if (isset($_GET['citta']))      $_SESSION['filtri']['citta']      = trim($_GET['citta']);
 }
 
-
 $nomeUtente = $_SESSION['filtri']['nomeUtente'] ?? '';
 $eta  = $_SESSION['filtri']['eta'] ?? 0;
 $citta = $_SESSION['filtri']['citta'] ?? '';
+
+$etaFiltro = ($eta > 0) ? $eta : '';
 
 $sql = "SELECT * FROM datiregistrazione WHERE id_utente != :id_utente";
 $params = [':id_utente' => $_SESSION['id_utente']];
@@ -79,22 +85,37 @@ $utenti_trovati = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container py-4">
 <form action="cerca.php" method="GET">
+    <input type="hidden" name="action" value="filter">
+    <input type="hidden" id="latitudine" name="latitudine">
+    <input type="hidden" id="longitudine" name="longitudine">
+
     <div class="row">
         <div class="col-12 col-md-3">
     <!-- barra verticale dei filtri -->
             <div class="card p-4 filter-card mb-4">
                 <h5 class="fw-bold mb-3" style="color: var(--primary-color)"><i class="bi bi-funnel"></i> Filtri Avanzati</h5>
-                <label class="form-label small fw-bold" style="color: var(--text-main)">Persone vicino a me</label>
-                <button type="button" id="btn-gps" class="btn rounded-start-pill border border-2 border-end-0 bg-white" title="Rileva posizione">
-                    <i class="bi bi-geo-alt-fill bi-crosshairs" style="color: var(--primary-color);"></i>
-                </button>
+                
+                    <div class="row g-2 align-items-center mb-3">
+                        
+                        <div class="d-flex flex-column align-items-start mb-3">
+                            <label for="btn-gps" class="form-label small fw-bold mb-2">Persone vicino a te:</label>
+                            <button type="button" id="btn-gps" class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center" 
+                                    style="width: 45px; height: 45px; background-color: var(--primary-color); border: none;" title="Rileva posizione">
+                                <i class="bi bi-geo-alt-fill text-white"></i>
+                            </button>
+                        </div>
+
+                        <div class="d-flex flex-column">
+                            <label for="citta" class="form-label small fw-bold mb-2">Città:</label>
+                            <input type="text" id="citta" name="citta" class="form-control rounded-pill border-2" 
+                                placeholder="Inserisci la città..." 
+                                value="<?= htmlspecialchars($_SESSION['filtri']['citta'] ?? '') ?>">
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold" style="color: var(--text-main)">Età</label>
-                        <input type="number" name="eta" class="form-control" placeholder="Es. 25" value="<?= htmlspecialchars($_SESSION['filtri']['eta'] ?? '') ?>">
-                    
-                        <label class="form-label small fw-bold" style="color: var(--text-main)">Città</label>
-                        <input type="text" id="citta-field" name="citta" class="form-control" placeholder="Cerca città..." value="<?= htmlspecialchars($_SESSION['filtri']['citta'] ?? '') ?>" autocomplete="off">
-                        <div id="suggerimento" class="list-group position-absolute w-100 shadow" style="z-index: 1000;"></div>
+                        <input type="number" name="eta" class="form-control" placeholder="Es. 25" value="<?= htmlspecialchars($_SESSION['filtri']['etaFiltro'] ?? '') ?>">
+
                     </div>
                     <button type="submit" class="btn btn-primary-action w-100">Applica Filtri</button>
                     <a href="cerca.php?reset= 1" class="btn w-100 text-muted small" style="color: var(--text-main)">Reset</a>
@@ -189,52 +210,6 @@ $utenti_trovati = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </nav>      
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-    const inputCitta = document.getElementById('citta-field');
-    const lista = document.getElementById('suggerimento');
-    inputCitta.addEventListener('input', function() {
-        if(this.value.length < 2) { lista.style.display = 'none'; return; }
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.value)}&addressdetails=1&limit=5`)
-        .then(r => r.json())
-        .then(dati => {
-            lista.innerHTML = '';
-            dati.forEach(localita => {
-                const btn = document.createElement('button');
-                btn.type = 'button'; btn.className = 'list-group-item list-group-item-action small';
-                btn.textContent = localita.display_name.split(',')[0];
-                btn.onclick = () => { inputCitta.value = btn.textContent; lista.style.display = 'none'; };
-                lista.appendChild(btn);
-            });
-            lista.style.display = 'block';
-        });
-    });
-</script>
-<script>
-    document.getElementById('btn-gps').addEventListener('click', function() {
-    if (!navigator.geolocation) {
-        alert("Geolocalizzazione non supportata.");
-        return;
-    }
-
-    // Effetto caricamento
-    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Ricerca...';
-
-    navigator.geolocation.getCurrentPosition(function(position) {
-        // Scriviamo le coordinate nei campi nascosti
-        document.getElementById('latitudine').value = position.coords.latitude;
-        document.getElementById('longitudine').value = position.coords.longitude;
-        
-        // Impostiamo la distanza di default a 60km (se hai un input range, aggiornalo)
-        // Se non hai un input range, il PHP userà 60 di default
-        
-        // Inviamo il form
-        document.querySelector('form[action="cerca.php"]').submit();
-    }, function(error) {
-        alert("Impossibile rilevare la posizione.");
-        document.getElementById('btn-vicine').innerHTML = '<i class="bi bi-geo-alt"></i> Persone vicine a me';
-    });
-});
-</script>
 <script>
     const badge = document.getElementById("badgeNotifiche");
     const popup = document.getElementById("popupNotifiche");
@@ -365,5 +340,172 @@ $utenti_trovati = $stmt->fetchAll(PDO::FETCH_ASSOC);
     setInterval(aggiornaNotifiche, 5000);
     aggiornaNotifiche();
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const citta = document.getElementById('citta');
+        const listaSuggerimento = document.getElementById('suggerimento');
+        const campoLat = document.getElementById('latitudine');
+        const campoLong = document.getElementById('longitudine');
+        const btnGps = document.getElementById('btn-gps');
+        let timerDigitare = null; 
+
+        function catturaPosizione(lat, lon){
+            citta.value = "Cerco la città...";
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=it`)
+                .then(response => response.json())
+                .then(data => {
+                    if(data && data.address){
+                        const nomeComune = data.address.city || data.address.town || data.address.village;
+                        if(nomeComune){
+                            citta.value = nomeComune;
+                        } else {
+                            citta.value = data.display_name.split(',')[0];
+                        }
+
+                        campoLat.value = lat;
+                        campoLong.value = lon;
+                    }else{
+                        citta.value = "";
+                        alert("Impossibile determinare la città. Ti prego inseriscila.");
+                    }
+                })
+                .catch(errore => {
+                    console.error("Errore reverse geocoding di nominatim: ", errore);
+                    citta.value = "";
+                    alert("Errore nel recupero della città!");
+                });
+        }
+
+        if(btnGps){
+            btnGps.addEventListener('click', function(e){
+                e.preventDefault();
+                if(!navigator.geolocation){
+                    alert("Geolocalizzazione non supportata dal tuo browser.");
+                    return;
+                }
+                const iconaGps = btnGps.querySelector('i');
+                const iconaOg = iconaGps ? iconaGps.className : '';
+
+                if(iconaGps){
+                    iconaGps.className = "bi bi-arrow-repeat spinner-border spinner-border-sm me-1";
+                }
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position){
+                        
+                        if(iconaGps){
+                            iconaGps.className = iconaOg;
+                        }
+                        catturaPosizione(position.coords.latitude, position.coords.longitude);
+                    }, 
+                    function(errore){
+                        if(iconaGps){
+                            iconaGps.className = iconaOg;
+                        }
+                        switch(errore.code){
+                            case errore.PERMISSION_DENIED:
+                                alert("Permesso negato. Attiva la localizzazione dalle impostazioni del dispositivo.");
+                                break;
+                            case errore.POSITION_UNAVAILABLE:
+                                alert("Posizione non disponibile. Riprova tra poco.");
+                                break;
+                            case errore.TIMEOUT:
+                                alert("Ci sto mettendo troppo tempo a trovare la tua posizione.");
+                                break;
+                            default:
+                                alert("Errore nel recupero della posizione.");
+                        }
+                    }, // CORRETTO: Chiusura dell'oggetto opzioni con parentesi tonda corretta
+                    {
+                       enableHighAccuracy: true, 
+                       timeout: 8000,
+                       maximumAge: 0 
+                    }
+                );
+            });
+        }
+
+        citta.addEventListener('input', function(){
+            clearTimeout(timerDigitare);
+            const testoCercato = citta.value.trim();
+
+            if(testoCercato.length < 1){
+                listaSuggerimento.style.display = 'none';
+                return;
+            }
+            
+            timerDigitare = setTimeout(()=>{
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(testoCercato)}&addressdetails=1&limit=5&accept-language=it&featuretype=settlement`)
+                .then(response => response.json())
+                .then(dati => {
+                    listaSuggerimento.innerHTML = '';
+                    if(dati.length > 0){
+                        listaSuggerimento.style.display = 'block';
+
+                        const nomiMostrati = new Set();
+                        dati.forEach(localita => {
+                            const dettagli = localita.display_name.split(',').slice(0, 3).join(',');
+                            const dettagliP = dettagli.trim();
+
+                            if(nomiMostrati.has(dettagliP)){
+                                return;
+                            }
+                            nomiMostrati.add(dettagliP);
+                            
+                            const suggMenu = document.createElement('button');
+                            suggMenu.type = 'button';
+                            suggMenu.className = 'list-group-item list-group-item-action text-start small py-2';
+                            suggMenu.textContent = dettagli;
+
+                            suggMenu.addEventListener('click', function(){
+                                const nomePulito = localita.address.city || localita.address.town || localita.address.village || dettagli.split(',')[0];
+                                citta.value = nomePulito;
+
+                                campoLat.value = localita.lat;
+                                campoLong.value = localita.lon;
+
+                                listaSuggerimento.style.display = 'none';
+                            });
+                            listaSuggerimento.appendChild(suggMenu);
+                        });
+                    } else {
+                        listaSuggerimento.style.display = 'none';
+                    }
+                })
+                .catch(errore => console.error("Errore nel trovare la citta: ", errore));
+            }, 300);
+        });
+
+        document.addEventListener('click', function(evento){
+            if(evento.target !== citta){
+                listaSuggerimento.style.display = 'none';
+            }
+        });
+
+        // Esempio logica sicura
+function avviaRicerca() {
+    // 1. Mostra il caricamento (es. due cerchi che girano)
+    iconaGps.className = "bi bi-arrow-repeat spin-animation"; 
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            // Successo: cattura la posizione
+            catturaPosizione(position.coords.latitude, position.coords.longitude);
+            // Ferma l'icona
+            iconaGps.className = iconaOg;
+        },
+        (error) => {
+            // Errore: gestisci e ferma l'icona
+            console.error("Errore GPS:", error);
+            iconaGps.className = iconaOg; // <--- FONDAMENTALE
+            alert("Errore nel recupero della posizione.");
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+    );
+}
+    });
+</script>
+
 </body>
 </html>
