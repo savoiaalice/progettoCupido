@@ -1,0 +1,235 @@
+:root {
+            --primary-color: #8d0c0c;
+            --accent-color: #fcfae4;
+            --text-main: #333;
+        }
+
+        body {
+            background-color: var(--accent-color);
+            font-family: 'Montserrat', sans-serif;
+        }
+        /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('./cupidini.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.45;
+        }
+
+        .main-wrapper {
+            min-height: auto;
+            display: block;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 0 80px 0;
+        }
+
+        .auth-section {
+            background-color: #ffffff;
+            padding: 3rem;
+        }
+
+        .form-title {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 11px 14px;
+            border: 1px solid #ced4da;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(141, 12, 12, 0.25);
+        }
+
+        .form-select {
+            color: var(--text-main);
+            font-weight: bold;
+            border: 1px solid #ced4da;
+            padding: 11px 14px;
+            transition: opacity 0.3s;
+        }
+        .form-select:focus{
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(141, 12, 12, 0.1);
+            color: var(--primary-color);
+        }
+        
+
+        .btn-primary-action {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary-action:hover {
+            background-color: #8d0c0c !important;
+            opacity: 0.9;
+            border-color: var(--primary-color);
+            color: white;
+            cursor:pinter;
+        }
+
+        .btn-cursore{
+            background-color: trasparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+
+        .btn-cursore:hover{
+            background-color: rgba(141, 12, 12, 0.1);
+            color: white;
+            border: 1px solid var(--primary-color);
+            cursor:pointer;
+        }
+
+        .content-box {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-ancorato{
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .form-check-input:checked{
+            background-color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        .form-check-input:focus{
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(141, 12, 12, 0.1);
+        }
+
+        .profile-card {
+            background: white; 
+            border-radius: 20px; 
+            padding: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            margin: 0 10px; /*margine laterale*/
+        }
+        .profile-img {
+            width: 180px; height: 180px; border-radius: 50%;
+            object-fit: cover; border: 5px solid var(--primary-color);
+        }
+        .avatar {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .tag {
+            background: var(--primary-color); color: white;
+            padding: 5px 12px; border-radius: 20px;
+            margin: 3px; display: inline-block;
+        }
+        
+        .galleria {
+            width: 100%; 
+            padding-top: 100%; 
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .galleria-imm {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .galleria:hover .galleria-imm {
+            transform: scale(1.05);
+        }
+         .cupido-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            font-size: 20px;
+            position: relative;
+        }
+        /* ICONA NOTIFICHE */
+        .notifiche-icon {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 1.8rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        .notifiche-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: red;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+            display: none;
+        }
+        
+        .carousel-item {
+            height: 420px;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 15px;
+            background-color: #fcfae4;
+        }
+        .card-foto {
+            width: 100%;
+            height: 420px;
+            overflow: hidden;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .card-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        /* Rimuove bordi e ombre da tutti gli elementi del modale */
+        #visualizzaFoto .modal-content, 
+        #visualizzaFoto .carousel-item img {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            background-color: transparent !important;
+        }
+
+        .nascondi-frecce .carousel-control-prev,
+.nascondi-frecce .carousel-control-next {
+    display: none !important;
+}

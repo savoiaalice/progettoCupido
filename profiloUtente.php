@@ -15,12 +15,13 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     exit();
 }
 // inizia la sessione e prendo i dati dal database
-$id = $_GET['id']; 
+$id_utente = $_SESSION['id_utente']; 
+$id_altro = $_GET['id'];
 
 // tutte query per prendere le informazioni dal database 
 $sql = "SELECT * FROM datiregistrazione WHERE id_utente = :id";
 $stmt = $pdo->prepare($sql); //pdo permette cnnessione al databse
-$stmt->execute([':id' => $id]); //esegue l'estrapolazione secondo i parametri della query
+$stmt->execute([':id' => $id_altro]); //esegue l'estrapolazione secondo i parametri della query
 $utente = $stmt->fetch(); //prende i dati e li mette nelle variabili 
 
 // Se l'utente non esiste chiude la sessione e va in home
@@ -30,29 +31,48 @@ if (!$utente) {
     exit();
 }
 
+$sqlMatch = "SELECT * FROM likes
+            WHERE ((id_mit = :me1 AND id_dest = :altro1)
+            OR (id_mit = :me2 AND id_dest = :altro2)) AND stato='match'";
+$stmtMatch = $pdo->prepare($sqlMatch);
+$stmtMatch->execute([
+            ':me1' => $id_utente, 
+            ':altro1' => $id_altro,
+            ':me2'=>$id_altro,
+            ':altro2'=>$id_utente]);
+$esisteMatch = $stmtMatch->fetch(PDO::FETCH_ASSOC);
+
+$sqlLike = "SELECT * FROM likes 
+            WHERE (id_mit = :altro1 AND id_dest = :me1 AND stato = 'like') OR (id_mit=:altro2 AND id_dest=:me2 AND stato='match')";
+$stmtLike = $pdo->prepare($sqlLike);
+$stmtLike->execute([':altro1' => $id_utente, 
+                    ':me1' => $id_altro,
+                    ':altro2'=>$id_utente,
+                    ':me2'=>$id_altro]);
+$hoMessoLike = $stmtLike->fetch(PDO::FETCH_ASSOC);
 
 $sqlFotoProfilo = "SELECT percorso FROM foto_utenti 
                 WHERE id_utente = :id AND tipo = 'profilo' LIMIT 1";
 $stmtFoto = $pdo->prepare($sqlFotoProfilo);
-$stmtFoto->execute([':id' => $id]);
+$stmtFoto->execute([':id' => $id_altro]);
 $fotoProfilo = $stmtFoto->fetch();
 
 $sqlGalleria = "SELECT percorso FROM foto_utenti 
                 WHERE id_utente = :id AND tipo = 'galleria'";
 $stmtGall = $pdo->prepare($sqlGalleria);
-$stmtGall->execute([':id' => $id]);
+$stmtGall->execute([':id' => $id_altro]);
 $galleria = $stmtGall->fetchAll();
 
 $sqlInteressi = "SELECT * FROM interessi 
                 WHERE id_utente = :id";
 $stmtInt = $pdo->prepare($sqlInteressi);
-$stmtInt->execute([':id' => $id]);
+$stmtInt->execute([':id' => $id_altro]);
 $interessi = $stmtInt->fetch();
 
 $sqlAgg = "SELECT * FROM aggettivi 
                 WHERE id_utente = :id";
 $stmtAgg = $pdo->prepare($sqlAgg);
-$stmtAgg->execute([':id' => $id]);
+$stmtAgg->execute([':id' => $id_altro]);
 $aggettivi = $stmtAgg->fetch();
 ?>
 
@@ -64,163 +84,7 @@ $aggettivi = $stmtAgg->fetch();
     <title>Profilo Utente</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --primary-color: #8d0c0c;
-            --accent-color: #fcfae4;
-            --text-main: #333;
-        }
-
-        body {
-            background-color: var(--accent-color);
-            font-family: 'Montserrat', sans-serif;
-        }
-        /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-image: url('./cupidini.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.45;
-        }
-
-        .main-wrapper {
-            min-height: auto;
-            display: block;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem 0 80px 0;
-        }
-
-        .hero-section {
-            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)),
-                url('https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1471&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 3rem;
-        }
-
-        .auth-section {
-            background-color: #ffffff;
-            padding: 3rem;
-        }
-
-        .form-title {
-            color: var(--primary-color);
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .btn-primary-action {
-            background-color: var(--primary-color);
-            border: none;
-            color: white;
-            padding: 12px;
-            font-weight: 600;
-            transition: opacity 0.3s;
-        }
-
-        .btn-primary-action:hover {
-            background-color: #8d0c0c;
-            opacity: 0.9;
-            color: white;
-        }
-
-        .content-box {
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .item-ancorato{
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .form-check-input:checked{
-            background-color: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
-        }
-
-        .form-check-input:focus{
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
-        }
-
-        .profile-card {
-            background: white; 
-            border-radius: 20px; 
-            padding: 1rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
-            margin: 0 10px;
-        }
-        .profile-img {
-            width: 180px; height: 180px; border-radius: 50%;
-            object-fit: cover; border: 5px solid var(--primary-color);
-        }
-        .tag {
-            background: var(--primary-color); color: white;
-            padding: 5px 12px; border-radius: 20px;
-            margin: 3px; display: inline-block;
-        }
-        
-        .galleria {
-            width: 100%; 
-            padding-top: 100%; 
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-        .galleria-imm {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
-            object-position: center;
-            transition: transform 0.3s ease;
-        }
-        .galleria:hover .galleria-imm {
-            transform: scale(1.05);
-        }
-         .cupido-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 15px;
-            font-size: 20px;
-            position: relative;
-        }
-        /* ICONA NOTIFICHE */
-        .notifiche-icon {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            font-size: 1.8rem;
-            color: white;
-            cursor: pointer;
-        }
-
-        .notifiche-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: red;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 50%;
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="stile.css">
 </head>
 
 <body>
@@ -242,7 +106,7 @@ $aggettivi = $stmtAgg->fetch();
 </div>
 <div class="container py-5">
     <div class="profile-card mx-auto col-lg-8">
-        <div class="text-center mb-4">
+        <div class="text-center mb-5">
         
             <div class="d-inline-block position-relative"
                 
@@ -262,6 +126,13 @@ $aggettivi = $stmtAgg->fetch();
             <p class="text-muted">
                 <i class="bi bi-geo-alt-fill" style="color: var(--primary-color);"></i><?= htmlspecialchars($utente['citta']) ?> • <?= htmlspecialchars($utente['eta']) ?> anni</p>
         </div>
+
+        <div class="d-flex justify-content-center my-3">
+        <?php if ($esisteMatch): ?>
+            <div class="text-center text-success fw-bold">❤️‍🔥 Siete in match!</div>      
+        <?php endif; ?>
+        </div>
+
         <!--Possibilità di ricambiare il like-->
         <?php
             $me = $_SESSION['id_utente'];
@@ -286,7 +157,7 @@ $aggettivi = $stmtAgg->fetch();
             🤍 Ricambia il like
         </a>
     </div>
-    <?php else: ?>
+    <?php elseif (!$hoMessoLike): ?>
         <div class="d-flex justify-content-center">
         <a href="azione.php?id=<?= $altro ?>&azione=like" 
             class="btn w-25 mt-2" style="border: 2px solid #8d0c0c; background-color:#8d0c0c; color:white;">
@@ -320,21 +191,6 @@ $aggettivi = $stmtAgg->fetch();
             <?php endif; ?>
         </div>
         <hr>
-        <!-- Informazioni personali -->
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h4 style="color: var(--primary-color);">Informazioni personali</h4>
-        </div>
-        <div class="row">
-            <!-- <p><strong>Email:</strong> <?= htmlspecialchars($utente['email']) ?></p> -->
-            <p><strong>Sesso:</strong> <?= htmlspecialchars($utente['sesso']) ?></p>
-            <?php if($utente['distanza'] == 1): ?>
-                <p><strong>Sono aperta ad una relazione a distanza</strong></p>
-            <?php endif; ?>
-           
-            <p><strong>Età partner max: </strong> <?= htmlspecialchars($utente['maxEta']) ?></p>
-        </div>
-        <hr>
-
         <!-- Interessi -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Interessi</h4>
@@ -371,10 +227,18 @@ $aggettivi = $stmtAgg->fetch();
 
 <div class="modal fade" id="visualizzaFoto" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content bg-transparent border-0 position-relative">
-            <button type="button" class="btn-close btn-close-white position-absolute" data-bs-dismiss="modal" style="top: -30px; right: 0; z-index: 1100;"></button>
-            <div class="modal-body p-0 text-center">
-                <img src="" id="fotoIngrandita" class="img-fluid rounded shadow-lg" style="max-height: 80vh; object-fit: contain;">
+        <div class="modal-content bg-transparent border-0">
+            <button type="button" class="btn-close btn-close-white position-absolute" data-bs-dismiss="modal" style="top: -40px; right: 0; z-index: 1100;"></button>
+            
+            <div id="carouselModal" class="carousel slide" data-bs-interval="false">
+                <div class="carousel-inner" id="modalCarouselInner">
+                    </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselModal" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselModal" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -397,14 +261,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
 </script>
     <nav class="navbar fixed-bottom bg-white border-top">
     <div class="container-fluid">
         <div class="row text-center w-100">
 
             <div class="col">
-                <a href="card.php" class="text-decoration-none text-dark">
+                <a href="match.php" class="text-decoration-none text-dark">
                     <?php include "cupido.php"; ?>
                 </a>
             </div>
@@ -428,6 +291,41 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
     </div>
 </nav>
+<script>
+const listaGalleria = <?php echo json_encode($galleria); ?>;
+const modalFoto = document.getElementById('visualizzaFoto');
+const carouselInner = document.getElementById('modalCarouselInner');
+const carouselElement = document.getElementById('carouselModal');
+
+modalFoto.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    const srcCliccato = trigger.getAttribute('data-bs-remote');
+    
+    carouselInner.innerHTML = '';
+
+    // Controlliamo se la foto cliccata è nella galleria
+    const isGalleria = listaGalleria.some(f => f.percorso === srcCliccato);
+
+    if (!isGalleria) {
+        // È la foto profilo: nascondiamo le frecce
+        carouselElement.classList.add('nascondi-frecce');
+        carouselInner.innerHTML = `
+            <div class="carousel-item active">
+                <img src="${srcCliccato}" class="d-block w-100" style="max-height: 80vh; object-fit: contain;">
+            </div>`;
+    } else {
+        // È una foto galleria: mostriamo le frecce
+        carouselElement.classList.remove('nascondi-frecce');
+        listaGalleria.forEach((foto) => {
+            const isActive = (foto.percorso === srcCliccato) ? 'active' : '';
+            carouselInner.innerHTML += `
+                <div class="carousel-item ${isActive}" data-id="${foto.id}">
+                    <img src="${foto.percorso}" class="d-block w-100" style="max-height: 80vh; object-fit: contain;">
+                </div>`;
+        });
+    }
+});
+</script>
 <script>
     const badge = document.getElementById("badgeNotifiche");
     const popup = document.getElementById("popupNotifiche");
@@ -465,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 html += `
                     <div class="mb-2 pb-2 border-bottom d-flex justify-content-between align-items-center" ${stileLetta}>
                         <span>❤️‍🔥 Match con <b>${linkProfilo}</b>!</span>
-                        <a href="chat.php?id=${n.id_mit}" class="btn btn-sm btn-primary" style="font-size:0.72rem; padding: 3px 8px;">Chatta 💬</a>
+                        <a href="chat_completa.php?id=${n.id_mit}" class="btn btn-sm btn-primary" style="font-size:0.72rem; padding: 3px 8px;">Chatta 💬</a>
                     </div>`;
             }
             if (n.tipo === "messaggio") {

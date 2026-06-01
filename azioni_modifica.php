@@ -1,6 +1,17 @@
 <?php
 require 'connessioneDB.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+function formattaNome($stringa){
+    if(empty($stringa)){
+        return '';
+    }
+    $stringa = trim($stringa);
+    $stringa = mb_convert_case($stringa, MB_CASE_TITLE, "utf-8");
+
+    return $stringa;
+}
 
 $azione = $_POST['azione'] ?? '';
 
@@ -183,9 +194,9 @@ switch ($azione) {
 
     case 'modifica_dati':
         $id_utente = $_SESSION['id_utente'];
-        $nome      = $_POST['nome'] ?? null;
-        $cognome   = $_POST['cognome'] ?? null; 
-        $citta     = $_POST['citta'] ?? null;
+        $nome      = formattaNome($_POST['nome'] ?? null);
+        $cognome   = formattaNome($_POST['cognome'] ?? null); 
+        $citta     = formattaNome($_POST['citta'] ?? null);
         $eta       = $_POST['eta'] ?? null;
         $email     = $_POST['email'] ?? null;
         $sesso     = $_POST['sesso'] ?? null;
@@ -193,6 +204,8 @@ switch ($azione) {
         $distanza  =isset($_POST['distanza']) ? 1 : 0;
         $maxEta   =$_POST['maxEta'] ?? null;
         $relazione =$_POST['relazione'] ?? null;
+        $latitudine = $_POST['latitudine'] ?? null;
+        $longitudine = $_POST['longitudine'] ?? null;
     
         salvaDati($pdo, $id_utente, $nome, $cognome, $citta, $eta, $email, 
         $sesso, $sessoP, $distanza,  $maxEta, $relazione, $latitudine, $longitudine, true);
@@ -232,11 +245,45 @@ switch ($azione) {
             }
         }
         header("Location: profilo.php");
-                exit();
-                break;
+        exit();
+        break;
 
         case 'cambia_password':
             $id_utente = $_SESSION['id_utente'];
+            $vecchiaPassword = $_POST['password'];
+            $nuovaPassword = $_POST['nuovaPassword'];
+            $confermaPassword = $_POST['confermaPassword'];
+
+            $regexPassword = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/';
+            if(!preg_match($regexPassword, $nuovaPassword)){
+                echo "<script>alert('La password deve contenere almeno:\\n- 8 caratteri \\n- una lettera maiuscola \\n- una minuscola \\n- un numero \\n- un carattere speciale!'); window.history.back();</script>";
+                exit();
+            }
+
+            if($nuovaPassword !== $confermaPassword){
+                echo "<script>alert('Le due password non coincidono'); window.history.back();</script>";
+                exit();
+            }
+
+            $stmt = $pdo->prepare("SELECT password FROM datiregistrazione
+                        WHERE id_utente = :id_utente");
+            $stmt->execute([]);
+
+            if(!password_verify($password, $vecchiaPassword)){
+                echo "<script>alert('Vecchia password sbagliata!'); window.history.back();</script>";
+                exit();
+            }
+
+            $passwordCifrata = password_hash($password, PASSWORD_DEFAULT);
+
+            $stmt = $pdo->prepare("UPDATE datiregistrazione SET password = :password
+                                WHERE id_utente = :id_utente");
+            $stmt->execute([$passwordCifrata, $id_utente]);
+            echo "<script>alert('Password aggiornata con successo!'); window.location.href='profilo.php';</script>";
+            header("Location: profilo.php");
+            exit();
+            break;
+
             
     
 

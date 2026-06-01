@@ -1,5 +1,7 @@
 <?php
-session_start(); // PRIMISSIMA COSA IN ASSOLUTO!
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require __DIR__ . "/connessioneDB.php";
 // require __DIR__ . "/controllo_sessione.php";
 
@@ -58,162 +60,7 @@ $aggettivi = $stmtAgg->fetch();
     <title>Profilo Utente</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --primary-color: #8d0c0c;
-            --accent-color: #fcfae4;
-            --text-main: #333;
-        }
-
-        body {
-            background-color: var(--accent-color);
-            font-family: 'Montserrat', sans-serif;
-        }
-        /* Sfondo globale con collage fotografico (ereditato dallo stile Home) */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-image: url('./cupidini.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.45;
-        }
-
-        .main-wrapper {
-            min-height: auto;
-            display: block;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem 0 80px 0;
-        }
-
-        .hero-section {
-            background: linear-gradient(rgba(198, 40, 116, 0.6), rgba(0, 0, 0, 0.6)),
-                url('https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1471&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 3rem;
-        }
-
-        .auth-section {
-            background-color: #ffffff;
-            padding: 3rem;
-        }
-
-        .form-title {
-            color: var(--primary-color);
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .btn-primary-action {
-            background-color: var(--primary-color);
-            border: none;
-            color: white;
-            padding: 12px;
-            font-weight: 600;
-            transition: opacity 0.3s;
-        }
-
-        .btn-primary-action:hover {
-            background-color: #8d0c0c;
-            opacity: 0.9;
-            color: white;
-        }
-
-        .content-box {
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .item-ancorato{
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .form-check-input:checked{
-            background-color: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
-        }
-
-        .form-check-input:focus{
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(198, 40, 116, 0.25);
-        }
-
-        .profile-card {
-            background: white; 
-            border-radius: 20px; 
-            padding: 1rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
-            margin: 0 10px; /*margine laterale*/
-        }
-        .profile-img {
-            width: 180px; height: 180px; border-radius: 50%;
-            object-fit: cover; border: 5px solid var(--primary-color);
-        }
-        .tag {
-            background: var(--primary-color); color: white;
-            padding: 5px 12px; border-radius: 20px;
-            margin: 3px; display: inline-block;
-        }
-        
-        .galleria {
-            width: 100%; 
-            padding-top: 100%; 
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-        .galleria-imm {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        .galleria:hover .galleria-imm {
-            transform: scale(1.05);
-        }
-         .cupido-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 15px;
-            font-size: 20px;
-            position: relative;
-        }
-        /* ICONA NOTIFICHE */
-        .notifiche-icon {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            font-size: 1.8rem;
-            color: white;
-            cursor: pointer;
-        }
-
-        .notifiche-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: red;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 50%;
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="stile.css">
 </head>
 
 <body>
@@ -233,11 +80,11 @@ $aggettivi = $stmtAgg->fetch();
         Chiudi
     </button>
 </div>
-<div class="container py-5">
+<div class="container py-5 mb-5">
     <div class="profile-card mx-auto col-lg-8" style="position: relative;">
         
             <a href="logout.php" 
-            class="btn btn-outline-primary position-absolute btn-sm rounded-pill px-3 py-1 shadow-sm text-decoration-none"
+            class="btn btn-cursore position-absolute btn-sm rounded-pill px-3 py-1 shadow-sm text-decoration-none"
    style="top:24px; right: 24px; border-color: var(--primary-color); color: var(--primary-color); font-weight: 500; z-index: 10;">
                 Logout
             </a>
@@ -258,11 +105,11 @@ $aggettivi = $stmtAgg->fetch();
             </p>
 
             <button type="button" 
-                    class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+                    class="btn btn-cursore btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
                     style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal" 
                     data-bs-target="#caricaNuovoProfilo">
-                <i class="bi bi-pencil-fill me-1"></i> Modifica foto profilo
+                <i class="bi bi-pencil me-1"></i> Modifica foto profilo
             </button>
         </div>
     
@@ -270,7 +117,7 @@ $aggettivi = $stmtAgg->fetch();
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Galleria foto</h4>
             
-            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+            <button class="btn btn-cursore btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
                     style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal"
                     data-bs-target="#carica_nuova_foto">
@@ -302,7 +149,7 @@ $aggettivi = $stmtAgg->fetch();
         <hr>
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h4 style="color: var(--primary-color);">Informazioni personali</h4>
-            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+            <button class="btn btn-cursore btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
                     style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal"
                     data-bs-target="#modifica_dati">
@@ -311,18 +158,18 @@ $aggettivi = $stmtAgg->fetch();
         </div>
         <div class="row">
             <p><strong>Email:</strong> <?= htmlspecialchars($utente['email']) ?></p>
-            <p><strong>Sesso:</strong> <?= htmlspecialchars($utente['sesso']) ?></p>
+            <p><strong>Genere:</strong> <?= htmlspecialchars($utente['sesso']) ?></p>
             <?php if($utente['distanza'] == 1): ?>
                 <p><strong>Sono aperta ad una relazione a distanza</strong></p>
             <?php endif; ?>
            
-            <p><strong>Età partner max: </strong> <?= htmlspecialchars($utente['maxEta']) ?></p>
+            <p><strong>Partner deve essere più grande/piccolo di me di: </strong> <?= htmlspecialchars($utente['maxEta']) ?> anni</p>
         </div>
         <hr>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Interessi</h4>
-            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+            <button class="btn btn-cursore btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
                     style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal"
                     data-bs-target="#modificaInteressi">
@@ -342,7 +189,7 @@ $aggettivi = $stmtAgg->fetch();
         <hr>
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 style="color: var(--primary-color);">Come mi descrivo</h4>
-            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+            <button class="btn btn-cursore btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
                     style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal"
                     data-bs-target="#modificaAggettivi">
@@ -360,11 +207,11 @@ $aggettivi = $stmtAgg->fetch();
         </div>
         <hr>
         <button type="button" 
-                    class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
+                    class="btn btn-cursore btn-sm rounded-pill px-3 py-1 shadow-sm mt-1"
                     style="border-color: var(--primary-color); color: var(--primary-color); font-weight: 500;"
                     data-bs-toggle="modal" 
                     data-bs-target="#cambiaPassword">
-                <i class="bi bi-pencil-fill me-1"></i> Cambia Password
+                <i class="bi bi-pencil me-1"></i> Cambia Password
             </button>
     </div>
 </div>
@@ -382,9 +229,9 @@ $aggettivi = $stmtAgg->fetch();
                 <div class="modal-body auth-section text-center">
                     <div class="mb-4">
                         <label>Vecchia password</label>
-                        <input type="text" name="password" class="form-control" required>
+                        <input type="password" name="password" class="form-control" required>
                         <label>Nuova password</label>
-                        <input type="password" name="nuovPassword" class="form-control" required>
+                        <input type="password" name="nuovaPassword" class="form-control" required>
                         <label>Conferma password</label>
                         <input type="password" name="confermaPassword" class="form-control" required>
                         
@@ -420,70 +267,84 @@ $aggettivi = $stmtAgg->fetch();
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="modifica_dati" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content content-box">
+        <div class="modal-content content-box border-0 shadow-lg">
             <form action="azioni_modifica.php" method="POST">
                 <input type="hidden" name="azione" value="modifica_dati">
-                <div class="modal-header border-0">
-                    <h5 class="form-title w-100 text-center" style="font-size: 1.5rem">Modifica Dati</h5>
+                
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="form-title w-100 text-center fw-bold" style="color: var(--primary-color);">Modifica Dati</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body auth-section">
-                    <div class="mb-3">
-                        <label>Nome</label>
-                        <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($utente['nome']) ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label>Cognome</label>
-                        <input type="text" name="cognome" class="form-control" value="<?= htmlspecialchars($utente['cognome']) ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label>Città</label>
-                        <input type="text" name="citta" class="form-control" value="<?= htmlspecialchars($utente['citta']) ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label>Età</label>
-                        <input type="number" name="eta" class="form-control" value="<?= htmlspecialchars($utente['eta']) ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label>Email</label>
-                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($utente['email']) ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label>Sesso</label>
-                        <select class="form-select" name="sesso">
-                            <option value="uomo" <?= $utente['sesso'] == 'uomo' ? 'selected' : '' ?>>Uomo</option>
-                            <option value="donna" <?= $utente['sesso'] == 'donna' ? 'selected' : '' ?>>Donna</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>Sesso partner</label>
-                        <select class="form-select" name="sessoP">
-                            <option value="uomo" <?= $utente['sessoP'] == 'uomo' ? 'selected' : '' ?>>Uomo</option>
-                            <option value="donna" <?= $utente['sessoP'] == 'donna' ? 'selected' : '' ?>>Donna</option>
-                        </select>
+
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold">Nome</label>
+                            <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($utente['nome']) ?>">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold">Cognome</label>
+                            <input type="text" name="cognome" class="form-control" value="<?= htmlspecialchars($utente['cognome']) ?>">
+                        </div>
                     </div>
 
                     <div class="mb-3">
-                        <label>Aperto ad una relazione a distanza</label>
-                        <input class="form-check-input" type="checkbox" name="distanza" value="1" <?= $utente['distanza'] == 1 ? 'checked' : '' ?>>
-                    </div>     
-                    <div class="mb-3">
-                        <label>Differenza eta</label>
-                        <input type="number" name="maxEta" class="form-control" value="<?= htmlspecialchars($utente['maxEta']) ?>">
+                        <label class="form-label small fw-bold">Email</label>
+                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($utente['email']) ?>">
                     </div>
-                    <div class="mb-3">
-                        <label>Tipo di relazione</label>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold">Città</label>
+                            <input type="text" id="citta" name="citta" class="form-control" value="<?= htmlspecialchars($utente['citta']) ?>">
+                            <div id="listaSuggerimenti" class="list-group" style="position: absolute; z-index: 1050; width: 93%;"></div>
+                        </div>
+                        <input type="hidden" id="latitudine" name="latitudine">
+                        <input type="hidden" id="longitudine" name="longitudine">
                         
-                         <select class="form-select" name="relazione" required>
-                        <option value="seria"<?= (isset($utente['relazione']) && $utente['relazione'] == 'seria') ? 'selected' : '' ?>>Relazione seria</option>
-                        <option value="aperta"<?= (isset($utente['relazione']) && $utente['relazione'] == 'aperta') ? 'selected' : '' ?>>Relazione aperta</option>
-                        <option value="amicizia"<?= (isset($utente['relazione']) && $utente['relazione'] == 'amicizia') ? 'selected' : '' ?>>Amicizia</option>
-                    </select>
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold">Età</label>
+                            <input type="number" name="eta" class="form-control" value="<?= htmlspecialchars($utente['eta']) ?>">
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary-action w-100">Salva Modifiche</button>
+
+                    <hr class="my-3">
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold">Genere</label>
+                            <select class="form-select" name="sesso">
+                                <option value="uomo" <?= $utente['sesso'] == 'uomo' ? 'selected' : '' ?>>Uomo</option>
+                                <option value="donna" <?= $utente['sesso'] == 'donna' ? 'selected' : '' ?>>Donna</option>
+                            </select>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold">Partner</label>
+                            <select class="form-select" name="sessoP">
+                                <option value="uomo" <?= $utente['sessoP'] == 'uomo' ? 'selected' : '' ?>>Uomo</option>
+                                <option value="donna" <?= $utente['sessoP'] == 'donna' ? 'selected' : '' ?>>Donna</option>
+                                <option value="entrambi" <?= $utente['sessoP'] == 'entrambi' ? 'selected' : '' ?>>Entrambi</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Tipo di relazione</label>
+                        <select class="form-select shadow-sm" name="relazione" required>
+                            <option value="seria"<?= (isset($utente['relazione']) && $utente['relazione'] == 'seria') ? 'selected' : '' ?>>Relazione seria</option>
+                            <option value="aperta"<?= (isset($utente['relazione']) && $utente['relazione'] == 'aperta') ? 'selected' : '' ?>>Relazione aperta</option>
+                            <option value="amicizia"<?= (isset($utente['relazione']) && $utente['relazione'] == 'amicizia') ? 'selected' : '' ?>>Amicizia</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mb-4 px-2">
+                        <label class="form-label small fw-bold mb-0">Relazione a distanza</label>
+                        <input class="form-check-input" type="checkbox" name="distanza" value="1" <?= $utente['distanza'] == 1 ? 'checked' : '' ?>>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-action text-white w-100 py-2 fw-bold">SALVA MODIFICHE</button>
                 </div>
             </form>
         </div>
@@ -574,26 +435,66 @@ $aggettivi = $stmtAgg->fetch();
 <div class="modal fade" id="visualizzaFoto" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-transparent border-0 position-relative">
-            <div class=" d-flex align-items-center gap-3" style="position: absolute; top: 15px; right: 5px; z-index: 1100;">
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                <form id="rimuoviFoto" action="azioni_modifica.php" method="POST" class="d-inline m-0 p-0" onsubmit="return confirm('Sicuro di voler cancellare questa foto?')">
+            
+            <div class="d-flex align-items-center gap-3" style="position: absolute; top: -50px; right: 0; z-index: 1100;">
+                <form id="rimuoviFoto" action="azioni_modifica.php" method="POST" onsubmit="return confirm('Sicuro di voler cancellare questa foto?')">
                     <input type="hidden" name="azione" value="elimina_foto">
                     <input type="hidden" name="id_foto" id="idFotoEliminare" value="">
-                    <button type="submit" class="btn text-white d-flex align-items-center justify-content-center">
-                        <i class="bi bi-trash fs-5"></i>
-                    </button>  
+                    <button type="submit" class="btn text-white"><i class="bi bi-trash fs-4"></i></button>  
                 </form>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             
-            <div class="modal-body p-0 text-center">
-                <img src="" id="fotoIngrandita" class="img-fluid rounded shadow-lg" style="max-height: 80vh; object-fit: contain;">
+            <div id="carouselModal" class="carousel slide" data-bs-interval="false">
+                <div class="carousel-inner" id="modalCarouselInner"></div>
+                
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselModal" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselModal" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const listaGalleria = <?php echo json_encode($galleria); ?>;
+const modalFoto = document.getElementById('visualizzaFoto');
+const carouselInner = document.getElementById('modalCarouselInner');
+const carouselElement = document.getElementById('carouselModal');
 
+modalFoto.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    const srcCliccato = trigger.getAttribute('data-bs-remote');
+    
+    carouselInner.innerHTML = '';
+
+    // Controlliamo se la foto cliccata è nella galleria
+    const isGalleria = listaGalleria.some(f => f.percorso === srcCliccato);
+
+    if (!isGalleria) {
+        // È la foto profilo: nascondiamo le frecce
+        carouselElement.classList.add('nascondi-frecce');
+        carouselInner.innerHTML = `
+            <div class="carousel-item active">
+                <img src="${srcCliccato}" class="d-block w-100" style="max-height: 80vh; object-fit: contain;">
+            </div>`;
+    } else {
+        // È una foto galleria: mostriamo le frecce
+        carouselElement.classList.remove('nascondi-frecce');
+        listaGalleria.forEach((foto) => {
+            const isActive = (foto.percorso === srcCliccato) ? 'active' : '';
+            carouselInner.innerHTML += `
+                <div class="carousel-item ${isActive}" data-id="${foto.id}">
+                    <img src="${foto.percorso}" class="d-block w-100" style="max-height: 80vh; object-fit: contain;">
+                </div>`;
+        });
+    }
+});
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const modalVisualizza = document.getElementById('visualizzaFoto');
@@ -626,162 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<nav class="navbar fixed-bottom bg-white border-top">
-    <div class="container-fluid">
-        <div class="row text-center w-100">
-            <div class="col">
-                <a href="match.php" class="text-decoration-none text-dark">
-                    <?php include "cupido.php"; ?>
-                </a>
-            </div>
-            <div class="col">
-                <a href="cerca.php" class="text-decoration-none text-dark">
-                    <i class="bi bi-search-heart fs-3" style="color:#8d0c0c;"></i>
-                </a>
-            </div>
-            <div class="col">
-                <a href="chat_completa.php" class="text-decoration-none text-dark">
-                    <i class="bi bi-chat-heart fs-3" style="color:#8d0c0c;"></i>
-                </a>
-            </div>
-            <div class="col">
-                <a href="profilo.php" class="text-decoration-none text-dark">
-                    <i class="bi bi-person-circle fs-3" style="color:#8d0c0c;"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</nav>
-<script>
-    const badge = document.getElementById("badgeNotifiche");
-    const popup = document.getElementById("popupNotifiche");
-    const contenuto = document.getElementById("contenutoNotifiche");
-    let popupAperto = false;
-
-    // Funzione per generare la grafica delle notifiche con il link al profilo
-    function generaHtmlNotifiche(lista) {
-        let html = "";
-        if (!lista || lista.length === 0) {
-            return '<p class="text-muted m-0">Nessuna notifica presente</p>';
-        }
-       
-        lista.forEach(n => {
-            let mit = n.nome + " " + n.cognome;
-            // Se la notifica è vecchia (letto == 1) la rendiamo leggermente opaca
-            let stileLetta = (parseInt(n.letto) === 1) ? 'style="opacity: 0.55;"' : '';
-           
-            // CREAZIONE DEL LINK AL PROFILO: usiamo id_mit per identificare l'utente
-            let linkProfilo = `<a href="profiloUtente.php?id=${n.id_mit}" class="text-decoration-none fw-bold" style="color: #8d0c0c;">${mit}</a>`;
-
-            if (n.tipo === "like") {
-                html += `
-                <div class="mb-2 pb-2 border-bottom d-flex justify-content-between align-items-center" ${stileLetta}>
-                    <span>❤️ <b>${linkProfilo}</b> ti ha messo like</span>
-                    <div class="azione-container">
-                        ${parseInt(n.letto) === 0 ? `
-                        <button onclick="ricambiaLike(this, '${n.id_mit}')" class="btn btn-sm text-white" style="background-color:#8d0c0c; font-size:0.75rem;">
-                            Ricambia
-                        </button>` : '<span class="text-muted" style="font-size:0.75rem;">Letta</span>'}
-                    </div>
-                </div>`;
-            }
-            if (n.tipo === "match") {
-                html += `
-                    <div class="mb-2 pb-2 border-bottom d-flex justify-content-between align-items-center" ${stileLetta}>
-                        <span>❤️‍🔥 Match con <b>${linkProfilo}</b>!</span>
-                        <a href="chat.php?id=${n.id_mit}" class="btn btn-sm btn-primary" style="font-size:0.72rem; padding: 3px 8px;">Chatta 💬</a>
-                    </div>`;
-            }
-            if (n.tipo === "messaggio") {
-                html += `<div class="mb-2 pb-2 border-bottom" ${stileLetta}>💬 Nuovo messaggio da <b>${linkProfilo}</b></div>`;
-            }
-        });
-        return html;
-    }
-
-    // Aggiornamento del badge in background (ogni 5 secondi)
-    function aggiornaNotifiche() {
-        if (popupAperto) return;
-
-        fetch("notifiche.php")
-            .then(r => r.json())
-            .then(data => {
-                const totale = data.like + data.match + data.messaggi;
-                if (totale > 0) {
-                    badge.style.display = "inline-block";
-                    badge.textContent = totale;
-                } else {
-                    badge.style.display = "none";
-                }
-            })
-    }
-    //funzione per ricambiare il like
-    function ricambiaLike(bottone, idMit) {
-        // Disabilitiamo il bottone immediatamente per evitare click doppi/multipli
-        bottone.disabled = true;
-        bottone.textContent = "Attendere...";
-
-        // Eseguiamo la chiamata asincrona ad azione.php
-        fetch(`azione.php?id=${encodeURIComponent(idMit)}&azione=like`)
-            .then(r => {
-                if (!r.ok) throw new Error("Errore di rete");
-                // Gestisci qui se azione.php risponde in JSON o testo semplice.
-                // Assumiamo che l'azione vada a buon fine se il server risponde status 200.
-                return r.text();
-            })
-            .then(() => {
-                // Troviamo il contenitore del bottone cliccato e sostituiamo il contenuto
-                const container = bottone.closest(".azione-container");
-                if (container) {
-                    container.innerHTML = '<span class="text-muted" style="font-size:0.75rem;">Letta</span>';
-                }
-            })
-            .catch(err => {
-                console.error("Errore durante il ricambio del like:", err);
-                alert("Impossibile ricambiare il like in questo momento. Riprova.");
-                bottone.disabled = false;
-                bottone.textContent = "Ricambia";
-            });
-    }
-
-    // Gestione del click sulla campanella
-    document.querySelector(".notifiche-icon").addEventListener("click", function() {
-        fetch("notifiche.php")
-            .then(r => r.json())
-            .then(data => {
-                // Carica l'HTML della lista (comprendente le ultime 20 tra lette e non lette)
-                contenuto.innerHTML = generaHtmlNotifiche(data.lista);
-                popup.style.display = "block";
-                badge.style.display = "none"; // Nasconde graficamente il numero all'apertura
-                popupAperto = true; // Blocca il timer in background
-            })
-    });
-
-    // Chiusura del popup
-    function chiudiPopup() {
-        popup.style.display = "none";
-       
-        badge.style.display = "none";
-        badge.textContent = "0";
-
-        // Invia il segnale al database per marcare tutto come letto
-        fetch("notifiche_lette.php")
-            .then(r => r.json())
-            .then(res => {
-                if(res.success) {
-                    popupAperto = false;
-                   
-                    // Sovrascrive la lista nel popup con quella aggiornata dal server (dove tutto è ora opaco)
-                    contenuto.innerHTML = generaHtmlNotifiche(res.lista);
-                   
-                    aggiornaNotifiche();
-                }
-            })
-    }
-
-    // Inizializzazione timer automatico
-    setInterval(aggiornaNotifiche, 5000);
-    aggiornaNotifiche();
-</script>
+<?php include "fondoPagina.php"; ?>
+<script src="script.js"></script>
 </body>
 </html>
